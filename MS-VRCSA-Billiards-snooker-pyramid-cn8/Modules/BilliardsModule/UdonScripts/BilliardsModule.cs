@@ -1499,7 +1499,7 @@ public class BilliardsModule : UdonSharpBehaviour
         fbMadeFoul = false;
         ballBounced = false;
         numBallsHitCushion = 0;
-        ballhasHitCushion = new bool[16];
+        ballhasHitCushion = new bool[MAX_BALLS];
         ballsPocketedOrig = ballsPocketedLocal;
         jumpShotFoul = false;
         fallOffFoul = false;
