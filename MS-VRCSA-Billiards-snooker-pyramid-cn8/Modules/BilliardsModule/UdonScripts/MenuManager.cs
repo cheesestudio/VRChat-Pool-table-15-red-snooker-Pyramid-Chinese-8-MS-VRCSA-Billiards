@@ -11,7 +11,7 @@ using TMPro;
 [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
 public class MenuManager : UdonSharpBehaviour
 {
-    private readonly uint[] TIMER_VALUES = new uint[] { 0, 60, 45,30, 15 };
+    private readonly byte[] TIMER_VALUES = new byte[] { 0, 60, 45, 30, 15 };
 
     [SerializeField] private GameObject menuStart;
     [SerializeField] private GameObject menuJoinLeave;
@@ -27,7 +27,6 @@ public class MenuManager : UdonSharpBehaviour
     [SerializeField] private TextMeshProUGUI timelimitDisplay;
     [SerializeField] private TextMeshProUGUI tableDisplay;
     [SerializeField] private TextMeshProUGUI physicsDisplay;
-    [SerializeField] private TextMeshProUGUI refereeDisplay;
 
     private BilliardsModule table;
 
@@ -62,7 +61,6 @@ public class MenuManager : UdonSharpBehaviour
         _RefreshToggleSettings();
         _RefreshLobby();
         _RefreshPlayerList();
-        _RefreshRefereeDisplay();
 
         _DisableMenuJoinLeave();
         _DisableLobbyMenu();
@@ -113,7 +111,7 @@ public class MenuManager : UdonSharpBehaviour
 
     public void _RefreshTimer()
     {
-        int index = Array.IndexOf(TIMER_VALUES, table.timerLocal);
+        int index = Array.IndexOf(TIMER_VALUES, (byte)table.timerLocal);
         selectedTimer = index == -1 ? 0 : (uint)index;
         if (index > -1)
         {
@@ -304,13 +302,6 @@ public class MenuManager : UdonSharpBehaviour
             join_Blue.gameObject.SetActive(false);
         else
             join_Blue.gameObject.SetActive(true);
-    }
-    public void _RefreshRefereeDisplay()
-    {
-        if (table.tournamentRefereeLocal != -1)
-            refereeDisplay.text = $"\nTournament Mode ({table.tournamentRefereeLocal})";
-        else
-            refereeDisplay.text = string.Empty;
     }
 
     public void StartButton()

@@ -8,9 +8,6 @@
 using System;
 #endif
 using Metaphira.Modules.CameraOverride;
-#if !EIJIS_ISSUE_FIX
-using Microsoft.SqlServer.Server;
-#endif
 using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
@@ -49,7 +46,6 @@ public class DesktopManager : UdonSharpBehaviour
     private Vector3 initialShotDirection;
     private float initialPower;
     Vector3 initialCursorPosition;
-    float OneOSF;
 
     private Vector3 spin;
     private float jumpAngle;
@@ -91,10 +87,11 @@ public class DesktopManager : UdonSharpBehaviour
     public void _RefreshTable()
     {
         Camera desktopCamera = root.GetComponentInChildren<Camera>();
+        Vector3 campos = desktopCamera.transform.position;
         float SF = table.tableModels[table.tableModelLocal].DesktopUIScaleFactor;
         desktopCamera.orthographicSize = cameraStartScale * SF;
         root.transform.localScale = rootStartScale * SF;
-        OneOSF = 1 / SF;
+        desktopCamera.transform.position = campos; // don't change camera position with it's parent's scale(root)
     }
 
     public void _Tick(uint gameModeLocal)
@@ -172,7 +169,7 @@ public class DesktopManager : UdonSharpBehaviour
 
                         Vector3 localPos = new Vector3(cursor.x, 0, cursor.z);
                         Vector3 worldPos = table.balls[0].transform.parent.TransformPoint(localPos);
-                        Collider[] colliders = Physics.OverlapSphere(worldPos, k_BALL_RADIUS / 4f, 1 << 24);
+                        Collider[] colliders = Physics.OverlapSphere(worldPos, k_BALL_RADIUS / 4f, 1 << 22);
                         foreach (Collider c in colliders)
                         {
                             if (c != null && c.gameObject != null)
@@ -476,9 +473,9 @@ public class DesktopManager : UdonSharpBehaviour
         Vector3 cueGripPos = new Vector3(a, b + dist * Mathf.Sin(jumpAngle), -(c + dist * Mathf.Cos(jumpAngle)));
 
         Quaternion spinRot = Quaternion.AngleAxis(Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg, Vector3.up);
-        Transform transformSurface = (Transform)table.currentPhysicsManager.GetProgramVariable("transform_Surface");
-        cue._GetDesktopMarker().transform.position = transformSurface.TransformPoint(table.ballsP[0] + (spinRot * cueGripPos));
-        cue._GetDesktopMarker().transform.LookAt(transformSurface.TransformPoint(table.ballsP[0] + (spinRot * ballHitPos)));
+        Transform tableSurface = table.tableSurface;
+        cue._GetDesktopMarker().transform.position = tableSurface.TransformPoint(table.ballsP[0] + (spinRot * cueGripPos));
+        cue._GetDesktopMarker().transform.LookAt(tableSurface.TransformPoint(table.ballsP[0] + (spinRot * ballHitPos)));
     }
 
     private void stopRepositioning()

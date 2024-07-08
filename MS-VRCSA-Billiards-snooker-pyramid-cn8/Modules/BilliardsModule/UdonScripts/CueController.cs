@@ -91,8 +91,8 @@ public class CueController : UdonSharpBehaviour
 #else
         int owner = Networking.GetOwner(this.gameObject).playerId;
 #endif
-
-        activeCueSkin = table._CanUseCueSkin(owner, syncedCueSkin) ? syncedCueSkin : 0;
+        //activeCueSkin = table._CanUseCueSkin(owner, syncedCueSkin) ? syncedCueSkin : 0;
+        activeCueSkin = table._CanUseCueSkin(owner, syncedCueSkin);
 
         refreshCueSkin();
         refreshCueScale();

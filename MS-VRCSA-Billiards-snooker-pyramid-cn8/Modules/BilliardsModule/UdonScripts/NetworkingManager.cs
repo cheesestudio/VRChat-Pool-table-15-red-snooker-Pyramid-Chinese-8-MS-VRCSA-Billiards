@@ -16,9 +16,7 @@ public class NetworkingManager : UdonSharpBehaviour
     private const int MAX_BALLS = 16;
 #endif
 
-    // the current packet id - this value should increment monotonically, once per network update
-    [UdonSynced][NonSerialized] public int packetIdSynced;
-
+   
     // players in the game - this field should only be updated by the host, stored in the zeroth position
     [UdonSynced][NonSerialized] public int[] playerIDsSynced = { -1, -1, -1, -1 };
 
@@ -63,9 +61,6 @@ public class NetworkingManager : UdonSharpBehaviour
     // which team won, only used if gameState is 3. (0 is team 0, 1 is team 1, 2 is force reset)
     [UdonSynced][NonSerialized] public byte winningTeamSynced;
 
-    // which team may have won, used during tournaments
-    [UdonSynced][NonSerialized] public byte previewWinningTeamSynced;
-
     // the current game state (0 is no lobby, 1 is lobby created, 2 is game started, 3 is game finished)
     [UdonSynced][NonSerialized] public byte gameStateSynced;
 
@@ -76,7 +71,7 @@ public class NetworkingManager : UdonSharpBehaviour
     [UdonSynced][NonSerialized] public byte gameModeSynced;
 
     // the timer for the current game in seconds
-    [UdonSynced][NonSerialized] public uint timerSynced;
+    [UdonSynced][NonSerialized] public byte timerSynced;
 
     // table being used
     [UdonSynced][NonSerialized] public byte tableModelSynced;
@@ -102,16 +97,11 @@ public class NetworkingManager : UdonSharpBehaviour
     // whether this update is urgent and should interrupt any local simulations (0 is no, 1 is interrupt, 2 is interrupt and halt)
     [UdonSynced][NonSerialized] public byte isUrgentSynced;
 
-    // the current tournament referee
-    [UdonSynced][NonSerialized] public int tournamentRefereeSynced = -1;
-
-    // 6RedSnooker: currently a turn where a color should be pocketed
+    // 6RedSnooker: currently a turn where a color should be pocketed // Also re-used in 8ball and 9ball to track if it's the break
     [UdonSynced][NonSerialized] public bool colorTurnSynced;
 
     [SerializeField] private PlayerSlot playerSlot;
     private BilliardsModule table;
-
-    private int lastProcessedPacketId = 0;
 
     private bool hasBufferedMessages = false;
 
@@ -133,6 +123,7 @@ public class NetworkingManager : UdonSharpBehaviour
         }
     }
 
+    // called by the PlayerSlot script
     public void _OnPlayerSlotChanged(PlayerSlot slot)
     {
         if (gameStateSynced == 0) return; // we don't process player registrations if the lobby isn't open
@@ -177,6 +168,7 @@ public class NetworkingManager : UdonSharpBehaviour
         {
             if (numPlayers == 0)
             {
+                winningTeamSynced = 0; // prevent it thinking it was a reset
                 if (!table.gameLive)
                 {
                     gameStateSynced = 0;
@@ -209,8 +201,6 @@ public class NetworkingManager : UdonSharpBehaviour
     {
         delayedDeserialization = false;
 
-        // if (lastProcessedPacketId == packetIdSynced) return;
-        // if (!hasLocalUpdate && !hasDeferredUpdate) return;
         if (table.localPlayerDistant)
         {
             delayedDeserialization = true;
@@ -227,31 +217,8 @@ public class NetworkingManager : UdonSharpBehaviour
             else if (isUrgentSynced == 2) table.isLocalSimulationRunning = false;
         }
 
-        lastProcessedPacketId = packetIdSynced;
-
-        if (gameStateSynced == 0 || gameStateSynced == 3)
-        {
-        }
-        else if (gameStateSynced == 1)
-        {
-        }
-        else if (gameStateSynced == 2)
-        {
-            int[] playerNames = new int[MAX_PLAYERS + 1];
-            Array.Copy(playerIDsSynced, playerNames, MAX_PLAYERS);
-            playerNames[MAX_PLAYERS] = tournamentRefereeSynced;
-        }
-
         table._OnRemoteDeserialization();
-
-        // processRemoteState();
-    }
-
-    private void processRemoteState()
-    {
-        // hasLocalUpdate = false;
-        // hasDeferredUpdate = false;
-    }
+ }
 
     public void _OnGameWin(uint winnerId)
     {
@@ -264,18 +231,10 @@ public class NetworkingManager : UdonSharpBehaviour
         bufferMessages(false);
     }
 
-    public void _OnPreviewWinner(uint winnerId)
-    {
-        previewWinningTeamSynced = (byte)winnerId;
-
-        bufferMessages(false);
-    }
-
     public void _OnGameReset()
     {
-        gameStateSynced = 3;
+        gameStateSynced = 0;
         winningTeamSynced = 2;
-        colorTurnSynced = false;
         for (int i = 0; i < MAX_PLAYERS; i++)
         {
             playerIDsSynced[i] = -1;
@@ -314,7 +273,6 @@ public class NetworkingManager : UdonSharpBehaviour
 #endif
         {
             fourBallCueBallSynced = 0;
-            isTableOpenSynced = true;
         }
 #if EIJIS_CUEBALLSWAP
         calledBallsSynced = 0;
@@ -348,7 +306,12 @@ public class NetworkingManager : UdonSharpBehaviour
         if (!table.isSnooker6Red)
 #endif
         {
-            foulStateSynced = 2;
+            if (objBlocked)
+            {
+                foulStateSynced = 1;
+            }
+            else
+                foulStateSynced = 2;
         }
         else
         {
@@ -479,13 +442,20 @@ public class NetworkingManager : UdonSharpBehaviour
         {
             foulStateSynced = 1;
         }
+        if (table.is8Ball || table.is9Ball)
+        {
+            colorTurnSynced = true;// re-used to track if it's the break
+        }
+        else
+        {
+            colorTurnSynced = false;
+        }
         turnStateSynced = 0;
         isTableOpenSynced = true;
         teamIdSynced = 0;
         fourBallCueBallSynced = 0;
         cueBallVSynced = Vector3.zero;
         cueBallWSynced = Vector3.zero;
-        previewWinningTeamSynced = 2;
         timerStartSynced = Networking.GetServerTimeInMilliseconds();
 #if EIJIS_MANY_BALLS
         Array.Copy(ballPositions, ballsPSynced, BilliardsModule.MAX_BALLS);
@@ -605,7 +575,7 @@ public class NetworkingManager : UdonSharpBehaviour
         bufferMessages(false);
     }
 
-    public void _OnTimerChanged(uint newTimer)
+    public void _OnTimerChanged(byte newTimer)
     {
         timerSynced = newTimer;
 
@@ -694,7 +664,7 @@ public class NetworkingManager : UdonSharpBehaviour
     (
         int stateIdLocal,
         Vector3[] newBallsP, uint ballsPocketed, int[] newScores, uint gameMode, uint teamId, uint foulState, bool isTableOpen, uint teamColor, uint fourBallCueBall,
-        byte turnStateLocal, Vector3 cueBallV, Vector3 cueBallW, byte previewWinningTeam, bool colorTurn
+         byte turnStateLocal, Vector3 cueBallV, Vector3 cueBallW, bool colorTurn
     )
     {
         stateIdSynced = stateIdLocal;
@@ -716,18 +686,16 @@ public class NetworkingManager : UdonSharpBehaviour
         cueBallWSynced = cueBallW;
         fourBallCueBallSynced = (byte)fourBallCueBall;
         timerStartSynced = Networking.GetServerTimeInMilliseconds();
-        previewWinningTeamSynced = previewWinningTeam;
         colorTurnSynced = colorTurn;
 
         bufferMessages(true);
         // OnDeserialization(); // jank! force deserialization so the practice manager knows to ignore it
     }
 
-    public void _OnGlobalSettingsChanged(int newTournamentReferee, byte newPhysics, byte newTableModel)
+    public void _OnGlobalSettingsChanged(byte newPhysics, byte newTableModel)
     {
         if (!Networking.LocalPlayer.IsOwner(gameObject)) return;
 
-        tournamentRefereeSynced = newTournamentReferee;
         physicsSynced = newPhysics;
         tableModelSynced = newTableModel;
 
@@ -757,7 +725,6 @@ public class NetworkingManager : UdonSharpBehaviour
         if (!hasBufferedMessages) return;
 
         hasBufferedMessages = false;
-        packetIdSynced++;
 
 #if EIJIS_ISSUE_FIX
         VRCPlayerApi localPlayer = Networking.LocalPlayer; 
@@ -934,7 +901,7 @@ public class NetworkingManager : UdonSharpBehaviour
         teamColorSynced = gameState[0x71];
         turnStateSynced = gameState[0x72];
         gameModeSynced = gameState[0x73];
-        timerSynced = decodeU16(gameState, 0x74);
+        timerSynced = gameState[0x74];
         teamsSynced = gameState[0x76] != 0;
         fourBallScoresSynced[0] = gameState[0x77];
         fourBallScoresSynced[1] = gameState[0x78];
@@ -961,7 +928,7 @@ public class NetworkingManager : UdonSharpBehaviour
         gameState[0x71] = teamColorSynced;
         gameState[0x72] = turnStateSynced;
         gameState[0x73] = gameModeSynced;
-        encodeU16(gameState, 0x74, (ushort)timerSynced);
+        gameState[0x73] = timerSynced;
         gameState[0x76] = (byte)(teamsSynced ? 1 : 0);
         gameState[0x77] = (byte)fourBallScoresSynced[0];
         gameState[0x78] = (byte)fourBallScoresSynced[1];
@@ -1030,6 +997,32 @@ public class NetworkingManager : UdonSharpBehaviour
     {
         if (!player.isLocal) return;
         validatePlayers();
+
+        // If Owner left while sim was running, make sure new owner runs _TriggerSimulationEnded(); 
+        VRCPlayerApi simOwner = VRCPlayerApi.GetPlayerById(table.simulationOwnerID);
+        if (table.isLocalSimulationRunning || table.waitingForUpdate || delayedDeserialization)
+        {
+            if (delayedDeserialization)
+            {
+                // The person who took ownership had the table LoD'd
+                table._LogInfo("Simulation changed ownership: New owner is in LoD mode, simulation end may be delayed");
+                table.checkDistanceLoD(); // Disables the LoD if owner & game is on
+                OnDeserialization(); // this will run the last recieved simulation
+            }
+            if (!Utilities.IsValid(simOwner) || simOwner.playerId == table.simulationOwnerID)
+            {
+                table.isLocalSimulationOurs = true;
+                if (!table.isLocalSimulationRunning)
+                {
+                    table._TriggerSimulationEnded(false, true);
+                    table._LogInfo("Simulation changed ownership: Owner probably lagged out during sim");
+                }
+                else
+                {
+                    table._LogInfo("Simulation changed ownership: Owner quit during sim");
+                }
+            }
+        }
     }
 
     public override void OnPlayerLeft(VRCPlayerApi player)

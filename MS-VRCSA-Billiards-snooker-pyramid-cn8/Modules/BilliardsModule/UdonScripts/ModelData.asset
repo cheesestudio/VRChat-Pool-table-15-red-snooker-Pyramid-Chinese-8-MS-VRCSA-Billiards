@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: ModelData
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 785ff537a7872f641826e964f609213c,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 5d30b0380cc913c4ca9bff3be731f969,
     type: 2}
   udonAssembly: 
   assemblyError: 
@@ -2391,13 +2391,13 @@ MonoBehaviour:
       Data: 
     - Name: $k
       Entry: 1
-      Data: blackSpot
+      Data: semiCircleRadius
     - Name: $v
       Entry: 7
       Data: 140|UdonSharp.Compiler.FieldDefinition, UdonSharp.Editor
     - Name: <Name>k__BackingField
       Entry: 1
-      Data: blackSpot
+      Data: semiCircleRadius
     - Name: <UserType>k__BackingField
       Entry: 9
       Data: 10
@@ -2446,13 +2446,13 @@ MonoBehaviour:
       Data: 
     - Name: $k
       Entry: 1
-      Data: semiCircleRadius
+      Data: pinkSpot
     - Name: $v
       Entry: 7
       Data: 143|UdonSharp.Compiler.FieldDefinition, UdonSharp.Editor
     - Name: <Name>k__BackingField
       Entry: 1
-      Data: semiCircleRadius
+      Data: pinkSpot
     - Name: <UserType>k__BackingField
       Entry: 9
       Data: 10
@@ -2501,13 +2501,13 @@ MonoBehaviour:
       Data: 
     - Name: $k
       Entry: 1
-      Data: pinkSpot
+      Data: blackSpot
     - Name: $v
       Entry: 7
       Data: 146|UdonSharp.Compiler.FieldDefinition, UdonSharp.Editor
     - Name: <Name>k__BackingField
       Entry: 1
-      Data: pinkSpot
+      Data: blackSpot
     - Name: <UserType>k__BackingField
       Entry: 9
       Data: 10
