@@ -89,7 +89,7 @@ public class NetworkingManager : UdonSharpBehaviour
     [UdonSynced][NonSerialized] public bool noLockingSynced;
 
     // scores if game state is 2 or 3 (4ball)
-    [UdonSynced][NonSerialized] public int[] fourBallScoresSynced = new int[2];
+    [UdonSynced][NonSerialized] public byte[] fourBallScoresSynced = new byte[2];
 
     // the currently active four ball cue ball (0 is white, 1 is yellow) // also used in Snooker to track how many fouls/repeated shots have occurred in a row
     [UdonSynced][NonSerialized] public byte fourBallCueBallSynced;
@@ -243,7 +243,7 @@ public class NetworkingManager : UdonSharpBehaviour
         bufferMessages(true);
     }
 
-    public void _OnSimulationEnded(Vector3[] ballsP, uint ballsPocketed, int[] fbScores, bool colorTurnLocal)
+    public void _OnSimulationEnded(Vector3[] ballsP, uint ballsPocketed, byte[] fbScores, bool colorTurnLocal)
     {
 #if EIJIS_MANY_BALLS
         Array.Copy(ballsP, ballsPSynced, BilliardsModule.MAX_BALLS);
@@ -663,7 +663,7 @@ public class NetworkingManager : UdonSharpBehaviour
     public void _ForceLoadFromState
     (
         int stateIdLocal,
-        Vector3[] newBallsP, uint ballsPocketed, int[] newScores, uint gameMode, uint teamId, uint foulState, bool isTableOpen, uint teamColor, uint fourBallCueBall,
+           Vector3[] newBallsP, uint ballsPocketed, byte[] newScores, uint gameMode, uint teamId, uint foulState, bool isTableOpen, uint teamColor, uint fourBallCueBall,
          byte turnStateLocal, Vector3 cueBallV, Vector3 cueBallW, bool colorTurn
     )
     {
@@ -762,6 +762,22 @@ public class NetworkingManager : UdonSharpBehaviour
         return (ushort)(data[pos] | (((uint)data[pos + 1]) << 8));
     }
 
+    private void encode32(byte[] data, int pos, uint v)
+    {
+        data[pos] = (byte)(v & 0xff);                // Byte 0 (LSB)
+        data[pos + 1] = (byte)((v >> 8) & 0xff);     // Byte 1
+        data[pos + 2] = (byte)((v >> 16) & 0xff);    // Byte 2
+        data[pos + 3] = (byte)((v >> 24) & 0xff);    // Byte 3 (MSB)
+    }
+    private uint decode32(byte[] data, int pos)
+    {
+        uint result = (uint)(data[pos])
+                    | ((uint)(data[pos + 1]) << 8)
+                    | ((uint)(data[pos + 2]) << 16)
+                    | ((uint)(data[pos + 3]) << 24);
+        return result;
+    }
+
     // 6 char string from Vector3. Encodes floats in: [ -range, range ] to 0-65535
     private void encodeVec3Full(byte[] data, int pos, Vector3 vec, float range)
     {
@@ -789,6 +805,35 @@ public class NetworkingManager : UdonSharpBehaviour
         return ((decodeU16(data, addr) - I16_MAXf) / I16_MAXf) * range;
     }
 
+    private void floatToBytes(byte[] data, int pos, float v)
+    {
+        byte[] bytes = BitConverter.GetBytes(v);
+        Array.Copy(bytes, 0, data, pos, 4);
+    }
+
+    public float bytesToFloat(byte[] data, int pos)
+    {
+        byte[] floatBytes = new byte[4];
+        Array.Copy(data, pos, floatBytes, 0, 4);
+        return BitConverter.ToSingle(floatBytes, 0);
+    }
+
+    private void Vec3ToBytes(byte[] data, int pos, Vector3 vec)
+    {
+        floatToBytes(data, pos, vec.x);
+        floatToBytes(data, pos + 4, vec.y);
+        floatToBytes(data, pos + 8, vec.z);
+    }
+
+    private Vector3 bytesToVec3(byte[] data, int start)
+    {
+        float x = bytesToFloat(data, start);
+        float y = bytesToFloat(data, start + 4);
+        float z = bytesToFloat(data, start + 8);
+
+        return new Vector3(x, y, z);
+    }
+
     private Color decodeColor(byte[] data, int addr)
     {
         ushort _r = decodeU16(data, addr);
@@ -807,7 +852,11 @@ public class NetworkingManager : UdonSharpBehaviour
 
     public void _OnLoadGameState(string gameStateStr)
     {
-        if (gameStateStr.StartsWith("v2:"))
+        if (gameStateStr.StartsWith("v3:"))
+        {
+            onLoadGameStateV3(gameStateStr.Substring(3));
+        }
+        else if (gameStateStr.StartsWith("v2:"))
         {
             onLoadGameStateV2(gameStateStr.Substring(3));
         }
@@ -820,7 +869,7 @@ public class NetworkingManager : UdonSharpBehaviour
             onLoadGameStateV1(gameStateStr);
         }
     }
-    //unused? 
+ 
     private void onLoadGameStateV1(string gameStateStr)
     {
         if (!isValidBase64(gameStateStr)) return;
@@ -866,8 +915,8 @@ public class NetworkingManager : UdonSharpBehaviour
 
         if (gameModeSynced == 2)
         {
-            fourBallScoresSynced[0] = (int)(spec & 0x0fu);
-            fourBallScoresSynced[1] = (int)((spec & 0x0fu) >> 4);
+            fourBallScoresSynced[0] = (byte)(spec & 0x0fu);
+            fourBallScoresSynced[1] = (byte)((spec & 0x0fu) >> 4);
             if ((spec & 0x100u) == 0x100u) gameModeSynced = 3;
         }
         else
@@ -901,7 +950,7 @@ public class NetworkingManager : UdonSharpBehaviour
         teamColorSynced = gameState[0x71];
         turnStateSynced = gameState[0x72];
         gameModeSynced = gameState[0x73];
-        timerSynced = gameState[0x74];
+        timerSynced = gameState[0x75]; // timer was recently changed to a byte, that's why this skips 1
         teamsSynced = gameState[0x76] != 0;
         fourBallScoresSynced[0] = gameState[0x77];
         fourBallScoresSynced[1] = gameState[0x78];
@@ -909,33 +958,107 @@ public class NetworkingManager : UdonSharpBehaviour
         colorTurnSynced = gameState[0x7a] != 0;
 
         bufferMessages(true);
+       
+    }
+
+    // V3 no longer encodes floats to shorts, as the string isn't synced it doesn't matter how long it is
+    // ensures perfect replication of shots
+    //uint gameStateLength = 230u;
+    uint gameStateLength = 442u;
+    private void onLoadGameStateV3(string gameStateStr)
+    {
+        if (!isValidBase64(gameStateStr)) return;
+
+        byte[] gameState = Convert.FromBase64String(gameStateStr);
+        if (gameState.Length != gameStateLength) return;
+
+        stateIdSynced++;
+
+        int encodePos = 0; // Add the size of the loaded type in bytes after loading
+        //for (int i = 0; i < 16; i++)
+        for (int i = 0; i < 32; i++) //for snooker
+        {
+            ballsPSynced[i] = bytesToVec3(gameState, encodePos);
+            encodePos += 12;
+        }
+        cueBallVSynced = bytesToVec3(gameState, encodePos);
+        encodePos += 12;
+        cueBallWSynced = bytesToVec3(gameState, encodePos);
+        encodePos += 12;
+
+        ballsPocketedSynced = decode32(gameState, encodePos);
+        encodePos += 2;
+        teamIdSynced = gameState[encodePos];
+        encodePos += 1;
+        foulStateSynced = gameState[encodePos];
+        encodePos += 1;
+        isTableOpenSynced = gameState[encodePos] != 0;
+        encodePos += 1;
+        teamColorSynced = gameState[encodePos];
+        encodePos += 1;
+        turnStateSynced = gameState[encodePos];
+        encodePos += 1;
+        gameModeSynced = gameState[encodePos];
+        encodePos += 1;
+        timerSynced = gameState[encodePos];
+        encodePos += 1;
+        teamsSynced = gameState[encodePos] != 0;
+        encodePos += 1;
+        fourBallScoresSynced[0] = gameState[encodePos];
+        encodePos += 1;
+        fourBallScoresSynced[1] = gameState[encodePos];
+        encodePos += 1;
+        fourBallCueBallSynced = gameState[encodePos];
+        encodePos += 1;
+        colorTurnSynced = gameState[encodePos] != 0;
+        bufferMessages(true);
     }
 
     public string _EncodeGameState()
     {
-        byte[] gameState = new byte[0x7b];
-        for (int i = 0; i < 16; i++)
+        byte[] gameState = new byte[gameStateLength];
+        int encodePos = 0; // Add the size of the recorded type in bytes after recording
+        //for (int i = 0; i < 16; i++)
+        for (int i = 0; i < 32; i++) //for snooker
         {
-            encodeVec3Full(gameState, i * 6, ballsPSynced[i], 2.5f);
+            Vec3ToBytes(gameState, encodePos, ballsPSynced[i]);
+            encodePos += 12;
         }
-        encodeVec3Full(gameState, 0x60, cueBallVSynced, 50.0f);
-        encodeVec3Full(gameState, 0x66, cueBallWSynced, 500.0f);
+        Vec3ToBytes(gameState, encodePos, cueBallVSynced);
+        encodePos += 12;
+        Vec3ToBytes(gameState, encodePos, cueBallWSynced);
+        encodePos += 12;
 
-        encodeU16(gameState, 0x6C, (ushort)(ballsPocketedSynced & 0xFFFFu));
-        gameState[0x6E] = teamIdSynced;
-        gameState[0x6F] = foulStateSynced;
-        gameState[0x70] = (byte)(isTableOpenSynced ? 1 : 0);
-        gameState[0x71] = teamColorSynced;
-        gameState[0x72] = turnStateSynced;
-        gameState[0x73] = gameModeSynced;
-        gameState[0x73] = timerSynced;
-        gameState[0x76] = (byte)(teamsSynced ? 1 : 0);
-        gameState[0x77] = (byte)fourBallScoresSynced[0];
-        gameState[0x78] = (byte)fourBallScoresSynced[1];
-        gameState[0x79] = fourBallCueBallSynced;
-        gameState[0x7a] = (byte)(colorTurnSynced ? 1 : 0);
+        encode32(gameState, encodePos, (ushort)(ballsPocketedSynced & 0xFFFFu));
+        encodePos += 2;
+        gameState[encodePos] = teamIdSynced;
+        encodePos += 1;
+        gameState[encodePos] = foulStateSynced;
+        encodePos += 1;
+        gameState[encodePos] = (byte)(isTableOpenSynced ? 1 : 0);
+        encodePos += 1;
+        gameState[encodePos] = teamColorSynced;
+        encodePos += 1;
+        gameState[encodePos] = turnStateSynced;
+        encodePos += 1;
+        gameState[encodePos] = gameModeSynced;
+        encodePos += 1;
+        gameState[encodePos] = timerSynced;
+        encodePos += 1;
+        gameState[encodePos] = (byte)(teamsSynced ? 1 : 0);
+        encodePos += 1;
+        gameState[encodePos] = fourBallScoresSynced[0];
+        encodePos += 1;
+        gameState[encodePos] = fourBallScoresSynced[1];
+        encodePos += 1;
+        gameState[encodePos] = fourBallCueBallSynced;
+        encodePos += 1;
+        gameState[encodePos] = (byte)(colorTurnSynced ? 1 : 0);
 
-        return "v2:" + Convert.ToBase64String(gameState, Base64FormattingOptions.None);
+        // find gameStateLength
+         Debug.Log("gameStateLength = " + (encodePos + 1));
+
+        return "v3:" + Convert.ToBase64String(gameState, Base64FormattingOptions.None);
     }
 
     // because udon won't let us try/catch

@@ -21,7 +21,7 @@ public class TableHook : UdonSharpBehaviour
         outCanUse = 0;
         //maxRotation = 120;
         isRotating = maxRotation;
-
+        keepRotating = false;
         //BilliardsModule[] table =UnityEngine.Object.FindObjectsOfType<BilliardsModule>();
         renderer = this.transform.Find("body/render").GetComponent<Renderer>();
     }
@@ -31,6 +31,12 @@ public class TableHook : UdonSharpBehaviour
 
     }
 
+    public void _ChangeKeepRotating()
+    { 
+        keepRotating = !keepRotating;
+        //Debug.Log("rotating changed");
+        //Debug.Log(keepRotating);
+    }
     private void ChangeMaterial()
     {
         if (table != null)
@@ -44,7 +50,7 @@ public class TableHook : UdonSharpBehaviour
     }
     void Update()
     {
-        if (isRotating < maxRotation)
+        if (isRotating < maxRotation || keepRotating)
         {
             renderer.transform.Rotate(new Vector3(1, 0.05f, 0.05f), Mathf.Clamp(maxRotation-isRotating,0,3), Space.Self);
             isRotating++;
@@ -94,6 +100,22 @@ public class TableHook : UdonSharpBehaviour
     public void _Cue7()
     {
         outCanUse = 7;
+        ChangeMaterial();
+    }
+    public void _Cue8()
+    {
+        outCanUse = 8;
+        ChangeMaterial();
+    }
+    public void _Cue9()
+    {
+        outCanUse = 9;
+        ChangeMaterial();
+    }
+
+    public void _Cue10()
+    {
+        outCanUse = 10;
         ChangeMaterial();
     }
 }

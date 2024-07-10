@@ -8,7 +8,7 @@ public class ColorNameMag : UdonSharpBehaviour
 {
 
     //debug////
-    private String TEST1 = "|WangQAQ|1|"; 
+   // private String TEST1 = "|WangQAQ|1|"; 
     //debug////
 
     [HideInInspector] public String inOwner;

@@ -29669,6 +29669,7 @@ MonoBehaviour:
   - {fileID: 2800000, guid: 668a24861c9c67844941206078535f2e, type: 3}
   - {fileID: 2800000, guid: 512ff4f5e53ce264e80d4acbdd5c9ee4, type: 3}
   - {fileID: 2800000, guid: 4b456cb5b2d5f244fa8115677f271e78, type: 3}
+  - {fileID: 2800000, guid: bdccfeaba44289445acfca28d82a6744, type: 3}
   tableSkinHook: {fileID: 0}
   cueSkinHook: {fileID: 0}
   nameColorHook: {fileID: 1381732936083274196}
