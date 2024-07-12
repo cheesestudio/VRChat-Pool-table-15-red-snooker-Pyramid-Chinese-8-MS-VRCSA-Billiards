@@ -34,6 +34,7 @@ public class GraphicsManager : UdonSharpBehaviour
     [SerializeField] MeshRenderer[] cueSecondaryGripRenderers;
 
     [Header("Textures")]
+    [SerializeField] bool usColors = true;
     [SerializeField] Texture usColorTexture;
     [SerializeField] Color[] usColorArr;
 
@@ -71,7 +72,6 @@ public class GraphicsManager : UdonSharpBehaviour
     private GameObject scorecard_info;
     private Color[] scorecardColors = new Color[15];
 
-    private bool usColors=true;
     private bool shadowsDisabled;
 
     private GameObject[] balls;
@@ -798,6 +798,7 @@ int uniform_cue_colour;
             balls[15].GetComponent<MeshFilter>().sharedMesh = meshOverrideRegular[3];
 #endif
         }
+
         _ShowBalls();
     }
 
@@ -1076,7 +1077,7 @@ int uniform_cue_colour;
                 }
                 else
                 {
-                    scorecardColors[7] = Color.black;
+                    scorecardColors[7] = Color.white * 0.1f;
                 }
             }
             scorecard.SetInt("_LeftScore", counter0[0]);

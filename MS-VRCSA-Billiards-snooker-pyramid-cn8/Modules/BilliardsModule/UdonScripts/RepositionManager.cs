@@ -41,6 +41,7 @@ public class RepositionManager : UdonSharpBehaviour
     public void _Tick()
     {
         if (repositionCount == 0) return;
+
         float tableWidth = table.k_TABLE_WIDTH;
         float tableHeight = table.k_TABLE_HEIGHT;
         float k_BALL_RADIUS = table.k_BALL_RADIUS;
@@ -49,7 +50,6 @@ public class RepositionManager : UdonSharpBehaviour
         {
             if (!repositioning[i]) continue;
             if (i > 0 && !table.isPracticeMode) continue;
-
 
             GameObject ball = table.balls[i];
             Transform pickupTransform = ball.transform.GetChild(0);

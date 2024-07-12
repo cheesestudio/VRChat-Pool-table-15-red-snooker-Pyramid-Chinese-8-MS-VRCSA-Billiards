@@ -8,8 +8,9 @@ using TMPro;
 [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
 public class TableHook : UdonSharpBehaviour
 {
-
-    [HideInInspector] public int outCanUse = 0;
+    [HideInInspector] public int inOwner;
+    [HideInInspector] public int outCanUse;
+    private int outCanUseTmp = 0;
     [SerializeField] private BilliardsModule[] table;
     private int TableColor = 0;
     public bool keepRotating = false;
@@ -19,6 +20,7 @@ public class TableHook : UdonSharpBehaviour
     void Start()
     {
         outCanUse = 0;
+        outCanUseTmp = 0;
         //maxRotation = 120;
         isRotating = maxRotation;
         keepRotating = false;
@@ -28,7 +30,17 @@ public class TableHook : UdonSharpBehaviour
 
     public void _CanUseCueSkin()
     {
+        //VRCPlayerApi ownerPlayer = Networking.LocalPlayer;
+        //if (ReferenceEquals(null, ownerPlayer))
+        //{
+        //    return;
+        //}
+        //int owner = ownerPlayer.playerId;
 
+        //if (owner == inOwner)
+        //{
+        //    outCanUse = outCanUseTmp;
+        //}
     }
 
     public void _ChangeKeepRotating()
@@ -43,7 +55,7 @@ public class TableHook : UdonSharpBehaviour
         {
             for (int i = 0; i < table.Length; i++)
             {
-                renderer.materials[1].SetTexture("_MainTex", table[i].cueSkins[outCanUse]);
+                renderer.materials[1].SetTexture("_MainTex", table[i].cueSkins[outCanUseTmp]);
             }
         }
         isRotating = 0;
@@ -60,62 +72,62 @@ public class TableHook : UdonSharpBehaviour
       
     public void _Cue0()
     {
-        outCanUse = 0;
+        outCanUseTmp = 0;
         ChangeMaterial();
     }
 
     public void _Cue1()
     {
-        outCanUse = 1;
+        outCanUseTmp = 1;
         ChangeMaterial();
     }
     public void _Cue2()
     {
-        outCanUse = 2;
+        outCanUseTmp = 2;
         ChangeMaterial();
     }
 
     public void _Cue3()
     {
-        outCanUse = 3;
+        outCanUseTmp = 3;
         ChangeMaterial();
     }
     public void _Cue4()
     {
-        outCanUse = 4;
+        outCanUseTmp = 4;
         ChangeMaterial();
     }
 
     public void _Cue5()
     {
-        outCanUse = 5;
+        outCanUseTmp = 5;
         ChangeMaterial();
     }
     public void _Cue6()
     {
-        outCanUse = 6;
+        outCanUseTmp = 6;
         ChangeMaterial();
     }
 
     public void _Cue7()
     {
-        outCanUse = 7;
+        outCanUseTmp = 7;
         ChangeMaterial();
     }
     public void _Cue8()
     {
-        outCanUse = 8;
+        outCanUseTmp = 8;
         ChangeMaterial();
     }
     public void _Cue9()
     {
-        outCanUse = 9;
+        outCanUseTmp = 9;
         ChangeMaterial();
     }
 
     public void _Cue10()
     {
-        outCanUse = 10;
+        outCanUseTmp = 10;
         ChangeMaterial();
     }
 }

@@ -67,6 +67,8 @@ public class StandardPhysicsManager : UdonSharpBehaviour
     float k_CUSHION_RADIUS;
     private Vector3 k_vE;
     private Vector3 k_vF;
+    [Tooltip("Clamp the cue-ball collision point to center + Radius*this (Limits max applyable spin, as miss-cue isn't possible)")]
+    public float CueMaxHitRadius = 0.9f;
 
     private bool jumpShotFlewOver, cueBallHasCollided;
 
@@ -197,8 +199,8 @@ public class StandardPhysicsManager : UdonSharpBehaviour
                     {
                         table.guideline.SetActive(true);
                         table.devhit.SetActive(true);
+                        table.guideline2.SetActive(true);
                     }
-                    table.devhit.transform.localPosition = RaySphere_output;
                     if (table.markerObj.activeSelf) { table.markerObj.SetActive(false); }
                     Vector3 q = transform_Surface.InverseTransformDirection(cuetip.transform.forward);  // direction of cue in surface space
                     Vector3 o = balls_P[0];
@@ -209,7 +211,16 @@ public class StandardPhysicsManager : UdonSharpBehaviour
 
                     Plane jkPlane = new Plane(i, o);
 
-                    Vector3 Q = RaySphere_output; // point of impact in surface space
+                    Vector3 Q = RaySphere_output;
+                    // Clamp the increase in spin from hitting the ball further from the center by moving the hit point towards the center
+                    Vector3 Qflat = Vector3.ProjectOnPlane(Q - o, q);
+                    float distFromCenter = Qflat.magnitude / k_BALL_RADIUS;
+                    if (distFromCenter > CueMaxHitRadius)
+                    {
+                        _phy_ray_sphere((o + Qflat.normalized * k_BALL_RADIUS * CueMaxHitRadius) - q * k_BALL_DIAMETRE, q, o);
+                        Q = RaySphere_output;
+                    }
+                    table.devhit.transform.localPosition = Q;
 
                     float a = jkPlane.GetDistanceToPoint(Q);
                     float b = Q.y - o.y;
@@ -263,12 +274,15 @@ public class StandardPhysicsManager : UdonSharpBehaviour
                     // Update the prediction line direction
                     table.guideline.transform.localPosition = balls_P[0];
                     table.guideline.transform.localEulerAngles = new Vector3(0.0f, -cue_fdir * Mathf.Rad2Deg, 0.0f);
+                    table.guideline2.transform.localPosition = balls_P[0];
+                    table.guideline2.transform.rotation = Quaternion.Euler(new Vector3(0.0f, cuetip.transform.eulerAngles.y - 90, 0.0f));
                 }
                 else
                 {
                     if (!table.markerObj.activeSelf && table.isReposition) { table.markerObj.SetActive(true); }
                     table.devhit.SetActive(false);
                     table.guideline.SetActive(false);
+                    table.guideline2.SetActive(false);
                 }
             }
         }
@@ -982,7 +996,6 @@ public class StandardPhysicsManager : UdonSharpBehaviour
         k_vE = table.k_vE;
         k_vF = table.k_vF;
 
-
         Collider[] collider = table.GetComponentsInChildren<Collider>();
         for (int i = 0; i < collider.Length; i++)
         {
@@ -1063,6 +1076,7 @@ public class StandardPhysicsManager : UdonSharpBehaviour
         // also makes table width and height actual equal the playable space on the table
         // k_pM is only used for drawing lines, and this
         k_pM = k_vA + k_vA_vD_normal * k_CUSHION_RADIUS;
+
         float sideXdifA = k_vA.x - k_pM.x;
         float sideXdifD = k_vD.x - k_pM.x;
         float sideXdifN = k_pN.x - k_pM.x;
@@ -1582,7 +1596,15 @@ public class StandardPhysicsManager : UdonSharpBehaviour
 
         Plane jkPlane = new Plane(i, o);
 
-        Vector3 Q = RaySphere_output; // point of impact in surface space
+        Vector3 Q = RaySphere_output;
+        // Clamp the increase in spin from hitting the ball further from the center by moving the hit point towards the center
+        Vector3 Qflat = Vector3.ProjectOnPlane(Q - o, q);
+        float distFromCenter = Qflat.magnitude / k_BALL_RADIUS;
+        if (distFromCenter > CueMaxHitRadius)
+        {
+            _phy_ray_sphere((o + Qflat.normalized * k_BALL_RADIUS * CueMaxHitRadius) - q * k_BALL_DIAMETRE, q, o);
+            Q = RaySphere_output;
+        }
 
         float a = jkPlane.GetDistanceToPoint(Q);
         float b = Q.y - o.y;

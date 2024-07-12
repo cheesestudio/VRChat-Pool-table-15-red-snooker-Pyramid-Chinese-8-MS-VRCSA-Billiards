@@ -222,10 +222,12 @@ public class BilliardsModule : UdonSharpBehaviour
     // GameObjects
     [SerializeField] public GameObject[] balls;
     [SerializeField] public GameObject guideline;
+    [SerializeField] public GameObject guideline2;
     [SerializeField] public GameObject devhit;
     [SerializeField] public GameObject markerObj;
     [SerializeField] public GameObject marker9ball;
     [NonSerialized] public Transform tableSurface;
+
     // Texts
     [SerializeField] Text ltext;
     [SerializeField] TextMeshProUGUI infReset;
@@ -442,7 +444,12 @@ public class BilliardsModule : UdonSharpBehaviour
         debugger = this.transform.Find("debugger").gameObject;
         debugger.SetActive(true);
 
-        this.transform.Find("intl.balls/guide/guide_display").GetComponent<MeshRenderer>().material.SetMatrix("_BaseTransform", this.transform.worldToLocalMatrix);
+        Transform gdisplay = guideline.transform.GetChild(0);
+        if (gdisplay)
+            gdisplay.GetComponent<MeshRenderer>().material.SetMatrix("_BaseTransform", this.transform.worldToLocalMatrix);
+        Transform gdisplay2 = guideline2.transform.GetChild(0);
+        if (gdisplay2)
+            gdisplay2.GetComponent<MeshRenderer>().material.SetMatrix("_BaseTransform", this.transform.worldToLocalMatrix);
 
         if (LoDDistance > 0 && !checkingDistant)
         {
@@ -538,7 +545,7 @@ public class BilliardsModule : UdonSharpBehaviour
         networkingManager._OnGlobalSettingsChanged((byte)newPhysicsMode, (byte)newTableModel);
     }
 
-        public void _TriggerCueBallHit()
+    public void _TriggerCueBallHit()
     {
         if (!isMyTurn()) return;
 
@@ -857,13 +864,13 @@ public class BilliardsModule : UdonSharpBehaviour
             foreach (int allowedPlayer in allowedPlayers)
             {
                 if (allowedPlayer == -1) continue;
-                if (has) playerStr += ", ";
+                if (has) playerStr += "\n";
                 has = true;
 
                 playerStr += graphicsManager._FormatName(VRCPlayerApi.GetPlayerById(allowedPlayer));
             }
 
-            infReset.text = "Only these players may reset:\n" + playerStr; ClearResetInfo();
+            infReset.text = "<size=60%>Only these players may reset:\n" + playerStr; ClearResetInfo();
         }
         lastResetTime = Time.time;
     }
@@ -914,6 +921,7 @@ public class BilliardsModule : UdonSharpBehaviour
 
         return (int)cueSkinHook.GetProgramVariable("outCanUse");
     }
+
 
     #region NetworkingClient
     // the order is important, unfortunately
@@ -979,13 +987,12 @@ public class BilliardsModule : UdonSharpBehaviour
             currentPhysicsManager = PhysicsManagers[physicsSynced];
             currentPhysicsManager.SendCustomEvent("_InitConstants");
             menuManager._RefreshPhysics();
+            desktopManager._RefreshPhysics();
         }
         if (tableModelLocal != tableModelSynced)
         {
             setTableModel(tableModelSynced);
-            menuManager._RefreshGameMode();
         }
-
     }
 
     private void onRemoteGameSettingsUpdated(uint gameModeSynced, uint timerSynced, bool teamsSynced, bool noGuidelineSynced, bool noLockingSynced)
@@ -1232,7 +1239,6 @@ public class BilliardsModule : UdonSharpBehaviour
         _Update9BallMarker();
     }
 
-
     private void onRemoteGameEnded(uint winningTeamSynced)
     {
         _LogInfo($"onRemoteGameEnded winningTeam={winningTeamSynced}");
@@ -1434,7 +1440,7 @@ public class BilliardsModule : UdonSharpBehaviour
             switch (foulStateLocal)
             {
                 case 1://kitchen
-                    repoMaxX = -k_SPOT_POSITION_X;
+                    repoMaxX = -(k_TABLE_WIDTH - k_CUSHION_RADIUS) / 2;
                     break;
                 case 2://anywhere
                     Vector3 k_pR = (Vector3)currentPhysicsManager.GetProgramVariable("k_pR");
@@ -1855,9 +1861,11 @@ public class BilliardsModule : UdonSharpBehaviour
                 deferLossCondition
             ;
             bool snookerDraw = false;
+
             if (is8Ball)
             {
                 // 8ball rules are based on APA, some rules are not yet implemented.
+
                 uint bmask = 0xFFFCu;
                 uint emask = 0x0u;
 
@@ -1895,7 +1903,9 @@ public class BilliardsModule : UdonSharpBehaviour
                     ballsP[1] = Vector3.zero;
                     moveBallInDirUntilNotTouching(1, Vector3.right * k_BALL_RADIUS * .051f);
                 }
+
                 foulCondition = isScratch || isWrongHit || fallOffFoul || (!isObjectiveSink && (!ballBounced || (colorTurnLocal && numBallsHitCushion < 4)));
+
                 if (isScratch && colorTurnLocal)
                 {
                     nextTurnBlocked = true; // re-using snooker variable for reposition to kitchen
@@ -1903,6 +1913,7 @@ public class BilliardsModule : UdonSharpBehaviour
                 }
 
                 deferLossCondition = is8Sink;
+
                 // try and close the table if possible
                 if (!foulCondition && isTableOpenLocal)
                 {
@@ -2168,13 +2179,6 @@ public class BilliardsModule : UdonSharpBehaviour
                 else
                 { colorTurnLocal = false; }
 
-                ////win = all balls pocketed and have more points than opponent
-                //bool myTeamWinning = fbScoresLocal[teamIdLocal] > fbScoresLocal[1 - teamIdLocal];
-                //winCondition = myTeamWinning && allBallsPocketed;
-                //if (winCondition) { foulCondition = false; }
-                //deferLossCondition = allBallsPocketed && !myTeamWinning;
-                ///*                 _LogInfo("6RED: " + Convert.ToString((ballsPocketedLocal & 0x1FFEu), 2));
-                //                _LogInfo("6RED: " + Convert.ToString(0x1FFEu, 2)); */
                 if (fbScoresLocal[teamIdLocal] == fbScoresLocal[1 - teamIdLocal] && allBallsPocketed)
                 {
                     // tie rules, cue and black are re-spotted, and a random player gets to go, cue ball in hand, ->onLocalTurnTie()
@@ -2383,7 +2387,7 @@ public class BilliardsModule : UdonSharpBehaviour
             }
 
             // cue ball always starts here (unless four ball, but we override below)
-            initialPositions[i][0] = new Vector3(-k_SPOT_POSITION_X, 0.0f, 0.0f);
+            initialPositions[i][0] = new Vector3(-quarterTable, 0.0f, 0.0f);
         }
 
         {
@@ -2400,7 +2404,7 @@ public class BilliardsModule : UdonSharpBehaviour
                 {
                     initialPositions[0][break_order_8ball[k++]] = new Vector3
                     (
-                       k_SPOT_POSITION_X + i * k_BALL_PL_Y /*+ UnityEngine.Random.Range(-k_RANDOMIZE_F, k_RANDOMIZE_F)*/,
+                       quarterTable + i * k_BALL_PL_Y /*+ UnityEngine.Random.Range(-k_RANDOMIZE_F, k_RANDOMIZE_F)*/,
                        0.0f,
                        (-i + j * 2) * k_BALL_PL_X /*+ UnityEngine.Random.Range(-k_RANDOMIZE_F, k_RANDOMIZE_F)*/
                     );
@@ -2423,9 +2427,9 @@ public class BilliardsModule : UdonSharpBehaviour
                 {
                     initialPositions[1][break_order_9ball[k++]] = new Vector3
                     (
-                       k_SPOT_POSITION_X + i * k_BALL_PL_Y + UnityEngine.Random.Range(-k_RANDOMIZE_F, k_RANDOMIZE_F),
+                       quarterTable - (k_BALL_PL_Y * 2) + i * k_BALL_PL_Y /* + UnityEngine.Random.Range(-k_RANDOMIZE_F, k_RANDOMIZE_F) */,
                        0.0f,
-                       (-rown + j * 2) * k_BALL_PL_X + UnityEngine.Random.Range(-k_RANDOMIZE_F, k_RANDOMIZE_F)
+                       (-rown + j * 2) * k_BALL_PL_X /* + UnityEngine.Random.Range(-k_RANDOMIZE_F, k_RANDOMIZE_F) */
                     );
                 }
             }
@@ -2441,7 +2445,7 @@ public class BilliardsModule : UdonSharpBehaviour
             initialPositions[4][0] = new Vector3(K_BAULK_LINE - k_SEMICIRCLERADIUS * .5f, 0f, 0f);//whte, middle of the semicircle
             initialPositions[4][1] = new Vector3//black
                     (
-                      K_BLACK_SPOT,
+                       K_BLACK_SPOT,
                        0f,
                        0f
                     );
@@ -2453,19 +2457,19 @@ public class BilliardsModule : UdonSharpBehaviour
                     );
             initialPositions[4][2] = new Vector3//yellow
                     (
-                        K_BAULK_LINE,
+                       K_BAULK_LINE,
                        0f,
                        -k_SEMICIRCLERADIUS
                     );
             initialPositions[4][7] = new Vector3//green
                     (
-                        K_BAULK_LINE,
+                       K_BAULK_LINE,
                        0f,
                        k_SEMICIRCLERADIUS
                     );
             initialPositions[4][8] = new Vector3//brown
                     (
-                        K_BAULK_LINE,
+                       K_BAULK_LINE,
                        0f,
                        0f
                     );
@@ -2502,10 +2506,10 @@ public class BilliardsModule : UdonSharpBehaviour
 #else
             initialBallsPocketed[2] = 0x1FFEu;
 #endif
-            initialPositions[2][0] = new Vector3(-k_SPOT_CAROM_X, 0.0f, 0.0f);
-            initialPositions[2][13] = new Vector3(k_SPOT_CAROM_X, 0.0f, 0.0f);
-            initialPositions[2][14] = new Vector3(k_SPOT_POSITION_X, 0.0f, 0.0f);
-            initialPositions[2][15] = new Vector3(-k_SPOT_POSITION_X, 0.0f, 0.0f);
+             initialPositions[2][0] = new Vector3(-quarterTable, 0.0f, k_TABLE_HEIGHT * 0.5f);
+            initialPositions[2][13] = new Vector3(-quarterTable, 0.0f, k_TABLE_HEIGHT * -0.5f);
+            initialPositions[2][14] = new Vector3(quarterTable, 0.0f, 0.0f);
+            initialPositions[2][15] = new Vector3(-quarterTable, 0.0f, 0.0f);
         }
 
         {
@@ -2640,6 +2644,10 @@ public class BilliardsModule : UdonSharpBehaviour
         newpos += Vector3.down * (k_BALL_RADIUS - 0.003f) / guideline.transform.localScale.y;// divide to convert back to worldspace distance
         guideDisplay.localPosition = newpos;
         guideDisplay.GetComponent<MeshRenderer>().material.SetVector("_Dims", new Vector4(k_vE.x, k_vE.z, 0, 0));
+        Transform guideDisplay2 = guideline2.gameObject.transform.Find("guide_display");
+        guideDisplay2.localPosition = newpos;
+        guideDisplay2.GetComponent<MeshRenderer>().material.SetVector("_Dims", new Vector4(k_vE.x, k_vE.z, 0, 0));
+        guideDisplay2.GetComponent<MeshRenderer>().material.SetVector("_Dims", new Vector4(k_vE.x, k_vE.z, 0, 0));
 
         //set height of 9ball marker
         newpos = marker9ball.transform.localPosition; newpos.y = 0;
@@ -2690,8 +2698,6 @@ public class BilliardsModule : UdonSharpBehaviour
         Transform menu = this.transform.Find("intl.menu/MenuAnchor");
         if (MENU_SPOT && menu)
             setTransform(MENU_SPOT, menu);
-
-        menuManager._PlaceLoadMenu();
     }
 
     private void ConfineBallTransformsToTable()
@@ -2768,7 +2774,6 @@ public class BilliardsModule : UdonSharpBehaviour
         _LogInfo($"onLocalTeamWin {(winner)}");
 
         networkingManager._OnGameWin(winner);
-
     }
 
     private void onLocalTurnPass()
@@ -2777,7 +2782,6 @@ public class BilliardsModule : UdonSharpBehaviour
 
         networkingManager._OnTurnPass(teamIdLocal ^ 0x1u);
     }
-
 
     private void onLocalTurnTie()
     {
@@ -2808,8 +2812,8 @@ public class BilliardsModule : UdonSharpBehaviour
 
         graphicsManager._HideTimers();
 
-        
         canPlayLocal = false;
+
         if (Networking.IsOwner(Networking.LocalPlayer, networkingManager.gameObject))
         {
             fakeFoulShot();
@@ -2921,7 +2925,10 @@ public class BilliardsModule : UdonSharpBehaviour
             }
 #else
             int target = findLowestUnpocketedBall(ballsPocketedLocal);
-            marker9ball.transform.localPosition = ballsP[target];
+            // move without changing y
+            Vector3 oldpos = marker9ball.transform.localPosition;
+            Vector3 newpos = ballsP[target];
+            marker9ball.transform.localPosition = new Vector3(newpos.x, oldpos.y, newpos.z);
 #endif
         }
     }
@@ -2934,6 +2941,7 @@ public class BilliardsModule : UdonSharpBehaviour
         refreshBallPickups();
         devhit.SetActive(false);
         guideline.SetActive(false);
+        guideline2.SetActive(false);
         isGuidelineValid = false;
         isReposition = false;
         auto_colliderBaseVFX.SetActive(false);
@@ -3593,7 +3601,6 @@ public class BilliardsModule : UdonSharpBehaviour
     {
         bool canUsePickup = (isMyTurn() && isPracticeMode);
 
-
         uint ball_bit = 0x1u;
         for (int i = 0; i < balls.Length; i++)
         {
@@ -3727,7 +3734,7 @@ public class BilliardsModule : UdonSharpBehaviour
         return new object[13]
         {
             positionClone, ballsPocketedLocal, scoresClone, gameModeLocal, teamIdLocal, foulStateLocal, isTableOpenLocal, teamColorLocal, fourBallCueBallLocal,
-           turnStateLocal, networkingManager.cueBallVSynced, networkingManager.cueBallWSynced, colorTurnLocal
+            turnStateLocal, networkingManager.cueBallVSynced, networkingManager.cueBallWSynced, colorTurnLocal
         };
     }
 
@@ -3735,7 +3742,7 @@ public class BilliardsModule : UdonSharpBehaviour
     {
         networkingManager._ForceLoadFromState(
             stateIdLocal,
-          (Vector3[])state[0], (uint)state[1], (byte[])state[2], (uint)state[3], (uint)state[4], (uint)state[5], (bool)state[6], (uint)state[7], (uint)state[8],
+            (Vector3[])state[0], (uint)state[1], (byte[])state[2], (uint)state[3], (uint)state[4], (uint)state[5], (bool)state[6], (uint)state[7], (uint)state[8],
             (byte)state[9], (Vector3)state[10], (Vector3)state[11], (bool)state[12]
         );
     }
@@ -3755,13 +3762,11 @@ public class BilliardsModule : UdonSharpBehaviour
         return true;
     }
 
-
     public bool _IsModerator(VRCPlayerApi player)
     {
         return Array.IndexOf(moderators, player.displayName) != -1;
     }
 
- 
     public int _GetPlayerSlot(VRCPlayerApi who, int[] playerlist)
     {
         if (who == null) return -1;
@@ -3850,13 +3855,13 @@ public class BilliardsModule : UdonSharpBehaviour
         else
             return;
 
-
         checkDistanceLoD();
     }
+
     public void checkDistanceLoD()
-        {
+    {
         bool nowDistant = (Vector3.Distance(Networking.LocalPlayer.GetPosition(), transform.position) > LoDDistance) && !noLOD
-     && !(networkingManager.gameStateSynced == 2 && Networking.IsOwner(networkingManager.gameObject));
+        && !(networkingManager.gameStateSynced == 2 && Networking.IsOwner(networkingManager.gameObject));
         if (nowDistant == localPlayerDistant) { return; }
         if (isPlayer)
         {

@@ -218,7 +218,7 @@ public class NetworkingManager : UdonSharpBehaviour
         }
 
         table._OnRemoteDeserialization();
- }
+    }
 
     public void _OnGameWin(uint winnerId)
     {
@@ -280,6 +280,7 @@ public class NetworkingManager : UdonSharpBehaviour
 
         bufferMessages(false);
     }
+
     // Snooker only
     public void _OnTurnTie()
     {
@@ -663,8 +664,8 @@ public class NetworkingManager : UdonSharpBehaviour
     public void _ForceLoadFromState
     (
         int stateIdLocal,
-           Vector3[] newBallsP, uint ballsPocketed, byte[] newScores, uint gameMode, uint teamId, uint foulState, bool isTableOpen, uint teamColor, uint fourBallCueBall,
-         byte turnStateLocal, Vector3 cueBallV, Vector3 cueBallW, bool colorTurn
+        Vector3[] newBallsP, uint ballsPocketed, byte[] newScores, uint gameMode, uint teamId, uint foulState, bool isTableOpen, uint teamColor, uint fourBallCueBall,
+        byte turnStateLocal, Vector3 cueBallV, Vector3 cueBallW, bool colorTurn
     )
     {
         stateIdSynced = stateIdLocal;
@@ -786,6 +787,7 @@ public class NetworkingManager : UdonSharpBehaviour
         encodeU16(data, pos + 4, (ushort)((Mathf.Clamp(vec.z, -range, range) / range) * I16_MAXf + I16_MAXf));
     }
 
+
     // Decode 6 chars at index to Vector3. Decodes from 0-65535 to [ -range, range ]
     private Vector3 decodeVec3Full(byte[] data, int start, float range)
     {
@@ -869,7 +871,7 @@ public class NetworkingManager : UdonSharpBehaviour
             onLoadGameStateV1(gameStateStr);
         }
     }
- 
+
     private void onLoadGameStateV1(string gameStateStr)
     {
         if (!isValidBase64(gameStateStr)) return;
@@ -958,13 +960,11 @@ public class NetworkingManager : UdonSharpBehaviour
         colorTurnSynced = gameState[0x7a] != 0;
 
         bufferMessages(true);
-       
     }
 
     // V3 no longer encodes floats to shorts, as the string isn't synced it doesn't matter how long it is
     // ensures perfect replication of shots
-    //uint gameStateLength = 230u;
-    uint gameStateLength = 442u;
+    uint gameStateLength = 230u;
     private void onLoadGameStateV3(string gameStateStr)
     {
         if (!isValidBase64(gameStateStr)) return;
@@ -975,8 +975,8 @@ public class NetworkingManager : UdonSharpBehaviour
         stateIdSynced++;
 
         int encodePos = 0; // Add the size of the loaded type in bytes after loading
-        //for (int i = 0; i < 16; i++)
-        for (int i = 0; i < 32; i++) //for snooker
+
+        for (int i = 0; i < 16; i++)
         {
             ballsPSynced[i] = bytesToVec3(gameState, encodePos);
             encodePos += 12;
@@ -986,7 +986,7 @@ public class NetworkingManager : UdonSharpBehaviour
         cueBallWSynced = bytesToVec3(gameState, encodePos);
         encodePos += 12;
 
-        ballsPocketedSynced = decode32(gameState, encodePos);
+        ballsPocketedSynced = decodeU16(gameState, encodePos);
         encodePos += 2;
         teamIdSynced = gameState[encodePos];
         encodePos += 1;
@@ -1018,8 +1018,7 @@ public class NetworkingManager : UdonSharpBehaviour
     {
         byte[] gameState = new byte[gameStateLength];
         int encodePos = 0; // Add the size of the recorded type in bytes after recording
-        //for (int i = 0; i < 16; i++)
-        for (int i = 0; i < 32; i++) //for snooker
+        for (int i = 0; i < 16; i++)
         {
             Vec3ToBytes(gameState, encodePos, ballsPSynced[i]);
             encodePos += 12;
@@ -1029,7 +1028,7 @@ public class NetworkingManager : UdonSharpBehaviour
         Vec3ToBytes(gameState, encodePos, cueBallWSynced);
         encodePos += 12;
 
-        encode32(gameState, encodePos, (ushort)(ballsPocketedSynced & 0xFFFFu));
+        encodeU16(gameState, encodePos, (ushort)(ballsPocketedSynced & 0xFFFFu));
         encodePos += 2;
         gameState[encodePos] = teamIdSynced;
         encodePos += 1;
@@ -1056,7 +1055,7 @@ public class NetworkingManager : UdonSharpBehaviour
         gameState[encodePos] = (byte)(colorTurnSynced ? 1 : 0);
 
         // find gameStateLength
-         Debug.Log("gameStateLength = " + (encodePos + 1));
+        // Debug.Log("gameStateLength = " + (encodePos + 1));
 
         return "v3:" + Convert.ToBase64String(gameState, Base64FormattingOptions.None);
     }

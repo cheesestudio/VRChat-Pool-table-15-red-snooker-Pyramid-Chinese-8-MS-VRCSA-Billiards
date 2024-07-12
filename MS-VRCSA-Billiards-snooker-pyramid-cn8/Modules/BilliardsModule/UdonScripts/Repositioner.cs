@@ -15,7 +15,7 @@ public class Repositioner : UdonSharpBehaviour
     {
         table = table_;
         idx = idx_;
-        
+
         pickup = (VRC_Pickup)GetComponent(typeof(VRC_Pickup));
     }
 
@@ -38,6 +38,7 @@ public class Repositioner : UdonSharpBehaviour
     {
         table.repositionManager.onUseUp();
     }
+
     public void _Drop()
     {
         pickup.Drop();
