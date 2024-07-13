@@ -4,6 +4,7 @@ using System;
 using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
+using static VRC.Core.ApiAvatar;
 //
 [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
 public class CueController : UdonSharpBehaviour
@@ -92,7 +93,7 @@ public class CueController : UdonSharpBehaviour
         int owner = Networking.GetOwner(this.gameObject).playerId;
 #endif
         //activeCueSkin = table._CanUseCueSkin(owner, syncedCueSkin) ? syncedCueSkin : 0;
-            activeCueSkin = table._CanUseCueSkin(owner, syncedCueSkin);
+        activeCueSkin = syncedCueSkin;//table._CanUseCueSkin(owner, syncedCueSkin);
 
         refreshCueSkin();
         refreshCueScale();
@@ -318,7 +319,8 @@ public class CueController : UdonSharpBehaviour
         syncedHolderIsDesktop = holderIsDesktop;
         primaryHolding = true;
         primaryLocked = false;
-        syncedCueSkin = table.activeCueSkin;
+        syncedCueSkin = table._CanUseCueSkin(Networking.GetOwner(this.gameObject).playerId, syncedCueSkin);
+        //syncedCueSkin = table.activeCueSkin;
         cueScale = cueScaleMine;
         RequestSerialization();
         OnDeserialization();

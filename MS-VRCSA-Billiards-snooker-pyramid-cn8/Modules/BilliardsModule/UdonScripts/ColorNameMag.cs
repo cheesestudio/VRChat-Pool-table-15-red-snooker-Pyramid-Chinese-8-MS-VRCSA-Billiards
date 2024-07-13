@@ -21,7 +21,7 @@ public class ColorNameMag : UdonSharpBehaviour
 
     public ColorDownload ColorDOW;
 
-    private int reloadStep = 0;
+   // private int reloadStep = 0;
 
     void Start()
     {

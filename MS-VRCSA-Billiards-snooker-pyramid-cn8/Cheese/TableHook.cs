@@ -5,11 +5,10 @@ using UnityEngine.UI;
 using VRC.SDKBase;
 using TMPro;
 
-[UdonBehaviourSyncMode(BehaviourSyncMode.None)]
 public class TableHook : UdonSharpBehaviour
 {
     [HideInInspector] public int inOwner;
-    [HideInInspector] public int outCanUse;
+    [HideInInspector]public int outCanUse;
     private int outCanUseTmp = 0;
     [SerializeField] private BilliardsModule[] table;
     private int TableColor = 0;
@@ -21,7 +20,6 @@ public class TableHook : UdonSharpBehaviour
     {
         outCanUse = 0;
         outCanUseTmp = 0;
-        //maxRotation = 120;
         isRotating = maxRotation;
         keepRotating = false;
         //BilliardsModule[] table =UnityEngine.Object.FindObjectsOfType<BilliardsModule>();
@@ -30,24 +28,12 @@ public class TableHook : UdonSharpBehaviour
 
     public void _CanUseCueSkin()
     {
-        //VRCPlayerApi ownerPlayer = Networking.LocalPlayer;
-        //if (ReferenceEquals(null, ownerPlayer))
-        //{
-        //    return;
-        //}
-        //int owner = ownerPlayer.playerId;
-
-        //if (owner == inOwner)
-        //{
-        //    outCanUse = outCanUseTmp;
-        //}
+            outCanUse = outCanUseTmp;
     }
 
     public void _ChangeKeepRotating()
     { 
         keepRotating = !keepRotating;
-        //Debug.Log("rotating changed");
-        //Debug.Log(keepRotating);
     }
     private void ChangeMaterial()
     {
@@ -59,6 +45,7 @@ public class TableHook : UdonSharpBehaviour
             }
         }
         isRotating = 0;
+
     }
     void Update()
     {
@@ -68,8 +55,7 @@ public class TableHook : UdonSharpBehaviour
             isRotating++;
         }
     }
-    
-      
+
     public void _Cue0()
     {
         outCanUseTmp = 0;

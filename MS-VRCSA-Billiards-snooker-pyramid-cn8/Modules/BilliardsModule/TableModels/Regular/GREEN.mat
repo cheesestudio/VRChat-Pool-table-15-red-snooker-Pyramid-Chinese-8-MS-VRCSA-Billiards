@@ -26,8 +26,8 @@ Material:
     m_TexEnvs: []
     m_Ints: []
     m_Floats:
-    - _ClothHue: 0.037
-    - _ClothSaturation: 1.67
+    - _ClothHue: 0
+    - _ClothSaturation: 1
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []

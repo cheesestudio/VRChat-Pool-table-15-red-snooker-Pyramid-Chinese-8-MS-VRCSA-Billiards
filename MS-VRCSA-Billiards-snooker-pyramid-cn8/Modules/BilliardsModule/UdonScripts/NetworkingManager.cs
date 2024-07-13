@@ -964,7 +964,7 @@ public class NetworkingManager : UdonSharpBehaviour
 
     // V3 no longer encodes floats to shorts, as the string isn't synced it doesn't matter how long it is
     // ensures perfect replication of shots
-    uint gameStateLength = 230u;
+    uint gameStateLength = 424;
     private void onLoadGameStateV3(string gameStateStr)
     {
         if (!isValidBase64(gameStateStr)) return;
@@ -976,7 +976,7 @@ public class NetworkingManager : UdonSharpBehaviour
 
         int encodePos = 0; // Add the size of the loaded type in bytes after loading
 
-        for (int i = 0; i < 16; i++)
+        for (int i = 0; i < 32; i++)
         {
             ballsPSynced[i] = bytesToVec3(gameState, encodePos);
             encodePos += 12;
@@ -986,8 +986,8 @@ public class NetworkingManager : UdonSharpBehaviour
         cueBallWSynced = bytesToVec3(gameState, encodePos);
         encodePos += 12;
 
-        ballsPocketedSynced = decodeU16(gameState, encodePos);
-        encodePos += 2;
+        ballsPocketedSynced = decode32(gameState, encodePos);
+        encodePos += 4;
         teamIdSynced = gameState[encodePos];
         encodePos += 1;
         foulStateSynced = gameState[encodePos];
@@ -1018,7 +1018,7 @@ public class NetworkingManager : UdonSharpBehaviour
     {
         byte[] gameState = new byte[gameStateLength];
         int encodePos = 0; // Add the size of the recorded type in bytes after recording
-        for (int i = 0; i < 16; i++)
+        for (int i = 0; i < 32; i++)
         {
             Vec3ToBytes(gameState, encodePos, ballsPSynced[i]);
             encodePos += 12;
@@ -1028,8 +1028,8 @@ public class NetworkingManager : UdonSharpBehaviour
         Vec3ToBytes(gameState, encodePos, cueBallWSynced);
         encodePos += 12;
 
-        encodeU16(gameState, encodePos, (ushort)(ballsPocketedSynced & 0xFFFFu));
-        encodePos += 2;
+        encode32(gameState, encodePos, ballsPocketedSynced);
+        encodePos += 4;
         gameState[encodePos] = teamIdSynced;
         encodePos += 1;
         gameState[encodePos] = foulStateSynced;
@@ -1055,7 +1055,7 @@ public class NetworkingManager : UdonSharpBehaviour
         gameState[encodePos] = (byte)(colorTurnSynced ? 1 : 0);
 
         // find gameStateLength
-        // Debug.Log("gameStateLength = " + (encodePos + 1));
+         Debug.Log("gameStateLength = " + (encodePos + 1));
 
         return "v3:" + Convert.ToBase64String(gameState, Base64FormattingOptions.None);
     }

@@ -911,7 +911,7 @@ public class BilliardsModule : UdonSharpBehaviour
 
     //    return (bool)cueSkinHook.GetProgramVariable("outCanUse");
     //}
-    public int _CanUseCueSkin(int owner, int skin)
+    public int _CanUseCueSkin(int owner, int skin)   //改了改
     {
         if (cueSkinHook == null) return 0;
 
