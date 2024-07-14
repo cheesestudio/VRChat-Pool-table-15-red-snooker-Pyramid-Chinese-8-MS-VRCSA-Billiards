@@ -14,10 +14,16 @@ public class GlobalSlider : UdonSharpBehaviour
 
     private void Start()
     {
+        localValue = 1;
         slider = transform.GetComponent<Slider>();
+        mat.SetFloat("_ClothHue", 0);
+        mat.SetFloat("_ClothSaturation", 1);
     }
 
-
+    //public float GetSlideValue()
+    //{ 
+    //    return localValue;
+    //}
     public void SlideUpdate()
     {
     	localValue = slider.value;

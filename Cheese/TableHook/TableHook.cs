@@ -1,20 +1,26 @@
 ﻿using System;
 using UdonSharp;
 using UnityEngine;
+using VRC.Udon;
 using UnityEngine.UI;
 using VRC.SDKBase;
 using TMPro;
 
 public class TableHook : UdonSharpBehaviour
 {
+    //Slider
+    [SerializeField] public UdonBehaviour TableColorSlider;
+    [SerializeField] public UdonBehaviour TableColorLightnessSlider;
+    [HideInInspector] public float TableColor;
+    [HideInInspector] public float TableColorLightness;
+
     [HideInInspector] public int inOwner;
     [HideInInspector]public int outCanUse;
     private int outCanUseTmp = 0;
     [SerializeField] private BilliardsModule[] table;
-    private int TableColor = 0;
     public bool keepRotating = false;
     private int isRotating;
-    [SerializeField] private int maxRotation=120;
+    [NonSerialized] private int maxRotation=120;
     private Renderer renderer;
     void Start()
     {
@@ -54,8 +60,18 @@ public class TableHook : UdonSharpBehaviour
             renderer.transform.Rotate(new Vector3(1, 0.05f, 0.05f), Mathf.Clamp(maxRotation-isRotating,0,3), Space.Self);
             isRotating++;
         }
+        TableColor=GetTableColor();
+        TableColorLightness=GetTableLightness();
     }
 
+    public float GetTableColor()
+    {
+        return (float)TableColorSlider.GetProgramVariable("localValue");
+    }
+    public float GetTableLightness()
+    {
+        return (float)TableColorLightnessSlider.GetProgramVariable("localValue");
+    }
     public void _Cue0()
     {
         outCanUseTmp = 0;

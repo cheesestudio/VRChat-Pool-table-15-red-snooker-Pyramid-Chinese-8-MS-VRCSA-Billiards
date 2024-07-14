@@ -96,8 +96,8 @@ public class BilliardsModule : UdonSharpBehaviour
     [SerializeField] public Texture2D[] cueSkins;
 
     // hooks
-    [SerializeField] public UdonBehaviour tableSkinHook;
-    [SerializeField] public UdonBehaviour cueSkinHook;
+    [NonSerialized] public UdonBehaviour tableSkinHook;//no need to use
+    [SerializeField] public UdonBehaviour TableHook;
     [SerializeField] public UdonBehaviour nameColorHook;
 
     // globals
@@ -913,13 +913,13 @@ public class BilliardsModule : UdonSharpBehaviour
     //}
     public int _CanUseCueSkin(int owner, int skin)   //改了改
     {
-        if (cueSkinHook == null) return 0;
+        if (TableHook == null) return 0;
 
-        cueSkinHook.SetProgramVariable("inOwner", owner);
-        cueSkinHook.SetProgramVariable("inSkin", skin);
-        cueSkinHook.SendCustomEvent("_CanUseCueSkin");
+        TableHook.SetProgramVariable("inOwner", owner);
+        TableHook.SetProgramVariable("inSkin", skin);
+        TableHook.SendCustomEvent("_CanUseCueSkin");
 
-        return (int)cueSkinHook.GetProgramVariable("outCanUse");
+        return (int)TableHook.GetProgramVariable("outCanUse");
     }
 
 

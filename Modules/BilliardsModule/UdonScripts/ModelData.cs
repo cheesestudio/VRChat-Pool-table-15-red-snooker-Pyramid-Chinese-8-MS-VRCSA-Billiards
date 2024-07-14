@@ -159,12 +159,12 @@ public class ModelData : UdonSharpBehaviour
         public void _Init()
         {
                 // renderer
-                MeshRenderer tableMeshR = tableMesh.GetComponent<MeshRenderer>();
-                //if (tableMeshR)           //一整个无语住了,可有可无的代码让我debug半天,注释了才能用那个调桌子颜色
-                //{
-                //        tableMaterial = tableMeshR.material; // create a new instance for this table
-                //        tableMaterial.name = " for " + gameObject.name;
-                //        tableMeshR.material = tableMaterial;
-                //}
-        }
+            MeshRenderer tableMeshR = tableMesh.GetComponent<MeshRenderer>();
+            if (tableMeshR)           //一整个无语住了,可有可无的代码让我debug半天,注释了才能用那个调桌子颜色--------呃呃呃,注释了之后桌子不改回合颜色了
+            {
+                tableMaterial = tableMeshR.material; // create a new instance for this table
+                tableMaterial.name = " for " + gameObject.name;
+                tableMeshR.material = tableMaterial;
+            }
+    }
 }

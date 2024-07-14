@@ -9,6 +9,7 @@ using UnityEngine;
 using VRC.SDKBase;
 using TMPro;
 using System.Data;
+//using System.Diagnostics;
 
 [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
 public class GraphicsManager : UdonSharpBehaviour
@@ -245,6 +246,15 @@ public class GraphicsManager : UdonSharpBehaviour
 
     private void tickTableColor()
     {
+        //table custom color by cheese
+        float tableColor = (float)table.TableHook.GetProgramVariable("TableColor");
+        float tableLightness = (float)table.TableHook.GetProgramVariable("TableColorLightness");
+        if (table.TableHook != null)
+        {
+            tableMaterial.SetFloat("_ClothHue", tableColor);
+            tableMaterial.SetFloat("_ClothSaturation", tableLightness);
+            // Debug.Log((float)table.TableHook.GetProgramVariable("TableColor"));
+        }
         if (tableCurrentColour == tableSrcColour) return;
 
 #if HT_QUEST
@@ -260,6 +270,7 @@ public class GraphicsManager : UdonSharpBehaviour
         if (tableMaterial)
         {
             tableMaterial.SetColor("_EmissionColor", tableCurrentColour);
+
         }
     }
 

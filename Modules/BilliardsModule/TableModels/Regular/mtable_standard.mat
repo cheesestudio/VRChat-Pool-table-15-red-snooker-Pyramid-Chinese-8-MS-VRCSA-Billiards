@@ -107,7 +107,7 @@ Material:
     m_Floats:
     - _BumpScale: 1
     - _ClothHue: 0
-    - _ClothSaturation: 1
+    - _ClothSaturation: 2.17667
     - _Cutoff: 0.5
     - _DetailBrightness: 0.365
     - _DetailCloth: 0
@@ -142,7 +142,7 @@ Material:
     m_Colors:
     - _ClothColour: {r: 0.4056604, g: 0.4056604, b: 0.4056604, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _EmissionColor: {r: 0, g: 0.9522078, b: 1.5, a: 1.5}
+    - _EmissionColor: {r: 0, g: 0.6387434, b: 1, a: 1.5}
     - _EmissionColour: {r: 3.2563357, g: 0.38486084, b: 0, a: 0}
     - _NIGGER: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []

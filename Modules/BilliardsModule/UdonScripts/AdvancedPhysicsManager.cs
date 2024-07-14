@@ -259,7 +259,6 @@ public class AdvancedPhysicsManager : UdonSharpBehaviour
                         table.devhit.SetActive(true);
                         table.guideline2.SetActive(true);
                     }
-                    table.devhit.transform.localPosition = RaySphere_output;
                     if (table.markerObj.activeSelf) { table.markerObj.SetActive(false); }
 
                     Vector3 q = table_Surface.InverseTransformDirection(cuetip.transform.forward); // direction of cue in surface space
