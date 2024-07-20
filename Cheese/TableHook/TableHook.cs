@@ -18,6 +18,7 @@ public class TableHook : UdonSharpBehaviour
     [HideInInspector]public int outCanUse;
     private int outCanUseTmp = 0;
     [SerializeField] private BilliardsModule[] table;
+    public int DefaultCue;
     public bool keepRotating = false;
     private int isRotating;
     [NonSerialized] private int maxRotation=120;
@@ -25,7 +26,7 @@ public class TableHook : UdonSharpBehaviour
     void Start()
     {
         outCanUse = 0;
-        outCanUseTmp = 0;
+        outCanUseTmp = DefaultCue;
         isRotating = maxRotation;
         keepRotating = false;
         //BilliardsModule[] table =UnityEngine.Object.FindObjectsOfType<BilliardsModule>();
