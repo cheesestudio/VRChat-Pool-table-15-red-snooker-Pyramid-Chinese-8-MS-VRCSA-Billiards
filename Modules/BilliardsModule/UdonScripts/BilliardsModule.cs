@@ -992,6 +992,7 @@ public class BilliardsModule : UdonSharpBehaviour
         if (tableModelLocal != tableModelSynced)
         {
             setTableModel(tableModelSynced);
+            menuManager._RefreshGameMode();
         }
     }
 
