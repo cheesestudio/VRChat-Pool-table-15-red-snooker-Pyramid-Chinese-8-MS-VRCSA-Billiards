@@ -10,10 +10,15 @@ I create the table hook which can change cue skin(you can add your custom cue)an
 
 非常感谢我朋友们的支持,没有他们我做不出来这张桌子的:WangQAQ,RokaOvO,eijis-pan
 
-用的时候记得把billiardModule设置为22层，并把这层单独物理设置成只与自己交互（实际上点一下上面的MS那个按钮就可以自动设置了）
+用的时候记得把billiardModule设置为22层，并把这层单独物理设置成只与自己交互
+（实际上点一下上面的MS那个按钮就可以自动设置了）
+
 remember to set the billiard Module layer 22 and physics part(just click the buttom called MS-VRCSA)
 
-if your want to add your custom cue.自定义球杆皮肤
+
+
+自定义球杆皮肤  if your want to add your custom cue.
+
 https://youtu.be/YnoQ9jsUg0k?si=EfdxX1FDMUZXM2RX
 
 ![JR14@Q{Z~@@{ RAWIMYHI2A_tmb](https://github.com/cheesestudio/VRChat-Pool-table-with-15-red-snooker-Pyramid-Chinese-8-ball-based-on-MS-VRCSA-Billiards/assets/52149451/1bc9e236-91e2-4724-a5c6-aa70f0394e04)
