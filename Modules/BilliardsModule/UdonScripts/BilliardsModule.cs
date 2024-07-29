@@ -2187,7 +2187,11 @@ public class BilliardsModule : UdonSharpBehaviour
                     winCondition = false;
                     deferLossCondition = false;
                     foulCondition = false;
+#if EIJIS_SNOOKER15REDS
+                    sixRedReturnColoredBalls(break_order_sixredsnooker.Length - 1);
+#else
                     sixRedReturnColoredBalls(11);
+#endif
                     ballsP[0] = new Vector3(K_BAULK_LINE - k_SEMICIRCLERADIUS * .5f, 0f, 0f);
                     snookerDraw = true;
                 }
