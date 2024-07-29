@@ -1175,6 +1175,7 @@ public class BilliardsModule : UdonSharpBehaviour
         }
         gameLive = false;
 
+        disablePlayComponents();
         resetCachedData();
 
         if (callbacks != null) callbacks.SendCustomEvent("_OnLobbyClosed");
@@ -3600,12 +3601,12 @@ public class BilliardsModule : UdonSharpBehaviour
 
     private void refreshBallPickups()
     {
-        bool canUsePickup = (isMyTurn() && isPracticeMode);
+        bool canUsePickup = isMyTurn() && isPracticeMode && gameLive;
 
         uint ball_bit = 0x1u;
         for (int i = 0; i < balls.Length; i++)
         {
-            if (gameLive && (canUsePickup || (i == 0 && isReposition)) && canPlayLocal && (ballsPocketedLocal & ball_bit) == 0x0u)
+            if ((canUsePickup || (i == 0 && isReposition)) && gameLive && canPlayLocal && (ballsPocketedLocal & ball_bit) == 0x0u)
             {
                 setBallPickupActive(i, true);
             }
