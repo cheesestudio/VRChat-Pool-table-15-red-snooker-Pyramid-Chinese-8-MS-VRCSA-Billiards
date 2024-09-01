@@ -1893,10 +1893,10 @@ MonoBehaviour:
   tableWidth: 2.541
   tableHeight: 1.271
   cushionRadius: 0.06
-  pocketWidthCorner: 0.035
-  pocketHeightCorner: 0.038
+  pocketWidthCorner: 0.051
+  pocketHeightCorner: 0.051
   pocketInnerRadiusCorner: 0.078
-  facingAngleCorner: 130
+  facingAngleCorner: 140
   pocketRadiusSide: 0.035
   pocketDepthSide: 0.0135
   facingAngleSide: 140

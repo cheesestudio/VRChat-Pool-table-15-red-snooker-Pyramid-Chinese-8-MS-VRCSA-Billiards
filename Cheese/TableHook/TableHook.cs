@@ -8,6 +8,7 @@ using TMPro;
 
 public class TableHook : UdonSharpBehaviour
 {
+    [SerializeField] public Texture2D[] cueSkins;
     //Slider
     [SerializeField] public UdonBehaviour TableColorSlider;
     [SerializeField] public UdonBehaviour TableColorLightnessSlider;
@@ -17,7 +18,6 @@ public class TableHook : UdonSharpBehaviour
     [HideInInspector] public int inOwner;
     [HideInInspector]public int outCanUse;
     private int outCanUseTmp = 0;
-    [SerializeField] private BilliardsModule[] table;
     public int DefaultCue;
     public bool keepRotating = false;
     private int isRotating;
@@ -29,7 +29,6 @@ public class TableHook : UdonSharpBehaviour
         outCanUseTmp = DefaultCue;
         isRotating = maxRotation;
         keepRotating = false;
-        //BilliardsModule[] table =UnityEngine.Object.FindObjectsOfType<BilliardsModule>();
         renderer = this.transform.Find("body/render").GetComponent<Renderer>();
     }
 
@@ -44,12 +43,10 @@ public class TableHook : UdonSharpBehaviour
     }
     private void ChangeMaterial()
     {
-        if (table != null)
+        if (cueSkins[outCanUseTmp] != null)
         {
-            for (int i = 0; i < table.Length; i++)
-            {
-                renderer.materials[1].SetTexture("_MainTex", table[i].cueSkins[outCanUseTmp]);
-            }
+                renderer.materials[1].SetTexture("_MainTex", cueSkins[outCanUseTmp]);
+            
         }
         isRotating = 0;
 
@@ -131,6 +128,22 @@ public class TableHook : UdonSharpBehaviour
     public void _Cue10()
     {
         outCanUseTmp = 10;
+        ChangeMaterial();
+    }
+    public void _Cue11()
+    {
+        outCanUseTmp = 11;
+        ChangeMaterial();
+    }
+    public void _Cue12()
+    {
+        outCanUseTmp = 12;
+        ChangeMaterial();
+    }
+
+    public void _Cue13()
+    {
+        outCanUseTmp = 13;
         ChangeMaterial();
     }
 }

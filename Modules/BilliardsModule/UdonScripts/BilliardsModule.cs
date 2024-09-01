@@ -1887,7 +1887,7 @@ public class BilliardsModule : UdonSharpBehaviour
                 }
 
                 isObjectiveSink = (ballsPocketedLocal & bmask) > (ballsPocketedOrig & bmask);
-                if (isChinese8Ball) isOpponentSink = false; 
+                if (isChinese8Ball) isOpponentSink = false; //中式规则
                 else isOpponentSink = (ballsPocketedLocal & emask) > (ballsPocketedOrig & emask);
 
                 // Calculate if objective was not hit first
@@ -1906,7 +1906,7 @@ public class BilliardsModule : UdonSharpBehaviour
                     moveBallInDirUntilNotTouching(1, Vector3.right * k_BALL_RADIUS * .051f);
                 }
 
-                foulCondition = isScratch || isWrongHit || fallOffFoul || (!isObjectiveSink && (!ballBounced || (colorTurnLocal && numBallsHitCushion < 4)));
+                foulCondition = isScratch || isWrongHit || fallOffFoul || ((!isObjectiveSink && !isOpponentSink) && (!ballBounced || (colorTurnLocal && numBallsHitCushion < 4)));
 
                 if (isScratch && colorTurnLocal)
                 {

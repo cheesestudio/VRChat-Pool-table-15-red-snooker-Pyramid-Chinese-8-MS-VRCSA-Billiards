@@ -7485,7 +7485,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: c124011a1754a804780db881a598a17e, type: 2}
+  - {fileID: 2100000, guid: cc372933c8e860b428564bdaa864d185, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -7737,6 +7737,7 @@ MonoBehaviour:
   - {fileID: 2800000, guid: 4b456cb5b2d5f244fa8115677f271e78, type: 3}
   - {fileID: 2800000, guid: bdccfeaba44289445acfca28d82a6744, type: 3}
   - {fileID: 2800000, guid: 83b136cdbc50b4d47bbeb159052c75ad, type: 3}
+  - {fileID: 2800000, guid: 4cbc85e50a9fee04d98b96b9d0786dbd, type: 3}
   TableHook: {fileID: 0}
   nameColorHook: {fileID: 494812953967346586}
   isScoreManagerEnable: 1
@@ -36214,6 +36215,11 @@ PrefabInstance:
         type: 3}
       propertyPath: TABLENAME
       value: "\u4FC4\u7F57\u65AF\u53F0 12ft"
+      objectReference: {fileID: 0}
+    - target: {fileID: 5909470883820093538, guid: 78c8625041e09c34a876bad13d377882,
+        type: 3}
+      propertyPath: bs_BallMass
+      value: 0.255
       objectReference: {fileID: 0}
     - target: {fileID: 5909470883820093538, guid: 78c8625041e09c34a876bad13d377882,
         type: 3}
