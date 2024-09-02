@@ -1,7 +1,8 @@
-# 中文台球CBC pool table
+# 中文台球俱乐部桌 CBC pool table
 ### 再原来的基础上加了 15球斯诺克 俄罗斯台球 中式八球（包括规则和集球器） 
 自选球杆皮肤和桌子颜色(球杆同步，桌子本地)
 继承原项目一切更新，45秒计时器，库边颜色切换等
+桌子翻译，中英两版
 
 15 red snooker,pyramid,chinese 8 ball system added.(including 45s timer,table cloth,cue skin...)
 I create the table hook which can change cue skin(you can add your custom cue)and change table cloth color by slider.
@@ -17,7 +18,7 @@ remember to set the billiard Module layer 22 and physics part(just click the but
 
 
 
-自定义球杆皮肤  if your want to add your custom cue.
+自定义球杆皮肤  if your want to add your custom cue.（下面视频，还要在tablehook里面加贴图现在）
 
 https://youtu.be/YnoQ9jsUg0k?si=EfdxX1FDMUZXM2RX
 
