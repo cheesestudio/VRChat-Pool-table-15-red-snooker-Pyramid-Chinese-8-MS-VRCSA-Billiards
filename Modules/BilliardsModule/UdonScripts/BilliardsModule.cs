@@ -1897,7 +1897,7 @@ public class BilliardsModule : UdonSharpBehaviour
 
                 winCondition = (isSetComplete || colorTurnLocal) && is8Sink;
 
-                if (is8Sink && isPracticeMode && !winCondition)
+                if (is8Sink && isPracticeMode && !winCondition)  
                 {
                     is8Sink = false;
 
@@ -1915,6 +1915,16 @@ public class BilliardsModule : UdonSharpBehaviour
                 }
 
                 deferLossCondition = is8Sink;
+
+                if ((isChinese8Ball && colorTurnLocal))//中式开球复位
+                {
+                    is8Sink = false;
+                    winCondition = false;           //赢不了一点
+                    deferLossCondition = false;     //也别想输
+                    ballsPocketedLocal = ballsPocketedLocal & ~(0x2U);
+                    ballsP[1] = Vector3.zero;
+                    moveBallInDirUntilNotTouching(1, Vector3.right * k_BALL_RADIUS * .051f);
+                }
 
                 // try and close the table if possible
                 if (!foulCondition && isTableOpenLocal)
@@ -1949,6 +1959,7 @@ public class BilliardsModule : UdonSharpBehaviour
                         teamColorLocal = teamIdLocal ^ 0x1u;
                         closeTable = true;
                     }
+                    if (isChinese8Ball && colorTurnLocal) closeTable = false; //中式开球不判球
                     if (closeTable)
                     {
                         networkingManager._OnTableClosed(teamColorLocal);
