@@ -1267,7 +1267,8 @@ public class BilliardsModule : UdonSharpBehaviour
         //UP24/6/15
         if (isScoreManagerEnable)
         {
-            ScoreManagerL.AddScore(playerIDsCached[0], playerIDsCached[1], playerIDsCached[winningTeamLocal]);
+            if(!colorTurnLocal)  //斯诺克有可能出问题
+                ScoreManagerL.AddScore(playerIDsCached[0], playerIDsCached[1], playerIDsCached[winningTeamLocal]);
         }
 
         gameLive = false;
@@ -1923,7 +1924,7 @@ public class BilliardsModule : UdonSharpBehaviour
                     deferLossCondition = false;     //也别想输
                     ballsPocketedLocal = ballsPocketedLocal & ~(0x2U);
                     ballsP[1] = Vector3.zero;
-                    moveBallInDirUntilNotTouching(1, Vector3.right * k_BALL_RADIUS * .051f);
+                    moveBallInDirUntilNotTouching(1, Vector3.right * .051f);
                 }
 
                 // try and close the table if possible
