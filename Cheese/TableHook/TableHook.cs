@@ -18,6 +18,7 @@ public class TableHook : UdonSharpBehaviour
     [HideInInspector] public int inOwner;
     [HideInInspector]public int outCanUse;
     private int outCanUseTmp = 0;
+    [HideInInspector] public int ball;
     public int DefaultCue;
     public bool keepRotating = false;
     private int isRotating;
@@ -26,6 +27,7 @@ public class TableHook : UdonSharpBehaviour
     void Start()
     {
         outCanUse = 0;
+        ball = 0;
         outCanUseTmp = DefaultCue;
         isRotating = maxRotation;
         keepRotating = false;
@@ -145,5 +147,22 @@ public class TableHook : UdonSharpBehaviour
     {
         outCanUseTmp = 13;
         ChangeMaterial();
+    }
+
+    public void _Ball0()
+    {
+        ball = 0;
+    }
+    public void _Ball1()
+    {
+        ball = 4;
+    }
+    public void _Ball2()
+    {
+        ball = 5;
+    }
+    public void _Ball3()
+    {
+        ball = 6;
     }
 }

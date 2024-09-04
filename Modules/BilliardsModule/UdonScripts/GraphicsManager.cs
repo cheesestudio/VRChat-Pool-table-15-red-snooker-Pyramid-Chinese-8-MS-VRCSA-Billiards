@@ -246,11 +246,12 @@ public class GraphicsManager : UdonSharpBehaviour
 
     private void tickTableColor()
     {
-        //table custom color by cheese
-        float tableColor = (float)table.TableHook.GetProgramVariable("TableColor");
-        float tableLightness = (float)table.TableHook.GetProgramVariable("TableColorLightness");
+
         if (table.TableHook != null)
         {
+            //table custom color by cheese
+            float tableColor = (float)table.TableHook.GetProgramVariable("TableColor");
+            float tableLightness = (float)table.TableHook.GetProgramVariable("TableColorLightness");
             tableMaterial.SetFloat("_ClothHue", tableColor);
             tableMaterial.SetFloat("_ClothSaturation", tableLightness);
             // Debug.Log((float)table.TableHook.GetProgramVariable("TableColor"));
@@ -871,7 +872,11 @@ int uniform_cue_colour;
             pColour0 = table.k_teamColour_spots;
             pColour1 = table.k_teamColour_stripes;
 
-            ballMaterial.SetTexture("_MainTex", usColors ? usColorTexture : table.textureSets[0]);
+            //table hook change ball material
+            int i = 0;
+            if (table.TableHook != null)    i= (int)table.TableHook.GetProgramVariable("ball");
+            //ballMaterial.SetTexture("_MainTex", usColors ? usColorTexture : table.textureSets[0]);
+            ballMaterial.SetTexture("_MainTex",table.textureSets[i]);
         }
     }
 
