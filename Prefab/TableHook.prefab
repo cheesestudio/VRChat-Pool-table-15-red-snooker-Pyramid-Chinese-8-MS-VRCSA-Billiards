@@ -2443,7 +2443,7 @@ MonoBehaviour:
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
     m_FontSize: 80
-    m_FontStyle: 1
+    m_FontStyle: 3
     m_BestFit: 0
     m_MinSize: 0
     m_MaxSize: 80
@@ -2490,7 +2490,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: -0.111, y: -1.107}
+  m_AnchoredPosition: {x: -0.111, y: -1.036}
   m_SizeDelta: {x: 140, y: 50}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &6424592952054321248
@@ -3066,7 +3066,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5050087625333847500}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: -0}
   m_LocalScale: {x: 0.0048599998, y: 0.002, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -3075,7 +3075,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: -0.111, y: -1.224}
+  m_AnchoredPosition: {x: -0.111, y: -1.141}
   m_SizeDelta: {x: 140, y: 50}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &3634526593292279289
@@ -3370,7 +3370,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5547408039084747633}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: -0}
   m_LocalScale: {x: 0.0048599998, y: 0.002, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -3379,7 +3379,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: -0.111, y: -0.86}
+  m_AnchoredPosition: {x: -0.111, y: -0.829}
   m_SizeDelta: {x: 140, y: 50}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &5354173313294938905
@@ -4063,7 +4063,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: -0.111, y: -0.74}
+  m_AnchoredPosition: {x: -0.111, y: -0.723}
   m_SizeDelta: {x: 140, y: 50}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &3902465863541829995
@@ -4361,7 +4361,7 @@ MonoBehaviour:
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
     m_FontSize: 80
-    m_FontStyle: 1
+    m_FontStyle: 3
     m_BestFit: 0
     m_MinSize: 0
     m_MaxSize: 80
@@ -4408,7 +4408,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: -0.11100006, y: -0.51499957}
+  m_AnchoredPosition: {x: -0.111, y: -0.507}
   m_SizeDelta: {x: 140, y: 50}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &8269224041682354964
@@ -4910,7 +4910,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8356987391769233623}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: -0}
   m_LocalScale: {x: 0.0048599998, y: 0.002, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -4919,7 +4919,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: -0.111, y: -0.623}
+  m_AnchoredPosition: {x: -0.111, y: -0.618}
   m_SizeDelta: {x: 140, y: 50}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &4258609181347904952
@@ -5043,7 +5043,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8370808656431231615}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: -0}
   m_LocalScale: {x: 0.0048599998, y: 0.002, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -5052,7 +5052,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: -0.111, y: -0.988}
+  m_AnchoredPosition: {x: -0.111, y: -0.931}
   m_SizeDelta: {x: 140, y: 50}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &1354174101746941127

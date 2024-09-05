@@ -290,6 +290,7 @@ public class BilliardsModule : UdonSharpBehaviour
     [NonSerialized] public uint foulStateLocal;
     [NonSerialized] public int tableModelLocal;
     [NonSerialized] public bool colorTurnLocal;
+    [NonSerialized] public bool BreakFinish;
 #if EIJIS_PYRAMID
     [NonSerialized] public const uint GAMEMODE_PYRAMID = 5u;
 #endif
@@ -1267,7 +1268,7 @@ public class BilliardsModule : UdonSharpBehaviour
         //UP24/6/15
         if (isScoreManagerEnable)
         {
-            if(!colorTurnLocal)  //斯诺克有可能出问题
+            if(!BreakFinish)  //斯诺克有可能出问题
                 ScoreManagerL.AddScore(playerIDsCached[0], playerIDsCached[1], playerIDsCached[winningTeamLocal]);
         }
 
@@ -1917,15 +1918,17 @@ public class BilliardsModule : UdonSharpBehaviour
 
                 deferLossCondition = is8Sink;
 
-                if ((isChinese8Ball && colorTurnLocal))//中式开球复位
+                if (is8Sink && isChinese8Ball && colorTurnLocal)//中式开球复位
                 {
                     is8Sink = false;
                     winCondition = false;           //赢不了一点
                     deferLossCondition = false;     //也别想输
                     ballsPocketedLocal = ballsPocketedLocal & ~(0x2U);
-                    ballsP[1] = Vector3.zero;
+                    ballsP[1] = initialPositions[1][1]; //初始点
                     moveBallInDirUntilNotTouching(1, Vector3.right * .051f);
                 }
+                if (is8Sink && colorTurnLocal) BreakFinish = true;
+                else BreakFinish = false;
 
                 // try and close the table if possible
                 if (!foulCondition && isTableOpenLocal)
