@@ -1,5 +1,6 @@
-![)UI6%`EB4MP@6@USO Z48Z9_tmb](https://github.com/user-attachments/assets/b3f9475d-94aa-4fcf-8ea7-3e06cdc6bc00)
+![%Z6C308PHAJYH0Y%)ATSBU7_tmb](https://github.com/user-attachments/assets/9004efdb-08a5-49f0-b482-461d8efb10cf)
 # 中文台球俱乐部桌 CBC pool table
+
 这个项目是用于VRChat的台球桌预制键,你可以在 **[中文台球俱乐部 Chinese Billiiards Club
 ](https://vrchat.com/home/launch?worldId=wrld_0a35397b-2e7d-4f01-8552-034ab8e76e2e
 )**.游玩和测试这张桌子  
