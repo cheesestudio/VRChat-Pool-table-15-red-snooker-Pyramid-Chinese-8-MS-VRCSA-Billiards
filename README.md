@@ -5,7 +5,7 @@
 桌子翻译，中英两版
 
 15 red snooker,pyramid,chinese 8 ball system added.(including 45s timer,table cloth,cue skin...)
-I create the table hook which can change cue skin(you can add your custom cue)and change table cloth color by slider.
+I create the table hook which can change cue skin(you can add your custom cue),ball skin and change table cloth color by slider.
 
 原项目:https://github.com/Sacchan-VRC/MS-VRCSA-Billiards
 
