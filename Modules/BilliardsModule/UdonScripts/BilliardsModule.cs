@@ -2275,7 +2275,7 @@ public class BilliardsModule : UdonSharpBehaviour
                 // Snooker Draw
                 onLocalTurnTie();
             }
-            else if (isObjectiveSink && !isOpponentSink)
+            else if (isObjectiveSink && (!isOpponentSink || is8Ball))
             {
                 // Continue
                 onLocalTurnContinue();
@@ -2527,8 +2527,8 @@ public class BilliardsModule : UdonSharpBehaviour
 #else
             initialBallsPocketed[2] = 0x1FFEu;
 #endif
-             initialPositions[2][0] = new Vector3(-quarterTable, 0.0f, k_TABLE_HEIGHT * 0.5f);
-            initialPositions[2][13] = new Vector3(-quarterTable, 0.0f, k_TABLE_HEIGHT * -0.5f);
+            initialPositions[2][0] = new Vector3(-quarterTable + (quarterTable * -0.5f), 0.0f, 0.0f);
+            initialPositions[2][13] = new Vector3(quarterTable + (quarterTable * 0.5f), 0.0f, 0.0f);
             initialPositions[2][14] = new Vector3(quarterTable, 0.0f, 0.0f);
             initialPositions[2][15] = new Vector3(-quarterTable, 0.0f, 0.0f);
         }
@@ -3956,7 +3956,7 @@ public void _RedrawDebugger() { }
 
     public void _EndPerf(int id)
     {
-        perfTimings[id] = Time.realtimeSinceStartup - perfStart[id];
+        perfTimings[id] += Time.realtimeSinceStartup - perfStart[id];
         perfCounters[id]++;
     }
 
@@ -4018,7 +4018,8 @@ public void _RedrawDebugger() { }
         for (int i = 0; i < PERF_MAX; i++)
         {
             output += "<color=\"#95a2b8\">" + perfNames[i] + "(</color> " + (perfCounters[i] > 0 ? perfTimings[i] * 1e6 / perfCounters[i] : 0).ToString("F2") + "µs <color=\"#95a2b8\">)</color> ";
-            // to not average them (see real, current values)
+            // to not average them (see values from this frame)
+            // requires changing _EndPerf() to be = instead of +=
             // output += "<color=\"#95a2b8\">" + perfNames[i] + "(</color> " + (/*perfCounters[i] > 0 ? */ perfTimings[i] * 1e6 /* / perfCounters[i] : 0 */).ToString("F2") + "µs <color=\"#95a2b8\">)</color> ";
         }
 

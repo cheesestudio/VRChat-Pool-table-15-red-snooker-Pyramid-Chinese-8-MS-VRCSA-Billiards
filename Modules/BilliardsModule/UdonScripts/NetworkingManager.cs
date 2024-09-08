@@ -34,7 +34,7 @@ public class NetworkingManager : UdonSharpBehaviour
     [UdonSynced][NonSerialized] public Vector3 cueBallWSynced;
 
     // the current state id - this value should increment monotonically, with each id representing a distinct state that's worth snapshotting
-    [UdonSynced][NonSerialized] public int stateIdSynced;
+    [UdonSynced][NonSerialized] public ushort stateIdSynced;
 
     // bitmask of pocketed balls
     [UdonSynced][NonSerialized] public uint ballsPocketedSynced;
@@ -668,7 +668,7 @@ public class NetworkingManager : UdonSharpBehaviour
         byte turnStateLocal, Vector3 cueBallV, Vector3 cueBallW, bool colorTurn
     )
     {
-        stateIdSynced = stateIdLocal;
+        stateIdSynced = (ushort)stateIdLocal;
 
 #if EIJIS_MANY_BALLS
         Array.Copy(newBallsP, ballsPSynced, BilliardsModule.MAX_BALLS);

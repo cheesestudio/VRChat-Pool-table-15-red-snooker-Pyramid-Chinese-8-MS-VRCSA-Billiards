@@ -31281,7 +31281,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\u578B\u53F7:MS-VRCSA-CBC\n\u7248\u672C:TABLE  v1.12"
+  m_text: "\u578B\u53F7:MS-VRCSA-CBC\n\u7248\u672C:TABLE  v1.13"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: eb8bacd46357fb4418b3d529965e7b08, type: 2}
   m_sharedMaterial: {fileID: 2979193228837331801, guid: eb8bacd46357fb4418b3d529965e7b08,
