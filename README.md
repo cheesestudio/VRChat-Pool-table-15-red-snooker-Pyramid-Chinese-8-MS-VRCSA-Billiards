@@ -23,6 +23,10 @@ if your want to add your custom cue.(and add texture in table hook)
 > 原项目:[MS-VRCSA-Billiards](https://github.com/Sacchan-VRC/MS-VRCSA-Billiards)
 ### 设置 Set up
 用的时候记得把billiardModule设置为22层，并把这层单独物理设置成只与自己交互（上面MS那个按钮可以自动设置）  
+一定要设置table hook!!!
+![image](https://github.com/user-attachments/assets/f453ae11-0735-4885-b700-87101d5971c7)
+
+![A1${86C(YGWI)~3G{RT7J6U](https://github.com/user-attachments/assets/2e4d0cda-78aa-42a3-bbf0-c2da4d901561)
 更多自定义功能:  
 -自定义球杆皮肤和球材质（下面视频，还要在tablehook里面加贴图现在）代码里面预留了几个空位  
 > [设置自定义球杆 How to set custom cue](https://youtu.be/YnoQ9jsUg0k?si=EfdxX1FDMUZXM2RX)
