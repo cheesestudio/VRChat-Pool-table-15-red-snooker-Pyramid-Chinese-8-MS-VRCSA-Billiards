@@ -20,9 +20,9 @@ public class TableHook : UdonSharpBehaviour
     private int outCanUseTmp = 0;
     [HideInInspector] public int ball;
     public int DefaultCue;
-    public bool keepRotating = false;
+    [SerializeField] public bool keepCueRotating;
     private int isRotating;
-    [NonSerialized] private int maxRotation=120;
+    [NonSerialized] private int maxRotation=130;
     private Renderer renderer;
     void Start()
     {
@@ -30,7 +30,6 @@ public class TableHook : UdonSharpBehaviour
         ball = 0;
         outCanUseTmp = DefaultCue;
         isRotating = maxRotation;
-        keepRotating = false;
         renderer = this.transform.Find("body/render").GetComponent<Renderer>();
     }
 
@@ -39,23 +38,21 @@ public class TableHook : UdonSharpBehaviour
             outCanUse = outCanUseTmp;
     }
 
-    public void _ChangeKeepRotating()
-    { 
-        keepRotating = !keepRotating;
-    }
+    //public void _ChangeKeepRotating()
+    //{ 
+    //    keepCueRotating = !keepCueRotating;
+    //}
     private void ChangeMaterial()
     {
         if (cueSkins[outCanUseTmp] != null)
         {
                 renderer.materials[1].SetTexture("_MainTex", cueSkins[outCanUseTmp]);
-            
         }
         isRotating = 0;
-
     }
     void Update()
     {
-        if (isRotating < maxRotation || keepRotating)
+        if ((isRotating < maxRotation) || keepCueRotating)
         {
             renderer.transform.Rotate(new Vector3(1, 0.05f, 0.05f), Mathf.Clamp(maxRotation-isRotating,0,3), Space.Self);
             isRotating++;
