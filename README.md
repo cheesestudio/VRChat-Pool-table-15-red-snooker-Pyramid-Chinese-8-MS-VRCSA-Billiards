@@ -29,9 +29,10 @@ if your want to add your custom cue.(and add texture in table hook)
 ![A1${86C(YGWI)~3G{RT7J6U](https://github.com/user-attachments/assets/2e4d0cda-78aa-42a3-bbf0-c2da4d901561)
 更多自定义功能:  
 -自定义球杆皮肤和球材质（下面视频，还要在tablehook里面加贴图现在）代码里面预留了几个空位  
-> [设置自定义球杆 How to set custom cue](https://youtu.be/YnoQ9jsUg0k?si=EfdxX1FDMUZXM2RX)  
 -有写过udonchips的对应版本（详情见发布页面） 
 -用我发布的现成包就行，如果想克隆库，自己加一下vrcsdk和udonsharp  
+> [设置自定义球杆 How to set custom cue](https://youtu.be/YnoQ9jsUg0k?si=EfdxX1FDMUZXM2RX)  
+ 
 ### 可能性功能(未来) Feature
 - 根据客户端语言自动进行翻译功能 translate
 - 桌子控件更多功能 table hook function
