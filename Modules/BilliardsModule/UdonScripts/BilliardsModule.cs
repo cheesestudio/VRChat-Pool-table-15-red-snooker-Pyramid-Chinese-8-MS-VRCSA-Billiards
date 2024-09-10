@@ -1195,6 +1195,11 @@ public class BilliardsModule : UdonSharpBehaviour
 
         isPracticeMode = playerIDsLocal[1] == -1 && playerIDsLocal[3] == -1;
 
+        if (isScoreManagerEnable && !isPracticeMode)
+        {
+            ScoreManagerL.toggleScoreOn(playerIDsCached[0], playerIDsCached[1]);
+        }
+
         menuManager._RefreshLobby();
         graphicsManager._OnGameStarted();
         desktopManager._OnGameStarted();
@@ -1266,7 +1271,7 @@ public class BilliardsModule : UdonSharpBehaviour
         }
 
         //UP24/6/15
-        if (isScoreManagerEnable)
+        if (isScoreManagerEnable && !isPracticeMode)
         {
             if(!BreakFinish)  //斯诺克有可能出问题
                 ScoreManagerL.AddScore(playerIDsCached[0], playerIDsCached[1], playerIDsCached[winningTeamLocal]);
@@ -1889,8 +1894,7 @@ public class BilliardsModule : UdonSharpBehaviour
                 }
 
                 isObjectiveSink = (ballsPocketedLocal & bmask) > (ballsPocketedOrig & bmask);
-                if (isChinese8Ball) isOpponentSink = false; //中式规则
-                else isOpponentSink = (ballsPocketedLocal & emask) > (ballsPocketedOrig & emask);
+                isOpponentSink = (ballsPocketedLocal & emask) > (ballsPocketedOrig & emask);
 
                 // Calculate if objective was not hit first
                 bool isWrongHit = ((0x1U << firstHit) & bmask) == 0;
@@ -2527,8 +2531,16 @@ public class BilliardsModule : UdonSharpBehaviour
 #else
             initialBallsPocketed[2] = 0x1FFEu;
 #endif
-            initialPositions[2][0] = new Vector3(-quarterTable + (quarterTable * -0.5f), 0.0f, 0.0f);
-            initialPositions[2][13] = new Vector3(quarterTable + (quarterTable * 0.5f), 0.0f, 0.0f);
+            if (playerIDsLocal[1] == -1 && playerIDsLocal[3] == -1) //lag for break when both player join one side
+            {
+                initialPositions[2][0] = new Vector3(-quarterTable, 0.0f, k_TABLE_HEIGHT * 0.5f);
+                initialPositions[2][13] = new Vector3(-quarterTable, 0.0f, k_TABLE_HEIGHT * -0.5f);
+            }
+            else
+            {
+                initialPositions[2][0] = new Vector3(-quarterTable + (quarterTable * -0.5f), 0.0f, 0.0f);
+                initialPositions[2][13] = new Vector3(quarterTable + (quarterTable * 0.5f), 0.0f, 0.0f);
+            }
             initialPositions[2][14] = new Vector3(quarterTable, 0.0f, 0.0f);
             initialPositions[2][15] = new Vector3(-quarterTable, 0.0f, 0.0f);
         }

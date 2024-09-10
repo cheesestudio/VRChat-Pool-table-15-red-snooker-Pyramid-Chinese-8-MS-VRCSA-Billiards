@@ -15,9 +15,6 @@ public class ScoreManager : UdonSharpBehaviour
     private int BlueScore = 0;
     private int RedScore = 0;
 
-    private string Player1 = "";
-    private string Player2 = "";
-
     private bool isScoreOn = false;
 
     private SkinnedMeshRenderer l_skr;
@@ -39,44 +36,50 @@ public class ScoreManager : UdonSharpBehaviour
     {
         isScoreOn = R_isScoreOn;
 
-        Player1 = R_Player1;
-        Player2 = R_Player2;
-
         RedScore = R_RedScore;
         BlueScore = R_BlueScore;
+
+        red.text = R_Player1;
+        blue.text = R_Player2;
 
         ReflashDisplay();
     }
 
-    private void toggleScoreOn(int ID1, int ID2, int win)
+    public void toggleScoreOn(int ID1, int ID2)
     {
         VRCPlayerApi player1 = VRCPlayerApi.GetPlayerById(ID1);
         VRCPlayerApi player2 = VRCPlayerApi.GetPlayerById(ID2);
-        VRCPlayerApi winplayer = VRCPlayerApi.GetPlayerById(win);
 
-        if (!Utilities.IsValid(player1) || !Utilities.IsValid(player2) || !Utilities.IsValid(winplayer))
+        if (!Utilities.IsValid(player1) || !Utilities.IsValid(player2))
             return;
 
-        if (winplayer.displayName != Networking.LocalPlayer.displayName)
+        if (player1.displayName != Networking.LocalPlayer.displayName)
             return;
 
         if (!Networking.IsOwner(gameObject))
-            Networking.SetOwner(winplayer, gameObject);
+            Networking.SetOwner(player1, gameObject);
 
         R_Player1 = player1.displayName;
         R_Player2 = player2.displayName;
 
-        Debug.Log(player1.displayName);
+        Debug.Log("{player1.displayName} is owner");
 
         R_isScoreOn = true;
     }
 
     void Start()
     {
-        RequestSerialization();
-
+        if(Networking.IsOwner(gameObject))
+        {
+            R_BlueScore = 0;
+            R_RedScore = 0;
+            RequestSerialization();
+        }
         l_skr = GetComponentInChildren<SkinnedMeshRenderer>();
+        l_reflash();
     }
+
+
 
     public void AddScore(int L_PlayerID1, int L_PlayerID2, int Winner)
     {
@@ -89,54 +92,50 @@ public class ScoreManager : UdonSharpBehaviour
 
         if (isScoreOn == false)
         {
-            toggleScoreOn(L_PlayerID1, L_PlayerID2, Winner);
+            toggleScoreOn(L_PlayerID1, L_PlayerID2);
         }
         else if (winplayer == Networking.LocalPlayer && !Networking.IsOwner(gameObject))
         {
             Networking.SetOwner(winplayer, gameObject);
             Debug.Log("1" + winplayer.displayName);
         }
-
-        if (Networking.IsOwner(gameObject))
+        Debug.Log("2" + Networking.LocalPlayer);
+        if (winplayer.displayName == R_Player1)
         {
-            Debug.Log("2" + Networking.LocalPlayer);
-            if (winplayer.displayName == R_Player1)
+            R_RedScore++;
+        }
+        else if (winplayer.displayName == R_Player2)
+        {
+            R_BlueScore++;
+        }
+        else
+        {
+            //RESET
+
+            R_isScoreOn = false;
+
+            R_Player1 = player1.displayName;
+            R_Player2 = player2.displayName;
+
+            R_RedScore = 0;
+            R_BlueScore = 0;
+
+            //shit 
+            if (L_PlayerID1 == Winner)
             {
                 R_RedScore++;
             }
-            else if (winplayer.displayName == R_Player2)
+            else if (L_PlayerID2 == Winner)
             {
                 R_BlueScore++;
             }
-            else
-            {
-                //RESET
+            toggleScoreOn(L_PlayerID1, L_PlayerID2);
 
-                R_isScoreOn = false;
-
-                R_Player1 = player1.displayName;
-                R_Player2 = player2.displayName;
-
-                R_RedScore = 0;
-                R_BlueScore = 0;
-
-                //shit 
-                if (L_PlayerID1 == Winner)
-                {
-                    R_RedScore++;
-                }
-                else if (L_PlayerID2 == Winner)
-                {
-                    R_BlueScore++;
-                }
-                toggleScoreOn(L_PlayerID1, L_PlayerID2, Winner);
-
-            }
-            red.text = R_Player1;
-            blue.text = R_Player2;
-            l_reflash();
-            RequestSerialization();
         }
+
+        l_reflash();
+        RequestSerialization();
+  
     }
 
     public void ReflashDisplay()
@@ -177,22 +176,8 @@ public class ScoreManager : UdonSharpBehaviour
     public override void OnDeserialization()
     {
         //Sync
-        if (!Networking.IsOwner(gameObject))
-        {
-            isScoreOn = R_isScoreOn;
-
-            Player1 = R_Player1;
-            Player2 = R_Player2;
-
-            red.text = R_Player1;
-            blue.text = R_Player2;
-
-            RedScore = R_RedScore;
-            BlueScore = R_BlueScore;
-
-            //Reflash
-            ReflashDisplay();
-        }
+        //Reflash
+        l_reflash();
     }
 
 }
