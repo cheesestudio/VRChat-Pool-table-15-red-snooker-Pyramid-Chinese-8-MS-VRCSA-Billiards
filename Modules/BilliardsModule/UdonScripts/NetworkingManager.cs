@@ -1055,7 +1055,7 @@ public class NetworkingManager : UdonSharpBehaviour
         gameState[encodePos] = (byte)(colorTurnSynced ? 1 : 0);
 
         // find gameStateLength
-         Debug.Log("gameStateLength = " + (encodePos + 1));
+         //Debug.Log("gameStateLength = " + (encodePos + 1));
 
         return "v3:" + Convert.ToBase64String(gameState, Base64FormattingOptions.None);
     }

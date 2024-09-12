@@ -1273,7 +1273,7 @@ public class BilliardsModule : UdonSharpBehaviour
         //UP24/6/15
         if (isScoreManagerEnable && !isPracticeMode)
         {
-            if(!BreakFinish)  //斯诺克有可能出问题
+            if(!BreakFinish)  //斯诺克有可能出问题,因为Breakfinish是由复用的参数计算的
                 ScoreManagerL.AddScore(playerIDsCached[0], playerIDsCached[1], playerIDsCached[winningTeamLocal]);
         }
 

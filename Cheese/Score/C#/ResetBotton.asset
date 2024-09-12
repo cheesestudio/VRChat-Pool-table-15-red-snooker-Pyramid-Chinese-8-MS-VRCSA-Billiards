@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: ResetBotton
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: c9f7bd322efb67941ade74c0e09ff8d3,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: e36d95fcecb454c47b3b2aec2bdb83b2,
     type: 2}
   udonAssembly: 
   assemblyError: 
