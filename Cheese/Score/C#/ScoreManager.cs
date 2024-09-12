@@ -47,6 +47,8 @@ public class ScoreManager : UdonSharpBehaviour
 
     public void toggleScoreOn(int ID1, int ID2)
     {
+        if (R_isScoreOn) return;
+
         VRCPlayerApi player1 = VRCPlayerApi.GetPlayerById(ID1);
         VRCPlayerApi player2 = VRCPlayerApi.GetPlayerById(ID2);
 
@@ -65,6 +67,7 @@ public class ScoreManager : UdonSharpBehaviour
         Debug.Log("{player1.displayName} is owner");
 
         R_isScoreOn = true;
+        isScoreOn =true;
     }
 
     void Start()
