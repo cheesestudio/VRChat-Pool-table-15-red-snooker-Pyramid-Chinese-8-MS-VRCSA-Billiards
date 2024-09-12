@@ -4728,7 +4728,7 @@ MonoBehaviour:
   SynchronizePosition: 0
   AllowCollisionOwnershipTransfer: 0
   Reliable: 0
-  _syncMethod: 2
+  _syncMethod: 1
   serializedProgramAsset: {fileID: 11400000, guid: 04169505cb1b4aa4d9e788fc3589f655,
     type: 2}
   programSource: {fileID: 11400000, guid: f4981654165b11d43830dd9143e5f564, type: 2}
@@ -35913,6 +35913,11 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 6700945620554530453}
     m_Modifications:
+    - target: {fileID: 778999596852104019, guid: 002e92d2a305bbc4f8d870fdabc9bd51,
+        type: 3}
+      propertyPath: _syncMethod
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 778999596852104019, guid: 002e92d2a305bbc4f8d870fdabc9bd51,
         type: 3}
       propertyPath: serializedProgramAsset

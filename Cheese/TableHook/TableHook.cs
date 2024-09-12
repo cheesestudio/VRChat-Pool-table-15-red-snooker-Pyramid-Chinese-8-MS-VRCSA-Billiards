@@ -8,7 +8,9 @@ using TMPro;
 
 public class TableHook : UdonSharpBehaviour
 {
+    //Data
     [SerializeField] public Texture2D[] cueSkins;
+    [SerializeField] public TextMeshProUGUI PlayerID;
     //Slider
     [SerializeField] public UdonBehaviour TableColorSlider;
     [SerializeField] public UdonBehaviour TableColorLightnessSlider;
@@ -31,6 +33,8 @@ public class TableHook : UdonSharpBehaviour
 
     void Start()
     {
+        PlayerID.text = Networking.LocalPlayer.displayName;
+
         outCanUse = 0;
         ball = 0;
         outCanUseTmp = DefaultCue;
@@ -159,7 +163,7 @@ public class TableHook : UdonSharpBehaviour
         //Debug.Log("CV:" + Convert.ToBase64String(gameState));
     }
 
-    private void LoadLocalData(string gameStateStr)
+    private void LoadLocalDataV0(string gameStateStr)
     {
         if (!isValidBase64(gameStateStr)) return;
 
@@ -180,6 +184,13 @@ public class TableHook : UdonSharpBehaviour
         ChangeMaterial();
     }
 
+    private void LoadLocalData(string gameStateStr)
+    {
+        if (gameStateStr.StartsWith("CV:"))
+        {
+            LoadLocalDataV0(gameStateStr.Substring(3));
+        }
+    }
     public void OnSaveButtonPushed()
     {
 
@@ -206,6 +217,7 @@ public class TableHook : UdonSharpBehaviour
             return;
         }
 
+        //if (!_IsPlayer(Networking.LocalPlayer)) return; //not load on others game
 
         LoadLocalData(inputField.text);
 
