@@ -30,6 +30,7 @@ public class TableHook : UdonSharpBehaviour
 
     //Save & Load
     public InputField inputField;
+    [SerializeField] public SettingLoader SettingLoader;
 
     void Start()
     {
@@ -43,7 +44,7 @@ public class TableHook : UdonSharpBehaviour
 
         //Load PlayerSettings from my server
         //string LocalData = EncodeLocalData();
-
+        //inputField.text=SettingLoader.GetSettingString(Networking.LocalPlayer.displayName);
     }
 
     public void _CanUseCueSkin()
@@ -221,6 +222,12 @@ public class TableHook : UdonSharpBehaviour
 
         LoadLocalData(inputField.text);
 
+    }
+
+    public void LoadFromNetwork()
+    {
+        inputField.text = SettingLoader.GetSettingString(Networking.LocalPlayer.displayName);
+        LoadLocalData(inputField.text);
     }
     #endregion
 

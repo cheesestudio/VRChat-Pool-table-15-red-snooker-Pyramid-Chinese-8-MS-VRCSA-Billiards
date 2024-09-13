@@ -362,7 +362,7 @@ CanvasRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1310093659955277453}
-  m_CullTransparentMesh: 1
+  m_CullTransparentMesh: 0
 --- !u!223 &4881076243889449480
 Canvas:
   m_ObjectHideFlags: 0
@@ -425,7 +425,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3808901558198133952}
-  - component: {fileID: 4744088966058507987}
   - component: {fileID: 8001326594687199200}
   - component: {fileID: 5912646294556917262}
   - component: {fileID: 5282475919072323954}
@@ -455,14 +454,6 @@ RectTransform:
   m_AnchoredPosition: {x: -20.8, y: -1.5}
   m_SizeDelta: {x: 40.87666, y: 20.55271}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!222 &4744088966058507987
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1956323367082566380}
-  m_CullTransparentMesh: 1
 --- !u!223 &8001326594687199200
 Canvas:
   m_ObjectHideFlags: 0
@@ -666,7 +657,7 @@ CanvasRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2445402385192697063}
-  m_CullTransparentMesh: 1
+  m_CullTransparentMesh: 0
 --- !u!223 &882227869597554019
 Canvas:
   m_ObjectHideFlags: 0
@@ -729,7 +720,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4229411047545882278}
-  - component: {fileID: 4746957112451517002}
   - component: {fileID: 6213862120149802554}
   - component: {fileID: 4544630478808990615}
   - component: {fileID: 264665200738485271}
@@ -759,14 +749,6 @@ RectTransform:
   m_AnchoredPosition: {x: -20.8, y: -1.5}
   m_SizeDelta: {x: 40.87666, y: 20.55271}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!222 &4746957112451517002
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2581428591639493386}
-  m_CullTransparentMesh: 1
 --- !u!223 &6213862120149802554
 Canvas:
   m_ObjectHideFlags: 0
@@ -933,7 +915,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6298345387698556003}
-  - component: {fileID: 6194416829808193572}
   - component: {fileID: 2138031889562520174}
   - component: {fileID: 2137657760594171369}
   - component: {fileID: 900440683169525340}
@@ -963,14 +944,6 @@ RectTransform:
   m_AnchoredPosition: {x: -20.8, y: -1.5}
   m_SizeDelta: {x: 40.87666, y: 20.55271}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!222 &6194416829808193572
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3237353973851958471}
-  m_CullTransparentMesh: 1
 --- !u!223 &2138031889562520174
 Canvas:
   m_ObjectHideFlags: 0
@@ -1174,7 +1147,7 @@ CanvasRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3575441456554339571}
-  m_CullTransparentMesh: 1
+  m_CullTransparentMesh: 0
 --- !u!223 &5399892145691612011
 Canvas:
   m_ObjectHideFlags: 0
@@ -1432,7 +1405,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4630591915453256371}
-  - component: {fileID: 2526916643546521967}
   - component: {fileID: 5390892759195461893}
   - component: {fileID: 6260395467100807336}
   - component: {fileID: 7708381293189070249}
@@ -1462,14 +1434,6 @@ RectTransform:
   m_AnchoredPosition: {x: -20.8, y: -1.5}
   m_SizeDelta: {x: 40.87666, y: 20.55271}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!222 &2526916643546521967
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4280253013487137264}
-  m_CullTransparentMesh: 1
 --- !u!223 &5390892759195461893
 Canvas:
   m_ObjectHideFlags: 0
@@ -1990,7 +1954,7 @@ CanvasRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6364796725875597412}
-  m_CullTransparentMesh: 1
+  m_CullTransparentMesh: 0
 --- !u!223 &9062392888710739533
 Canvas:
   m_ObjectHideFlags: 0

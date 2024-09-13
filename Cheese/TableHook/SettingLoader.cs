@@ -9,6 +9,7 @@ using VRC.Udon.ProgramSources;
 
 public class SettingLoader : UdonSharpBehaviour
 {
+    public TableHook tablehook;
 
     [Header("URL")]
     [SerializeField] public VRCUrl[] url;
@@ -44,6 +45,8 @@ public class SettingLoader : UdonSharpBehaviour
                 }
             }
         }
+
+        tablehook.LoadFromNetwork();
     }
 
     public override void OnStringLoadError(IVRCStringDownload result)
