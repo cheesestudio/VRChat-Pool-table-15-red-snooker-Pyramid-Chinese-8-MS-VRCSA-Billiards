@@ -10,6 +10,7 @@ QQ群:780855553
 15 red snooker,pyramid,chinese 8 ball system added.(including 45s timer,table cloth,cue skin...).  
 I create the table hook which can change cue skin(you can add your custom cue),ball skin and change table cloth color by slider.  
 keep almost everything form MS-VRCSA table  
+it can auto load settings from server if you send your setting code in our discord.
 remember to set the billiard Module layer 22 and physics part(just click the buttom called MS-VRCSA),and **tablehook** must be set in billiardModule.
 if your want to add your custom cue.(and add texture in table hook)  
 ## 功能介绍 Features
@@ -19,6 +20,7 @@ if your want to add your custom cue.(and add texture in table hook)
 - 桌子翻译，中英两版,规则版翻译补充
 - 计分板自动记录对局分数
 - 专属名字颜色
+- 网络同步玩家设置,进入世界自动加载,可以通过dc或者qq群上传设置
 - 排行榜功能,详情见discord群
 > 原项目:[MS-VRCSA-Billiards](https://github.com/Sacchan-VRC/MS-VRCSA-Billiards)
 ### 设置 Set up
@@ -36,7 +38,6 @@ if your want to add your custom cue.(and add texture in table hook)
 ### 可能性功能(未来) Feature
 - 根据客户端语言自动进行翻译功能 translate
 - 桌子控件更多功能 table hook function
-- 自动读取网页数据加载玩家设置 auto load settiong
 - 更丰富的名字颜色 more name color
 - 球轨迹线 ball trial
 
