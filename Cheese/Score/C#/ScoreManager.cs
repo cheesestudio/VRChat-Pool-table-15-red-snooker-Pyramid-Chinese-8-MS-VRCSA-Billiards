@@ -11,13 +11,17 @@ public class ScoreManager : UdonSharpBehaviour
     [Header("NameText")]
     [SerializeField] public TextMeshProUGUI red;
     [SerializeField] public TextMeshProUGUI blue;
+    [Header("ScoreText(not must)")]
+    [SerializeField] public TextMeshProUGUI red_score;
+    [SerializeField] public TextMeshProUGUI blue_score;
 
     private int BlueScore = 0;
     private int RedScore = 0;
 
     private bool isScoreOn = false;
 
-    private SkinnedMeshRenderer l_skr;
+    [Header("一代计分板,不用保持为空")]
+    public SkinnedMeshRenderer l_skr;
 
     [UdonSynced]
     private int R_BlueScore = 0;
@@ -42,6 +46,11 @@ public class ScoreManager : UdonSharpBehaviour
         red.text = R_Player1;
         blue.text = R_Player2;
 
+        if (red_score != null && blue_score != null)
+        {
+            red_score.text = R_RedScore.ToString();
+            blue_score.text = R_BlueScore.ToString();
+        }
         ReflashDisplay();
     }
 
@@ -78,7 +87,7 @@ public class ScoreManager : UdonSharpBehaviour
             R_RedScore = 0;
             RequestSerialization();
         }
-        l_skr = GetComponentInChildren<SkinnedMeshRenderer>();
+        //l_skr = GetComponentInChildren<SkinnedMeshRenderer>();
         l_reflash();
     }
 
@@ -143,6 +152,7 @@ public class ScoreManager : UdonSharpBehaviour
 
     public void ReflashDisplay()
     {
+        if (l_skr == null) return;
         for (int i = 0; i < 40; i++)
         {
             l_skr.SetBlendShapeWeight(i, 0);
@@ -174,6 +184,57 @@ public class ScoreManager : UdonSharpBehaviour
         l_reflash();
 
         RequestSerialization();
+    }
+
+    public void Score_BlueAdd()
+    {
+        if (!Networking.IsOwner(gameObject))
+        {
+            Networking.SetOwner(Networking.LocalPlayer, gameObject);
+        }
+        if (Networking.LocalPlayer.displayName == R_Player1 || Networking.LocalPlayer.displayName == R_Player2)
+        {
+            R_BlueScore++;
+            RequestSerialization();
+        }
+    }
+
+    public void Score_RedAdd()
+    {
+        if (!Networking.IsOwner(gameObject))
+        {
+            Networking.SetOwner(Networking.LocalPlayer, gameObject);
+        }
+        if (Networking.LocalPlayer.displayName == R_Player1 || Networking.LocalPlayer.displayName == R_Player2)
+        {
+            R_RedScore++;
+            RequestSerialization();
+        }
+}
+    public void Score_BlueMinus()
+    {
+        if (!Networking.IsOwner(gameObject))
+        {
+            Networking.SetOwner(Networking.LocalPlayer, gameObject);
+        }
+        if (Networking.LocalPlayer.displayName == R_Player1 || Networking.LocalPlayer.displayName == R_Player2)
+        {
+            R_BlueScore--;
+            RequestSerialization();
+        }
+    }
+
+    public void Score_RedMinus()
+    {
+        if (!Networking.IsOwner(gameObject))
+        {
+            Networking.SetOwner(Networking.LocalPlayer, gameObject);
+        }
+        if (Networking.LocalPlayer.displayName == R_Player1 || Networking.LocalPlayer.displayName == R_Player2)
+        {
+            R_RedScore--;
+            RequestSerialization();
+        }
     }
 
     public override void OnDeserialization()

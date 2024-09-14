@@ -554,7 +554,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   serializationData:
-    SerializedFormat: 0
+    SerializedFormat: 2
     SerializedBytes: 
     ReferencedUnityObjects: []
     SerializedBytesString: 
@@ -644,7 +644,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2979193228837331801, guid: eb8bacd46357fb4418b3d529965e7b08, type: 2}
+  - {fileID: -3406411368475958213, guid: 21ac83a342a0b7144a87e1d2c869c740, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -688,8 +688,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: eb8bacd46357fb4418b3d529965e7b08, type: 2}
-  m_sharedMaterial: {fileID: 2979193228837331801, guid: eb8bacd46357fb4418b3d529965e7b08,
+  m_fontAsset: {fileID: 11400000, guid: 21ac83a342a0b7144a87e1d2c869c740, type: 2}
+  m_sharedMaterial: {fileID: -3406411368475958213, guid: 21ac83a342a0b7144a87e1d2c869c740,
     type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
@@ -1111,7 +1111,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2979193228837331801, guid: eb8bacd46357fb4418b3d529965e7b08, type: 2}
+  - {fileID: -3406411368475958213, guid: 21ac83a342a0b7144a87e1d2c869c740, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1155,8 +1155,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\u52A0dc\u7FA4\u4F7F\u7528\njoin our discord group to use"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: eb8bacd46357fb4418b3d529965e7b08, type: 2}
-  m_sharedMaterial: {fileID: 2979193228837331801, guid: eb8bacd46357fb4418b3d529965e7b08,
+  m_fontAsset: {fileID: 11400000, guid: 21ac83a342a0b7144a87e1d2c869c740, type: 2}
+  m_sharedMaterial: {fileID: -3406411368475958213, guid: 21ac83a342a0b7144a87e1d2c869c740,
     type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
@@ -1389,7 +1389,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 15fb3de3c396e1446867b877b2af7fa9, type: 2}
+  - {fileID: -3406411368475958213, guid: 21ac83a342a0b7144a87e1d2c869c740, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1433,8 +1433,9 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\u6392\u884C\u699C"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: eb8bacd46357fb4418b3d529965e7b08, type: 2}
-  m_sharedMaterial: {fileID: 2100000, guid: 15fb3de3c396e1446867b877b2af7fa9, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 21ac83a342a0b7144a87e1d2c869c740, type: 2}
+  m_sharedMaterial: {fileID: -3406411368475958213, guid: 21ac83a342a0b7144a87e1d2c869c740,
+    type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -2146,7 +2147,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   serializationData:
-    SerializedFormat: 0
+    SerializedFormat: 2
     SerializedBytes: 
     ReferencedUnityObjects: []
     SerializedBytesString: 
@@ -2236,7 +2237,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2979193228837331801, guid: eb8bacd46357fb4418b3d529965e7b08, type: 2}
+  - {fileID: -3406411368475958213, guid: 21ac83a342a0b7144a87e1d2c869c740, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -2280,8 +2281,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: eb8bacd46357fb4418b3d529965e7b08, type: 2}
-  m_sharedMaterial: {fileID: 2979193228837331801, guid: eb8bacd46357fb4418b3d529965e7b08,
+  m_fontAsset: {fileID: 11400000, guid: 21ac83a342a0b7144a87e1d2c869c740, type: 2}
+  m_sharedMaterial: {fileID: -3406411368475958213, guid: 21ac83a342a0b7144a87e1d2c869c740,
     type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
@@ -2408,7 +2409,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 15fb3de3c396e1446867b877b2af7fa9, type: 2}
+  - {fileID: -3406411368475958213, guid: 21ac83a342a0b7144a87e1d2c869c740, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -2452,8 +2453,9 @@ MonoBehaviour:
       m_Calls: []
   m_text: Leaderboard
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: eb8bacd46357fb4418b3d529965e7b08, type: 2}
-  m_sharedMaterial: {fileID: 2100000, guid: 15fb3de3c396e1446867b877b2af7fa9, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 21ac83a342a0b7144a87e1d2c869c740, type: 2}
+  m_sharedMaterial: {fileID: -3406411368475958213, guid: 21ac83a342a0b7144a87e1d2c869c740,
+    type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -3240,8 +3242,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Enter text...
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: eb8bacd46357fb4418b3d529965e7b08, type: 2}
-  m_sharedMaterial: {fileID: 2979193228837331801, guid: eb8bacd46357fb4418b3d529965e7b08,
+  m_fontAsset: {fileID: 11400000, guid: 21ac83a342a0b7144a87e1d2c869c740, type: 2}
+  m_sharedMaterial: {fileID: -3406411368475958213, guid: 21ac83a342a0b7144a87e1d2c869c740,
     type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
@@ -3395,8 +3397,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "https://discord.gg/WNcjK3ZJWB\u200B"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: eb8bacd46357fb4418b3d529965e7b08, type: 2}
-  m_sharedMaterial: {fileID: 2979193228837331801, guid: eb8bacd46357fb4418b3d529965e7b08,
+  m_fontAsset: {fileID: 11400000, guid: 21ac83a342a0b7144a87e1d2c869c740, type: 2}
+  m_sharedMaterial: {fileID: -3406411368475958213, guid: 21ac83a342a0b7144a87e1d2c869c740,
     type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}

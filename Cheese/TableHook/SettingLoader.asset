@@ -12,11 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: SettingLoader
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: b596960894c4c9c4ebb79138ec98c901,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: d263eafcd9d04974e8ee5266bb871c3d,
     type: 2}
   udonAssembly: 
   assemblyError: 
-  sourceCsScript: {fileID: 11500000, guid: b7730d00e5058c849a5015054eda212b, type: 3}
+  sourceCsScript: {fileID: 11500000, guid: 0845d728114740d40811bc322e524573, type: 3}
   scriptVersion: 2
   compiledVersion: 2
   behaviourSyncMode: 0

@@ -67,8 +67,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Scoreboard v3
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: eb8bacd46357fb4418b3d529965e7b08, type: 2}
-  m_sharedMaterial: {fileID: 2979193228837331801, guid: eb8bacd46357fb4418b3d529965e7b08,
+  m_fontAsset: {fileID: 11400000, guid: 21ac83a342a0b7144a87e1d2c869c740, type: 2}
+  m_sharedMaterial: {fileID: -3406411368475958213, guid: 21ac83a342a0b7144a87e1d2c869c740,
     type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
@@ -202,8 +202,9 @@ MonoBehaviour:
       m_Calls: []
   m_text: ' blue'
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: eb8bacd46357fb4418b3d529965e7b08, type: 2}
-  m_sharedMaterial: {fileID: 2100000, guid: 15fb3de3c396e1446867b877b2af7fa9, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 21ac83a342a0b7144a87e1d2c869c740, type: 2}
+  m_sharedMaterial: {fileID: -3406411368475958213, guid: 21ac83a342a0b7144a87e1d2c869c740,
+    type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -439,8 +440,9 @@ MonoBehaviour:
       m_Calls: []
   m_text: red
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: eb8bacd46357fb4418b3d529965e7b08, type: 2}
-  m_sharedMaterial: {fileID: 2100000, guid: 15fb3de3c396e1446867b877b2af7fa9, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 21ac83a342a0b7144a87e1d2c869c740, type: 2}
+  m_sharedMaterial: {fileID: -3406411368475958213, guid: 21ac83a342a0b7144a87e1d2c869c740,
+    type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1036,6 +1038,9 @@ MonoBehaviour:
   _udonSharpBackingUdonBehaviour: {fileID: 1450115695991790719}
   red: {fileID: 3197543885802235227}
   blue: {fileID: 5488651549953848762}
+  red_score: {fileID: 0}
+  blue_score: {fileID: 0}
+  l_skr: {fileID: 0}
 --- !u!114 &1450115695991790719
 MonoBehaviour:
   m_ObjectHideFlags: 0
