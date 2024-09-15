@@ -3167,7 +3167,7 @@ MonoBehaviour:
   DefaultCue: 0
   keepCueRotating: 0
   inputField: {fileID: 7985545574164162216}
-  SettingLoader: {fileID: 0}
+  SettingLoader: {fileID: 1008770791086807697}
 --- !u!114 &1262755480172213983
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3479,7 +3479,7 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 12800000, guid: 6c149c583d0c39c4e9c3442dc2da1d8a, type: 3}
-    m_FontSize: 80
+    m_FontSize: 70
     m_FontStyle: 3
     m_BestFit: 0
     m_MinSize: 0
@@ -5916,7 +5916,7 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 12800000, guid: 6c149c583d0c39c4e9c3442dc2da1d8a, type: 3}
-    m_FontSize: 80
+    m_FontSize: 71
     m_FontStyle: 3
     m_BestFit: 0
     m_MinSize: 0
@@ -7490,6 +7490,18 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8e371f7bd8d526e4da7486545999af68, type: 3}
+--- !u!114 &1008770791086807697 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4841209218528618315, guid: 8e371f7bd8d526e4da7486545999af68,
+    type: 3}
+  m_PrefabInstance: {fileID: 5679234375019560410}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0845d728114740d40811bc322e524573, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &7689269822091399562 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2622634003472706640, guid: 8e371f7bd8d526e4da7486545999af68,

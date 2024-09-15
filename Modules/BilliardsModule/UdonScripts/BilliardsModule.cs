@@ -5,6 +5,7 @@
 #define EIJIS_PYRAMID
 #define EIJIS_CUEBALLSWAP
 
+
 // #define EIJIS_DEBUG_INITIALIZERACK
 // #define EIJIS_DEBUG_BALLCHOICE
 // #define EIJIS_DEBUG_PIRAMIDSCORE
@@ -15,6 +16,10 @@
 
 #if !HT_QUEST || true
 #define HT8B_DEBUGGER
+#endif
+
+#if UDON_CHIPS
+using UCS;
 #endif
 
 using UdonSharp;
@@ -110,6 +115,16 @@ public class BilliardsModule : UdonSharpBehaviour
     private Vector3[][] initialPositions = new Vector3[5][];
     private uint[] initialBallsPocketed = new uint[5];
 #endif
+
+#if UDON_CHIPS
+    //udon Chips
+    [Header("Udon Chips")]
+    [SerializeField] public int Enter_cost;
+    [SerializeField] public int winner_gain;
+    [SerializeField] public int loser_lose;
+    private UCS.UdonChips udonChips = null;
+#endif
+
     //up24/6/14   Scoremanager
 
     [Header("Plug")]
@@ -501,6 +516,19 @@ public class BilliardsModule : UdonSharpBehaviour
     #region Triggers
     public void _TriggerLobbyOpen()
     {
+#if UDON_CHIPS
+        udonChips = GameObject.Find("UdonChips").GetComponent<UdonChips>();
+        if (udonChips.money >= Enter_cost)
+        {
+            udonChips.money -= Enter_cost;
+        }
+        else
+        {
+            _LogWarn("u need money to play");
+            return;
+        }
+ 
+#endif
         if (lobbyOpen) return;
         menuManager._EnableLobbyMenu();
         networkingManager._OnLobbyOpened();
@@ -778,7 +806,25 @@ public class BilliardsModule : UdonSharpBehaviour
         if (networkingManager.gameStateSynced == 0 || networkingManager.gameStateSynced == 3) return;
 
         _LogInfo("joining team " + teamId);
+        //Udon chips
+#if UDON_CHIPS
+        udonChips = GameObject.Find("UdonChips").GetComponent<UdonChips>();
+        VRCPlayerApi localplayer = Networking.LocalPlayer;
+        int curSlottmp = _GetPlayerSlot(localplayer, playerIDsLocal);
+        if (!(curSlottmp != -1))
+        {
+            if (udonChips.money >= Enter_cost)
+            {
+                udonChips.money -= Enter_cost;
+            }
+            else
+            {
 
+                _LogWarn("u need money to play");
+                return;
+            }
+        }
+#endif
         int newslot = networkingManager._OnJoinTeam(teamId);
         if (newslot != -1)
         {
@@ -805,6 +851,10 @@ public class BilliardsModule : UdonSharpBehaviour
 
     public void _TriggerLeaveLobby()
     {
+#if UDON_CHIPS
+        udonChips = GameObject.Find("UdonChips").GetComponent<UdonChips>();
+        udonChips.money += Enter_cost;
+#endif
         if (localPlayerId == -1) return;
         _LogInfo("leaving lobby");
 
@@ -1268,7 +1318,20 @@ public class BilliardsModule : UdonSharpBehaviour
             // All players are kicked from the match when it's won, so use the previous turn's player names to show the winners (playerIDsCached)
             _LogWarn("game over, team " + winningTeamLocal + " won (" + p1str + " and " + p2str + ")");
             graphicsManager._SetWinners(/* isPracticeMode ? 0u :  */winningTeamLocal, playerIDsCached);
+#if UDON_CHIPS
+            VRCPlayerApi LocalPlayer = Networking.LocalPlayer;
+            udonChips = GameObject.Find("UdonChips").GetComponent<UdonChips>();
+            if (LocalPlayer == winner1 ||  LocalPlayer == winner2)
+            {
+                udonChips.money += winner_gain;
+            }
+            else
+            {
+                udonChips.money -= loser_lose;
+            }
+#endif
         }
+
 
         //UP24/6/15
         if (isScoreManagerEnable && !isPracticeMode)
