@@ -12,7 +12,8 @@ I create the table hook which can change cue skin(you can add your custom cue),b
 keep almost everything form MS-VRCSA table  
 it can auto load settings from server if you send your setting code in our discord.
 remember to set the billiard Module layer 22 and physics part(just click the buttom called MS-VRCSA),and **tablehook** must be set in billiardModule.
-if your want to add your custom cue.(and add texture in table hook)  
+your can add your custom cue.(and add texture in table hook)  
+Udonchips Supported.  
 ## 功能介绍 Features
 - 在原来的基础上加了:15球斯诺克,俄罗斯台球,中式八球（包括规则和集球器） 
 - 桌子控件:自选球杆皮肤,球材质和桌子颜色(球杆同步，球和桌子本地)
@@ -31,7 +32,7 @@ if your want to add your custom cue.(and add texture in table hook)
 ![A1${86C(YGWI)~3G{RT7J6U](https://github.com/user-attachments/assets/2e4d0cda-78aa-42a3-bbf0-c2da4d901561)
 更多自定义功能:  
 -自定义球杆皮肤和球材质（下面视频，还要在tablehook里面加贴图现在）代码里面预留了几个空位  
--有写过udonchips的对应版本（详情见发布页面） 
+-有udonchips对应,在BilliardsModule里面点一下按钮
 -用我发布的现成包就行，如果想克隆库，自己加一下vrcsdk和udonsharp  
 > [设置自定义球杆 How to set custom cue](https://youtu.be/YnoQ9jsUg0k?si=EfdxX1FDMUZXM2RX)  
  
