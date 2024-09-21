@@ -7744,6 +7744,7 @@ MonoBehaviour:
   - {fileID: 2800000, guid: bdccfeaba44289445acfca28d82a6744, type: 3}
   - {fileID: 2800000, guid: 83b136cdbc50b4d47bbeb159052c75ad, type: 3}
   - {fileID: 2800000, guid: 4cbc85e50a9fee04d98b96b9d0786dbd, type: 3}
+  - {fileID: 2800000, guid: 26bf8fcaa4fb5e846a0ad1c104d14a8f, type: 3}
   TableHook: {fileID: 0}
   nameColorHook: {fileID: 494812953967346586}
   isScoreManagerEnable: 1
