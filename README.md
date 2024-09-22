@@ -1,4 +1,4 @@
-![%Z6C308PHAJYH0Y%)ATSBU7_tmb](https://github.com/user-attachments/assets/9004efdb-08a5-49f0-b482-461d8efb10cf)
+![cover](https://github.com/user-attachments/assets/e1e3fd4c-8c00-4fc1-92af-683264b16d7a)
 # 中文台球俱乐部桌 CBC pool table
 
 这个项目是用于VRChat的台球桌预制键,你可以在 **[中文台球俱乐部 Chinese Billiiards Club
@@ -21,6 +21,7 @@ Udonchips Supported.
 - 桌子翻译，中英两版,规则版翻译补充
 - 计分板自动记录对局分数
 - 专属名字颜色
+- 全自动翻译系统(检测VRChat本地语言自动设置),中日英三种
 - 网络同步玩家设置,进入世界自动加载,可以通过dc或者qq群上传设置
 - 排行榜功能,详情见discord群
 > 原项目:[MS-VRCSA-Billiards](https://github.com/Sacchan-VRC/MS-VRCSA-Billiards)
