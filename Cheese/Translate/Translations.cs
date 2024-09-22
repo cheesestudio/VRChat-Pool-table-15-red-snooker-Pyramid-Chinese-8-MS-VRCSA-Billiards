@@ -36,8 +36,8 @@ public class Translations : UdonSharpBehaviour
             else Debug.LogError($"Failed to parse translation file {json.Error}");
         }
 
-        //SetLanguage(VRCPlayerApi.GetCurrentLanguage().Substring(0, 2).ToLower());
-        SetLanguage("zh");
+        SetLanguage(VRCPlayerApi.GetCurrentLanguage().Substring(0, 2).ToLower());
+        //SetLanguage("zh");
         _fallbackLanguageDict = _translations.ContainsKey(fallbackLanguage) ? _translations[fallbackLanguage].DataDictionary : null;
     }
 
