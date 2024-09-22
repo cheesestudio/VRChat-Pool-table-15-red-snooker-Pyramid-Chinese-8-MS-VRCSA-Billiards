@@ -130,6 +130,7 @@ public class BilliardsModule : UdonSharpBehaviour
     [Header("Plug")]
     [SerializeField] public bool isScoreManagerEnable = false;
     [SerializeField] public ScoreManager ScoreManagerL;
+    public Translations _translates;
 
     // constants
 #if EIJIS_MANY_BALLS
@@ -900,12 +901,14 @@ public class BilliardsModule : UdonSharpBehaviour
 
         if (Time.time - lastResetTime > 0.3f)
         {
-            infReset.text = "Double Click To Reset"; ClearResetInfo();
+            //infReset.text = "Double Click To Reset"; ClearResetInfo();
+            infReset.text = _translates.Get("Double Click To Reset"); ClearResetInfo();
         }
         else if (allPlayersOffline || isAllowedPlayer || _IsModerator(Networking.LocalPlayer) || (Time.time - lastActionTime > 300) || allPlayersAway)
         {
             _LogInfo("force resetting game");
-            infReset.text = "Game Reset!"; ClearResetInfo();
+            //infReset.text = "Game Reset!"; ClearResetInfo();
+            infReset.text = _translates.Get("Game Reset!"); ClearResetInfo();
             networkingManager._OnGameReset();
         }
         else
@@ -921,7 +924,8 @@ public class BilliardsModule : UdonSharpBehaviour
                 playerStr += graphicsManager._FormatName(VRCPlayerApi.GetPlayerById(allowedPlayer));
             }
 
-            infReset.text = "<size=60%>Only these players may reset:\n" + playerStr; ClearResetInfo();
+            //infReset.text = "<size=60%>Only these players may reset:\n" + playerStr; ClearResetInfo();
+            infReset.text = _translates.Get("<size=60%>Only these players may reset:\n") + playerStr; ClearResetInfo();
         }
         lastResetTime = Time.time;
     }

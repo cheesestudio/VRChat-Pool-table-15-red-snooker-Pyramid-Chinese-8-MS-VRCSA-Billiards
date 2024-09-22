@@ -14,6 +14,7 @@ using System.Data;
 [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
 public class GraphicsManager : UdonSharpBehaviour
 {
+    public Translations _translations;
     [Header("4 Ball")]
     [SerializeField] GameObject fourBallPoint;
     [SerializeField] Mesh fourBallMeshPlus;
@@ -996,15 +997,18 @@ int uniform_cue_colour;
             bool freeBall = table.foulStateLocal == 5;
             if (table.colorTurnLocal)
             {
-                snookerInstruction.text = "Pot any color but red";
+                snookerInstruction.text = _translations.Get("Pot any color but red");
+                //snookerInstruction.text = "Pot any color but red";
             }
             else
             {
                 if (redOnTable)
                 {
-                    snookerInstruction.text = "Pot a Red";
+                    snookerInstruction.text = _translations.Get("Pot a Red");
+                    //snookerInstruction.text = "Pot a Red";
                     if (freeBall)
-                        snookerInstruction.text += " or free ball of choice";
+                        snookerInstruction.text += _translations.Get(" or free ball of choice");
+                        //snookerInstruction.text += " or free ball of choice";
                 }
                 else
                 {
@@ -1015,9 +1019,12 @@ int uniform_cue_colour;
                     if (nextcolor < 12 && nextcolor > -1)
 #endif
                     {
-                        snookerInstruction.text = "Pot " + table.sixRedNumberToColor(nextcolor, true);
+                        string Pot = _translations.Get("Pot ");
+                        snookerInstruction.text = Pot + table.sixRedNumberToColor(nextcolor, true);
+                        //snookerInstruction.text = "Pot " + table.sixRedNumberToColor(nextcolor, true);
                         if (freeBall)
-                            snookerInstruction.text += " or free ball of choice";
+                            snookerInstruction.text += _translations.Get(" or free ball of choice");
+                            //snookerInstruction.text += " or free ball of choice";
                     }
                     else
                         snookerInstruction.text = string.Empty;

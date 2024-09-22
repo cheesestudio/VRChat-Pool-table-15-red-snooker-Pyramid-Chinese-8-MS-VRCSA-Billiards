@@ -11,6 +11,8 @@ using TMPro;
 [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
 public class MenuManager : UdonSharpBehaviour
 {
+    public Translations _translations;
+
     private readonly byte[] TIMER_VALUES = new byte[] { 0, 60, 45, 30, 15 };
 
     [SerializeField] private GameObject menuStart;
@@ -92,7 +94,8 @@ public class MenuManager : UdonSharpBehaviour
             VRCPlayerApi player = VRCPlayerApi.GetPlayerById(table.playerIDsLocal[i]);
             if (player == null)
             {
-                lobbyNames[i].text = "Free slot";
+                lobbyNames[i].text = _translations.Get("Free slot");
+                //lobbyNames[i].text = "Free slot";
             }
             else
             {
@@ -117,7 +120,8 @@ public class MenuManager : UdonSharpBehaviour
         {
             if (TIMER_VALUES[index] == 0)
             {
-                timelimitDisplay.text = "No limit";
+                timelimitDisplay.text = _translations.Get("No limit");
+                //timelimitDisplay.text = "No limit";
             }
             else
             {
@@ -135,28 +139,33 @@ public class MenuManager : UdonSharpBehaviour
         switch (mode)
         {
             case 0:
-                modeName = selectedTable == 2 ? "CN 8 Ball" : "EN 8 Ball";
+                modeName = selectedTable == 2 ? _translations.Get("CN 8 Ball") : _translations.Get("EN 8 Ball");
+                //modeName = selectedTable == 2 ? "CN 8 Ball" : "EN 8 Ball";
                 selectionPoint = table.transform.Find("intl.menu/MenuAnchor/LobbyMenu/GameMode/SelectionPoints/8ball");
                 table.setTransform(selectionPoint, selection, true);
                 break;
             case 1:
-                modeName = "9 Ball";
+                modeName = _translations.Get("9 Ball");
+                //modeName = "9 Ball";
                 selectionPoint = table.transform.Find("intl.menu/MenuAnchor/LobbyMenu/GameMode/SelectionPoints/9ball");
                 table.setTransform(selectionPoint, selection, true);
                 break;
             case 2:
-                modeName = "4 Ball JP";
+                modeName = _translations.Get("4 Ball JP");
+                //modeName = "4 Ball JP";
                 selectionPoint = table.transform.Find("intl.menu/MenuAnchor/LobbyMenu/GameMode/SelectionPoints/4ballJP");
                 table.setTransform(selectionPoint, selection, true);
                 break;
             case 3:
-                modeName = "4 Ball KR";
+                modeName = _translations.Get("4 Ball KR");
+                //modeName = "4 Ball KR";
                 selectionPoint = table.transform.Find("intl.menu/MenuAnchor/LobbyMenu/GameMode/SelectionPoints/4ballKR");
                 table.setTransform(selectionPoint, selection, true);
                 break;
             case 4:
 #if EIJIS_SNOOKER15REDS
-                modeName = "Snooker 15 Red";
+                modeName = _translations.Get("Snooker 15 Red");
+                //modeName = "Snooker 15 Red";
 #else
                 modeName = "Snooker 6 Red";
 #endif
@@ -165,7 +174,8 @@ public class MenuManager : UdonSharpBehaviour
                 break;
 #if EIJIS_PYRAMID
             case BilliardsModule.GAMEMODE_PYRAMID:
-                modeName = "Russian Pyramid";
+                modeName = _translations.Get("Russian Pyramid");
+                //modeName = "Russian Pyramid";
                 selectionPoint = table.transform.Find("intl.menu/MenuAnchor/LobbyMenu/GameMode/SelectionPoints/Pyramid");
                 table.setTransform(selectionPoint, selection, true);
                 break;
@@ -175,12 +185,12 @@ public class MenuManager : UdonSharpBehaviour
     }
     public void _RefreshPhysics()
     {
-        physicsDisplay.text = (string)table.currentPhysicsManager.GetProgramVariable("PHYSICSNAME");
+        physicsDisplay.text = _translations.Get((string)table.currentPhysicsManager.GetProgramVariable("PHYSICSNAME"));
     }
 
     public void _RefreshTable()
     {
-        tableDisplay.text = (string)table.tableModels[table.tableModelLocal].GetProgramVariable("TABLENAME");
+        tableDisplay.text = _translations.Get((string)table.tableModels[table.tableModelLocal].GetProgramVariable("TABLENAME")); // auto translate by cheese
     }
 
     public void _RefreshToggleSettings()
