@@ -516,6 +516,16 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1576680555348809872, guid: 1aa5131fbe9aa314d80ae7e10735367b,
         type: 3}
+      propertyPath: currentLanguage
+      value: en
+      objectReference: {fileID: 0}
+    - target: {fileID: 1576680555348809872, guid: 1aa5131fbe9aa314d80ae7e10735367b,
+        type: 3}
+      propertyPath: fallbackLanguage
+      value: en
+      objectReference: {fileID: 0}
+    - target: {fileID: 1576680555348809872, guid: 1aa5131fbe9aa314d80ae7e10735367b,
+        type: 3}
       propertyPath: serializationData.Prefab
       value: 
       objectReference: {fileID: 1576680555348809872, guid: 1aa5131fbe9aa314d80ae7e10735367b,
@@ -758,7 +768,7 @@ PrefabInstance:
     - target: {fileID: 2894221604842742237, guid: 1aa5131fbe9aa314d80ae7e10735367b,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2917176781077563452, guid: 1aa5131fbe9aa314d80ae7e10735367b,
         type: 3}

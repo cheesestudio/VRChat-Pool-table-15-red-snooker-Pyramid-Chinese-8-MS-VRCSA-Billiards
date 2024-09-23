@@ -7,6 +7,7 @@ using VRC.SDKBase;
 [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
 public class Translations : UdonSharpBehaviour
 {
+    //[SerializeField]public bool test=false;
     public string currentLanguage;
     public string fallbackLanguage = "en";
 
@@ -68,7 +69,7 @@ public class Translations : UdonSharpBehaviour
         Initialize();
 
         if (TryGet(_currentLanguageDict, key, out var result)) return result;
-        if (TryGet(_fallbackLanguageDict, key, out result)) return result;
+        else if (TryGet(_fallbackLanguageDict, key, out result)) return result;
 
         return key;
     }
@@ -81,26 +82,27 @@ public class Translations : UdonSharpBehaviour
             return false;
         }
 
-        var splits = key.Split('.');
-        var dict = language;
-        for (var i = 0; i < splits.Length - 1; i++)
-        {
-            if (!dict.ContainsKey(splits[i]))
-            {
-                result = key;
-                return false;
-            }
+        //var splits = key.Split('.');
+        //var dict = language;
+        //for (var i = 0; i < splits.Length - 1; i++)
+        //{
+        //    if (!dict.ContainsKey(splits[i]))
+        //    {
+        //        result = key;
+        //        return false;
+        //    }
 
-            dict = dict[splits[i]].DataDictionary;
-        }
+        //    dict = dict[splits[i]].DataDictionary;
+        //}
 
-        if (!dict.ContainsKey(splits[splits.Length - 1]))
-        {
-            result = key;
-            return false;
-        }
+        //if (!dict.ContainsKey(splits[splits.Length - 1]))
+        //{
+        //    result = key;
+        //    return false;
+        //}
 
-        result = dict[splits[splits.Length - 1]].String;
+        //result = dict[splits[splits.Length - 1]].String;
+        result = language[key].String;
         return true;
     }
 }
