@@ -45,7 +45,7 @@ Udonchips Supported.
 最终解释权： 
 Roka:俄式球桌和中式球桌是我按照Sacc台球桌的10ft桌和12ft斯诺克桌模型为基础更改的。
 起初中式球桌仅用于我的地图"FIVI Flight"使用，之后允许了中文台球俱乐部使用且协助开发。
-但使用权并未明确声明仅用于我的地图和中文台球俱乐部地图，因此不限制使用。
+但使用权并未明确声明仅用于我的地图和中文台球俱乐部地图，因此不限制使用。  
 最终解释权归中文台球俱乐部所有
 ![DB Y8T3PSY8EEPG$4VV1S$D](https://github.com/user-attachments/assets/a9bcafac-06c6-4665-8d4a-33f8850dfb73)
 
