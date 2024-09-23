@@ -1,7 +1,7 @@
-![cover](https://github.com/user-attachments/assets/e1e3fd4c-8c00-4fc1-92af-683264b16d7a)
+![OG$UI_JKGDD6QL21LEK)9DE](https://github.com/user-attachments/assets/04739895-457d-4806-8d93-6f3ed2b80bbf)
 # 中文台球俱乐部桌 CBC pool table
 
-这个项目是用于VRChat的台球桌预制键,你可以在 **[中文台球俱乐部 Chinese Billiiards Club
+这个项目是用于VRChat的台球桌预制键,你可以在VRChat地图 **[中文台球俱乐部 Chinese Billiiards Club
 ](https://vrchat.com/home/launch?worldId=wrld_0a35397b-2e7d-4f01-8552-034ab8e76e2e
 )**.游玩和测试这张桌子  
 非常感谢我朋友们的支持,没有他们我做不出来这张桌子的:WangQAQ,RokaOvO,eijis-pan  
@@ -16,13 +16,11 @@ your can add your custom cue.(and add texture in table hook)
 Udonchips Supported.  
 ## 功能介绍 Features
 - 在原来的基础上加了:15球斯诺克,俄罗斯台球,中式八球（包括规则和集球器） 
-- 桌子控件:自选球杆皮肤,球材质和桌子颜色(球杆同步，球和桌子本地)
+- 桌子控件:自选球杆皮肤,球材质和桌子颜色(球杆同步，球和桌子本地),自动保存和加载设置,可以通过dc或者qq群上传设置
 - 继承原项目大部分更新，45秒计时器，库边颜色切换等
-- 桌子翻译，中英两版,规则版翻译补充
-- 计分板自动记录对局分数
-- 专属名字颜色
-- 全自动翻译系统(检测VRChat本地语言自动设置),中日英三种
-- 网络同步玩家设置,进入世界自动加载,可以通过dc或者qq群上传设置
+- 计分板自动记录对局分数,支持擂台式计分
+- 专属名字颜色功能
+- 全自动翻译系统(检测VRChat本地语言自动设置),中日英三种,中文规则版翻译补充
 - 排行榜功能,详情见discord群
 > 原项目:[MS-VRCSA-Billiards](https://github.com/Sacchan-VRC/MS-VRCSA-Billiards)
 ### 设置 Set up
@@ -38,17 +36,17 @@ Udonchips Supported.
 > [设置自定义球杆 How to set custom cue](https://youtu.be/YnoQ9jsUg0k?si=EfdxX1FDMUZXM2RX)  
  
 ### 可能性功能(未来) Feature
-- 根据客户端语言自动进行翻译功能 translate
 - 桌子控件更多功能 table hook function
 - 更丰富的名字颜色 more name color
 - 球轨迹线 ball trial
+- 自带排行榜
 
 ### 人员
-最终解释权：
+最终解释权： 
 Roka:俄式球桌和中式球桌是我按照Sacc台球桌的10ft桌和12ft斯诺克桌模型为基础更改的。
 起初中式球桌仅用于我的地图"FIVI Flight"使用，之后允许了中文台球俱乐部使用且协助开发。
 但使用权并未明确声明仅用于我的地图和中文台球俱乐部地图，因此不限制使用。
-
+最终解释权归中文台球俱乐部所有
 ![DB Y8T3PSY8EEPG$4VV1S$D](https://github.com/user-attachments/assets/a9bcafac-06c6-4665-8d4a-33f8850dfb73)
 
 ![3~TRDRWQ@H 3$TZ P~76P 8](https://github.com/cheesestudio/VRChat-Pool-table-with-15-red-snooker-Pyramid-Chinese-8-ball-based-on-MS-VRCSA-Billiards/assets/52149451/e85b8f15-21fc-404a-9b15-859989102bb2)
