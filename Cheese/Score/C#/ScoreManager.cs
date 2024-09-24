@@ -3,11 +3,12 @@ using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
 using TMPro;
+using System;
 
 [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
 public class ScoreManager : UdonSharpBehaviour
 {
-
+    [SerializeField] public RankingSystem RankingSystem;
     [Header("NameText")]
     [SerializeField] public TextMeshProUGUI red;
     [SerializeField] public TextMeshProUGUI blue;
@@ -93,7 +94,7 @@ public class ScoreManager : UdonSharpBehaviour
 
 
 
-    public void AddScore(int L_PlayerID1, int L_PlayerID2, int Winner)
+    public void AddScore(int L_PlayerID1, int L_PlayerID2, int Winner,uint gamemodelocal)
     {
         VRCPlayerApi player1 = VRCPlayerApi.GetPlayerById(L_PlayerID1);
         VRCPlayerApi player2 = VRCPlayerApi.GetPlayerById(L_PlayerID2);
@@ -109,9 +110,9 @@ public class ScoreManager : UdonSharpBehaviour
         else if (winplayer == Networking.LocalPlayer && !Networking.IsOwner(gameObject))
         {
             Networking.SetOwner(winplayer, gameObject);
-            Debug.Log("1" + winplayer.displayName);
+            //Debug.Log("1" + winplayer.displayName);
         }
-        Debug.Log("2" + Networking.LocalPlayer);
+        //Debug.Log("2" + Networking.LocalPlayer);
         if (winplayer.displayName == R_Player1)
         {
             R_RedScore++;
@@ -145,6 +146,18 @@ public class ScoreManager : UdonSharpBehaviour
 
         }
 
+        int Red = R_RedScore * ((gamemodelocal == 4)?10:1);         //special for snooker
+        int Blue = R_BlueScore * ((gamemodelocal == 4) ? 10 : 1);
+        if(Red != Blue)
+        {
+            if (Red > Blue) Blue = -Red;
+            if (Red < Blue) Red = -Blue;
+            RankingSystem.UpdateCopyData(player1.displayName, player2.displayName, Convert.ToString(Red), Convert.ToString(Blue));
+        }
+        else
+        {
+            RankingSystem.UpdateCopyData(player1.displayName, player2.displayName, Convert.ToString(0), Convert.ToString(0));
+        }
         l_reflash();
         RequestSerialization();
   

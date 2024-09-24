@@ -31,14 +31,14 @@ public class Translations : UdonSharpBehaviour
             {
                 _translations[t.name] = json.DataDictionary;
 
-                Debug.Log(t.name);
-                Debug.Log(json.DataDictionary);
+                //Debug.Log(t.name);
+                //Debug.Log(json.DataDictionary);
             }
             else Debug.LogError($"Failed to parse translation file {json.Error}");
         }
 
         SetLanguage(VRCPlayerApi.GetCurrentLanguage().Substring(0, 2).ToLower());
-        //SetLanguage("zh");
+        //SetLanguage("ja");
         _fallbackLanguageDict = _translations.ContainsKey(fallbackLanguage) ? _translations[fallbackLanguage].DataDictionary : null;
     }
 
@@ -82,26 +82,6 @@ public class Translations : UdonSharpBehaviour
             return false;
         }
 
-        //var splits = key.Split('.');
-        //var dict = language;
-        //for (var i = 0; i < splits.Length - 1; i++)
-        //{
-        //    if (!dict.ContainsKey(splits[i]))
-        //    {
-        //        result = key;
-        //        return false;
-        //    }
-
-        //    dict = dict[splits[i]].DataDictionary;
-        //}
-
-        //if (!dict.ContainsKey(splits[splits.Length - 1]))
-        //{
-        //    result = key;
-        //    return false;
-        //}
-
-        //result = dict[splits[splits.Length - 1]].String;
         result = language[key].String;
         return true;
     }

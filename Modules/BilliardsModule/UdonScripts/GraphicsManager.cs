@@ -1020,7 +1020,7 @@ int uniform_cue_colour;
 #endif
                     {
                         string Pot = _translations.Get("Pot ");
-                        snookerInstruction.text = Pot + table.sixRedNumberToColor(nextcolor, true);
+                        snookerInstruction.text = Pot + _translations.Get(table.sixRedNumberToColor(nextcolor, true));
                         //snookerInstruction.text = "Pot " + table.sixRedNumberToColor(nextcolor, true);
                         if (freeBall)
                             snookerInstruction.text += _translations.Get(" or free ball of choice");

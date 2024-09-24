@@ -695,7 +695,7 @@ MonoBehaviour:
     PrefabModifications: []
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: -6722354520385974396}
-  TABLENAME: Pool 7ft
+  TABLENAME: Bar Box 7ft
   tableMesh: {fileID: 1158493604116298499}
   tableWidth: 1.9812
   tableHeight: 0.9906
