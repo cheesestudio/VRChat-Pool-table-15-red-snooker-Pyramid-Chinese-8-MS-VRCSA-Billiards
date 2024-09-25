@@ -145,20 +145,12 @@ public class ScoreManager : UdonSharpBehaviour
             toggleScoreOn(L_PlayerID1, L_PlayerID2);
 
         }
-
-        int Red = R_RedScore * ((gamemodelocal == 4)?10:1);         //special for snooker
-        int Blue = R_BlueScore * ((gamemodelocal == 4) ? 10 : 1);
-        if(Red != Blue)
-        {
-            if (Red > Blue) Blue = -Red;
-            if (Red < Blue) Red = -Blue;
-            RankingSystem.UpdateCopyData(player1.displayName, player2.displayName, Convert.ToString(Red), Convert.ToString(Blue));
-        }
-        else
-        {
-            RankingSystem.UpdateCopyData(player1.displayName, player2.displayName, Convert.ToString(0), Convert.ToString(0));
-        }
         l_reflash();
+
+        if (R_BlueScore != R_RedScore)
+            RankingSystem.UpdateCopyData(player1.displayName, player2.displayName, Convert.ToString(R_RedScore), Convert.ToString(R_BlueScore));
+
+
         RequestSerialization();
   
     }
