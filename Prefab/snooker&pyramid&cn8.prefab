@@ -8708,7 +8708,7 @@ MonoBehaviour:
       m_Calls: []
   m_text: 'MS-VRCSA-CBC
 
-    TABLE  v1.135'
+    TABLE  v1.136'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 21ac83a342a0b7144a87e1d2c869c740, type: 2}
   m_sharedMaterial: {fileID: -3406411368475958213, guid: 21ac83a342a0b7144a87e1d2c869c740,
@@ -37080,6 +37080,11 @@ PrefabInstance:
         type: 2}
     - target: {fileID: 5642835468889198365, guid: 704cd443dc9caed4292207b0ba4bbf36,
         type: 3}
+      propertyPath: l_skr
+      value: 
+      objectReference: {fileID: 2892166388793812101}
+    - target: {fileID: 5642835468889198365, guid: 704cd443dc9caed4292207b0ba4bbf36,
+        type: 3}
       propertyPath: serializationData.Prefab
       value: 
       objectReference: {fileID: 5642835468889198365, guid: 704cd443dc9caed4292207b0ba4bbf36,
@@ -37113,6 +37118,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!137 &2892166388793812101 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 5488115649859597980, guid: 704cd443dc9caed4292207b0ba4bbf36,
+    type: 3}
+  m_PrefabInstance: {fileID: 7208783176452641305}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &3046085831104666884 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 5642835468889198365, guid: 704cd443dc9caed4292207b0ba4bbf36,
