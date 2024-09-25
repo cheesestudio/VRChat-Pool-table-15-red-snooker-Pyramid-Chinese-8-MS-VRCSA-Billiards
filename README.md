@@ -21,7 +21,7 @@ Udonchips Supported.
 - 计分板自动记录对局分数,支持擂台式计分
 - 专属名字颜色功能
 - 全自动翻译系统(检测VRChat本地语言自动设置),中日英三种,中文规则版翻译补充
-- 排行榜功能,详情见discord群
+- 全自动排行榜功能
 > 原项目:[MS-VRCSA-Billiards](https://github.com/Sacchan-VRC/MS-VRCSA-Billiards)
 ### 设置 Set up
 用的时候记得把billiardModule设置为22层，并把这层单独物理设置成只与自己交互（上面MS那个按钮可以自动设置）  
@@ -39,7 +39,6 @@ Udonchips Supported.
 - 桌子控件更多功能 table hook function
 - 更丰富的名字颜色 more name color
 - 球轨迹线 ball trial
-- 自带排行榜
 
 ### 人员
 最终解释权： 
