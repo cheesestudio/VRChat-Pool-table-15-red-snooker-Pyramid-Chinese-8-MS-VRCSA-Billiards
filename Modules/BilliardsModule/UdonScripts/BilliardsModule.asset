@@ -3406,19 +3406,19 @@ MonoBehaviour:
       Data: 
     - Name: $k
       Entry: 1
-      Data: ScoreManagerL
+      Data: ScoreManager
     - Name: $v
       Entry: 7
       Data: 195|UdonSharp.Compiler.FieldDefinition, UdonSharp.Editor
     - Name: <Name>k__BackingField
       Entry: 1
-      Data: ScoreManagerL
+      Data: ScoreManager
     - Name: <UserType>k__BackingField
       Entry: 7
       Data: 196|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: ScoreManager, Assembly-CSharp
+      Data: ScoreManagerV2, Assembly-CSharp
     - Name: 
       Entry: 8
       Data: 

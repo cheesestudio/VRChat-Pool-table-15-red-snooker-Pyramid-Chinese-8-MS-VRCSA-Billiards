@@ -6,7 +6,7 @@ using VRC.Udon;
 
 public class ResetBotton : UdonSharpBehaviour
 {
-    [SerializeField] ScoreManager l_ScoreManager;
+    [SerializeField] ScoreManagerV2 l_ScoreManager;
 
     void Start()
     {

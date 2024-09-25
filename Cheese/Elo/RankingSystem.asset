@@ -179,7 +179,7 @@ MonoBehaviour:
       Data: 10|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: ScoreManager, Assembly-CSharp
+      Data: ScoreManagerV2, Assembly-CSharp
     - Name: 
       Entry: 8
       Data: 

@@ -129,7 +129,7 @@ public class BilliardsModule : UdonSharpBehaviour
 
     [Header("Plug")]
     [SerializeField] public bool isScoreManagerEnable = false;
-    [SerializeField] public ScoreManager ScoreManagerL;
+    [SerializeField] public ScoreManagerV2 ScoreManager;
     public Translations _translates;
 
     // constants
@@ -1249,11 +1249,6 @@ public class BilliardsModule : UdonSharpBehaviour
 
         isPracticeMode = playerIDsLocal[1] == -1 && playerIDsLocal[3] == -1;
 
-        if (isScoreManagerEnable && !isPracticeMode)
-        {
-            ScoreManagerL.toggleScoreOn(playerIDsCached[0], playerIDsCached[1]);
-        }
-
         menuManager._RefreshLobby();
         graphicsManager._OnGameStarted();
         desktopManager._OnGameStarted();
@@ -1336,14 +1331,6 @@ public class BilliardsModule : UdonSharpBehaviour
 #endif
         }
 
-
-        //UP24/6/15
-        if (isScoreManagerEnable && !isPracticeMode)
-        {
-            if(!BreakFinish)  //斯诺克有可能出问题,因为Breakfinish是由复用的参数计算的
-                ScoreManagerL.AddScore(playerIDsCached[0], playerIDsCached[1], playerIDsCached[winningTeamLocal],gameModeLocal);
-        }
-
         gameLive = false;
         isPracticeMode = false;
 
@@ -1367,6 +1354,13 @@ public class BilliardsModule : UdonSharpBehaviour
         resetCachedData();
 
         menuManager._RefreshLobby();
+
+        //UP24/6/15  重构by cheese  24/9/26 难以想象居然撑了三个月
+        if (isScoreManagerEnable && !isPracticeMode)
+        {
+            if (!BreakFinish)  //斯诺克有可能出问题,因为Breakfinish是由复用的参数计算的
+                ScoreManager.AddScore(playerIDsCached[0], playerIDsCached[1], playerIDsCached[winningTeamLocal]);
+        }
     }
 
     private void onRemoteBallsPocketedChanged(uint ballsPocketedSynced)

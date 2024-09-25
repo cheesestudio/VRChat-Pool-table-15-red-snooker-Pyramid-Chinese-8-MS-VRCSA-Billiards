@@ -15,7 +15,7 @@ public class RankingSystem : UdonSharpBehaviour
     [Header("References")]
     public InputField copyField;
     public VRCUrlInputField pasteField;
-    public ScoreManager scoreManager;
+    public ScoreManagerV2 scoreManager;
     public Text errorText; 
 
     private string hashKey = "CheeseIsTheHashKeyForNoReason";
