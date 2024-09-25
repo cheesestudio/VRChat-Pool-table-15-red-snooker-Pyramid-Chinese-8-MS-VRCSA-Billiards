@@ -564,7 +564,7 @@ MonoBehaviour:
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 8353106332473547041}
   url:
-    url: https://rank.iplcresonite.xyz/proxy/https://raw.githubusercontent.com/cheesestudio/cheesestudio.github.io/main/1.txt
+    url: https://wangqaq.com/api/eol/output.php
   loadOnStart: 1
   autoReload: 1
   autoReloadTime: 1
@@ -597,7 +597,7 @@ MonoBehaviour:
 
 '
   useErrorString: 0
-  errorString: 
+  errorString: failed
 --- !u!114 &8353106332473547041
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1686,7 +1686,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2998317268459739185}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: 0.9097718, z: -0, w: 0.41510874}
+  m_LocalRotation: {x: 0, y: 0.90977293, z: 0, w: 0.41510618}
   m_LocalPosition: {x: -23.398266, y: -5.9496975, z: 9.653611}
   m_LocalScale: {x: 16, y: 16, z: 16}
   m_ConstrainProportionsScale: 1

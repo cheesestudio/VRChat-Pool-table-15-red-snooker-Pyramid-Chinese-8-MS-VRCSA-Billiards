@@ -19,7 +19,7 @@ public class RankingSystem : UdonSharpBehaviour
     public Text errorText; 
 
     private string hashKey = "CheeseIsTheHashKeyForNoReason";
-    private string ScoreUploadBaseURL = "https://106.14.156.156/upload_score.php";
+    private string ScoreUploadBaseURL = "https://wangqaq.com/api/eol/upload_score.php";
 
     public void UpdateCopyData(String player1,String player2,string score1,string score2)
     {
@@ -68,7 +68,7 @@ public class RankingSystem : UdonSharpBehaviour
     }
     void Start()
     {
-        //UpdateCopyData("无语了", "几把vrc", "1", "12");
-        //TryToUploadNote();
+        //UpdateCopyData("wochao", "几把vrc", "1", "12");
+        //ryToUploadNote();
     }
 }
