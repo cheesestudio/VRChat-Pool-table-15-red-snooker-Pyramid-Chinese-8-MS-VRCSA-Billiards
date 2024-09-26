@@ -726,7 +726,7 @@ MonoBehaviour:
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_wordSpacing: 0
-  m_lineSpacing: 10
+  m_lineSpacing: 16.44
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
@@ -750,7 +750,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0.70428014, y: 0.95892787, z: 2.35944, w: -3.640864}
+  m_margin: {x: 0.70428014, y: 0.95892787, z: 2.35944, w: -3.6342058}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   _SortingLayer: 0
@@ -2157,7 +2157,7 @@ MonoBehaviour:
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 1944730566063839805}
   url:
-    url: https://rank.iplcresonite.xyz/proxy/https://raw.githubusercontent.com/cheesestudio/cheesestudio.github.io/main/1.txt
+    url: https://wangqaq.com/api/eol/output.php
   loadOnStart: 1
   autoReload: 1
   autoReloadTime: 1
