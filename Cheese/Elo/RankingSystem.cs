@@ -24,7 +24,7 @@ public class RankingSystem : UdonSharpBehaviour
 
     public void UpdateCopyData(String player1,String player2,string score1,string score2)
     {
-        if (score1 == "0" && score2 == "0")
+        if (score1 == score2)
         {
             copyField.text = "null";
             return;

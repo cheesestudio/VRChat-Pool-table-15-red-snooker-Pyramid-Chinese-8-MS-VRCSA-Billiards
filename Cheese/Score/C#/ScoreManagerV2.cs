@@ -26,7 +26,7 @@ public class ScoreManagerV2 : UdonSharpBehaviour
     [UdonSynced]
     private string BluePlayer = "";
     [UdonSynced]
-    private uint gamemodeSync = 0;
+    private bool IsSnooker=false;
 
     private void Start()
     {
@@ -43,21 +43,23 @@ public class ScoreManagerV2 : UdonSharpBehaviour
             RedScoreTMP.text = RedScore.ToString();
             BlueScoreTMP.text = BlueScore.ToString();
         }
-        if (gamemodeSync == 4)//斯诺克优待
+        if (IsSnooker)//斯诺克优待
         {
             if (RedScore > BlueScore)
-                RankingSystem.UpdateCopyData(Redplayer, BluePlayer, Convert.ToString(RedScore+35), Convert.ToString(BlueScore));
-            else if(RedScore < BlueScore)
-                RankingSystem.UpdateCopyData(Redplayer, BluePlayer, Convert.ToString(RedScore), Convert.ToString(BlueScore+35));
+                RankingSystem.UpdateCopyData(Redplayer, BluePlayer, Convert.ToString(RedScore + 35), Convert.ToString(BlueScore));
+            else if (RedScore < BlueScore)
+                RankingSystem.UpdateCopyData(Redplayer, BluePlayer, Convert.ToString(RedScore), Convert.ToString(BlueScore + 35));
         }
         else
+        {
             RankingSystem.UpdateCopyData(Redplayer, BluePlayer, Convert.ToString(RedScore), Convert.ToString(BlueScore));
+        }
     }
 
 
 
 
-    public void AddScore(int L_PlayerID1, int L_PlayerID2, int Winner,uint gamemode)
+    public void AddScore(int L_PlayerID1, int L_PlayerID2, int Winner,bool Snooker)
     {
         VRCPlayerApi player1 = VRCPlayerApi.GetPlayerById(L_PlayerID1);
         VRCPlayerApi player2 = VRCPlayerApi.GetPlayerById(L_PlayerID2);
@@ -70,7 +72,7 @@ public class ScoreManagerV2 : UdonSharpBehaviour
                 if (!Networking.IsOwner(gameObject))
                     Networking.SetOwner(Networking.LocalPlayer,gameObject);
 
-                gamemodeSync = gamemode;
+                IsSnooker = Snooker;
                 //下面分两种情况讨论
                 //1.未设置初始值,按队伍进行正常分配(另一种可能是是不是前两个人)
                 if((Redplayer==null && BluePlayer ==null) || ((player1.displayName != Redplayer && player2.displayName != BluePlayer) && (player1.displayName != BluePlayer && player2.displayName != Redplayer)))

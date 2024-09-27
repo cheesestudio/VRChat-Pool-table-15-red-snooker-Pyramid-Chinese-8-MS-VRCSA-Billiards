@@ -1153,7 +1153,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\u52A0dc\u7FA4\u4F7F\u7528\njoin our discord group to use"
+  m_text: "reflash every 5 min\n\u6253\u5B8C\u5728\u8BA1\u5206\u677F\u540E\u590D\u5236\u7C98\u8D34\u5373\u53EF\u4E0A\u4F20\u7ED3\u679C"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 21ac83a342a0b7144a87e1d2c869c740, type: 2}
   m_sharedMaterial: {fileID: -3406411368475958213, guid: 21ac83a342a0b7144a87e1d2c869c740,
