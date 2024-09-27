@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BestHTTP.Extensions;
+using System;
 using System.Text;
 using UdonSharp;
 using UnityEngine;
@@ -23,6 +24,11 @@ public class RankingSystem : UdonSharpBehaviour
 
     public void UpdateCopyData(String player1,String player2,string score1,string score2)
     {
+        if (score1 == "0" && score2 == "0")
+        {
+            copyField.text = "null";
+            return;
+        }
         string hash = UdonHashLib.MD5_UTF8(player1 + player2 + score1 + score2 + hashKey);
         copyField.text = $"{ScoreUploadBaseURL}?player1={player1}&player2={player2}&score1={score1}&score2={score2}&hash={hash}";
         //Debug.Log($"copyField =  {copyField.text}");
@@ -48,15 +54,13 @@ public class RankingSystem : UdonSharpBehaviour
     public override void OnStringLoadSuccess(IVRCStringDownload result)
     {
         copyField.text = "Upload Finished";
-        errorText.text = "Upload Succeed";
-        string resultJson = result.Result;
-        //Debug.Log(resultJson);
+        errorText.text = "Upload connected" + result.Result;
     }
 
     public override void OnStringLoadError(IVRCStringDownload result)
     {
         //ActivateNoteUploadAnimation(false);
-        copyField.text = "fail";
+        copyField.text = "failed";
         Debug.LogError($"Error loading string: {result.ErrorCode} - {result.Error}");
         errorText.text = $"{result.ErrorCode} - {result.Error}";
 
@@ -68,7 +72,7 @@ public class RankingSystem : UdonSharpBehaviour
     }
     void Start()
     {
-        //UpdateCopyData("wochao", "几把vrc", "1", "12");
-        //ryToUploadNote();
+        //UpdateCopyData("测试3", "测试4", "36", "0");
+        //TryToUploadNote();
     }
 }

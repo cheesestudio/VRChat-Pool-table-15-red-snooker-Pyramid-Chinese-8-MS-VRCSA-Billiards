@@ -75,15 +75,15 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4278190080
-  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
-  m_enableVertexGradient: 0
-  m_colorMode: 3
+    rgba: 4278247679
+  m_fontColor: {r: 1, g: 0.8795767, b: 0, a: 1}
+  m_enableVertexGradient: 1
+  m_colorMode: 2
   m_fontColorGradient:
-    topLeft: {r: 1, g: 1, b: 1, a: 1}
-    topRight: {r: 1, g: 1, b: 1, a: 1}
-    bottomLeft: {r: 1, g: 1, b: 1, a: 1}
-    bottomRight: {r: 1, g: 1, b: 1, a: 1}
+    topLeft: {r: 0.33315828, g: 1, b: 0.2216981, a: 1}
+    topRight: {r: 0.33315828, g: 1, b: 0.2216981, a: 1}
+    bottomLeft: {r: 0.7655298, g: 0.83137256, b: 0, a: 1}
+    bottomRight: {r: 0.7655298, g: 0.83137256, b: 0, a: 1}
   m_fontColorGradientPreset: {fileID: 0}
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
@@ -99,7 +99,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 1
+  m_fontStyle: 3
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -881,10 +881,11 @@ Transform:
   m_GameObject: {fileID: 7223003349074969457}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.933, y: 1.667, z: 2.94}
-  m_LocalScale: {x: 3.734335, y: 0.1908005, z: 3.0914447}
+  m_LocalPosition: {x: 2.96, y: 1.3781, z: 3.83}
+  m_LocalScale: {x: 1.4238273, y: 0.072748415, z: 1.178706}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 3265883050623462178}
   m_Father: {fileID: 121312015894530405}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &7365833939111394508
@@ -1136,11 +1137,11 @@ Transform:
   m_GameObject: {fileID: 7802759580398031445}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 3.24, y: 1.2, z: 3.51}
-  m_LocalScale: {x: 3.6844409, y: 1.0471426, z: 2.0250003}
+  m_LocalPosition: {x: 0.34999892, y: -2.4475803, z: 0.18437925}
+  m_LocalScale: {x: 0.986639, y: 5.4881544, z: 0.65503365}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 121312015894530405}
+  m_Father: {fileID: 884118693210090438}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &7872846926228503382
 MeshFilter:
@@ -1170,7 +1171,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: cdb7900cf3ba3304aab6ec6c58fc4724, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1411,10 +1412,6 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 2162222988756005103}
-    - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: 45e065f7e17544b40851101f7d4b852e,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 3265883050623462178}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 45e065f7e17544b40851101f7d4b852e,
         type: 3}
@@ -1498,6 +1495,46 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 121312015894530405}
     m_Modifications:
+    - target: {fileID: 504337779768280553, guid: 800bd520007bb02489e4f5f51830acd7,
+        type: 3}
+      propertyPath: m_Text
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 504337779768280553, guid: 800bd520007bb02489e4f5f51830acd7,
+        type: 3}
+      propertyPath: m_LineType
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 504337779768280553, guid: 800bd520007bb02489e4f5f51830acd7,
+        type: 3}
+      propertyPath: m_InputType
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 504337779768280553, guid: 800bd520007bb02489e4f5f51830acd7,
+        type: 3}
+      propertyPath: m_ContentType
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 504337779768280553, guid: 800bd520007bb02489e4f5f51830acd7,
+        type: 3}
+      propertyPath: m_KeyboardType
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 504337779768280553, guid: 800bd520007bb02489e4f5f51830acd7,
+        type: 3}
+      propertyPath: m_CharacterValidation
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2699313791528484515, guid: 800bd520007bb02489e4f5f51830acd7,
+        type: 3}
+      propertyPath: m_FontData.m_VerticalOverflow
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2699313791528484515, guid: 800bd520007bb02489e4f5f51830acd7,
+        type: 3}
+      propertyPath: m_FontData.m_HorizontalOverflow
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3338310950788796749, guid: 800bd520007bb02489e4f5f51830acd7,
         type: 3}
       propertyPath: m_LocalScale.x
@@ -1628,6 +1665,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
       value: -90
+      objectReference: {fileID: 0}
+    - target: {fileID: 5955690812339094100, guid: 800bd520007bb02489e4f5f51830acd7,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8851487018805156289, guid: 800bd520007bb02489e4f5f51830acd7,
         type: 3}
