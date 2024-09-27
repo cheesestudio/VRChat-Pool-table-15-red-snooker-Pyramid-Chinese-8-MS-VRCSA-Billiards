@@ -7,33 +7,41 @@ using VRC.SDKBase;
 public class ColorNameMag : UdonSharpBehaviour
 {
 
-    //debug////
-   // private String TEST1 = "|WangQAQ|1|"; 
-    //debug////
+    /// <summary>
+    /// 2024/9/27
+    /// By WangQAQ
+    /// </summary>
 
+    /// <summary>
+    /// API 提供到台球彩色名称
+    /// </summary>
     [HideInInspector] public String inOwner;
     [HideInInspector] public String outColor;
 
-
-
+    //用于本地添加名称
     [Header("Override")]
     [SerializeField] public string[] ColorName;
 
+    //指向ColorDownload获取彩色名称
     public ColorDownload ColorDOW;
-
-   // private int reloadStep = 0;
 
     void Start()
     {
         
     }
-    
+
+    //API 提供到台球彩色名称 （获取彩名）
     public void _GetNameColor()
     {
+        //从ColorDownload获取的颜色代码
+        string colorList = "";
+        if (ColorDOW != null)
+        {
+            colorList = ColorDOW.GetColorColor(inOwner);
+        }
 
-        string colorList = ColorDOW.GetColorColor(inOwner);
+        //查询本地彩色名称
 
-        //Find From Override
         for (int i = 0; i < ColorName.Length; i++)
         {
             if (inOwner == ColorName[i])
@@ -43,14 +51,15 @@ public class ColorNameMag : UdonSharpBehaviour
             }
         }
 
-        //Find From Internet
+        //查询在线彩色名称
 
-        if(colorList != null)
+        if(colorList != null && colorList != "")
         {
             outColor = colorList;
             return;
         }
 
+        //查询不到，返回白色
         outColor = "FFFFFF";
     }
 
