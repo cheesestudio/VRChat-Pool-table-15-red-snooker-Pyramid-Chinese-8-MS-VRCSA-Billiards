@@ -1,4 +1,4 @@
-using System;
+ï»¿using System;
 using UdonSharp;
 using UnityEngine;
 using VRC.SDK3.StringLoading;
@@ -15,22 +15,22 @@ public class ColorDownload : UdonSharpBehaviour
     /// By WangQAQ
     /// </summary>
 
-    //²ÊÉ«Ãû³ÆÏÂÔØURL
+    //å½©è‰²åç§°ä¸‹è½½URL
     [Header("URL")]
     [SerializeField] public VRCUrl[] url;
 
-    //ÓÃÓÚ±íÊ¾µ±Ç°¼ÓÔØµÚ¼¸¸öURL 
+    //ç”¨äºè¡¨ç¤ºå½“å‰åŠ è½½ç¬¬å‡ ä¸ªURL 
     private int reloadStep = 0;
 
     /// <summary>
-    /// Íæ¼ÒÃû³ÆÑÕÉ«¼¯
-    /// NameÎªÍæ¼ÒÃûÊı×é£¬ColorÊÇÍæ¼ÒÑÕÉ«£¬ÏÂ±êÒ»Ò»¶ÔÓ¦
+    /// ç©å®¶åç§°é¢œè‰²é›†
+    /// Nameä¸ºç©å®¶åæ•°ç»„ï¼ŒColoræ˜¯ç©å®¶é¢œè‰²ï¼Œä¸‹æ ‡ä¸€ä¸€å¯¹åº”
     /// </summary>
-    private string[] Name = null;                                                   //Íæ¼ÒÃû³ÆÊı×é
-    private string[] Color = null;                                                  //Íæ¼ÒÑÕÉ«¼¯
+    private string[] Name = null;                                                   //ç©å®¶åç§°æ•°ç»„
+    private string[] Color = null;                                                  //ç©å®¶é¢œè‰²é›†
 
     /// <summary>
-    /// ĞÂ¼Ó£¬ÓÃÓÚ±íÊ¾Êı×éÊÇ·ñ³õÊ¼»¯
+    /// æ–°åŠ ï¼Œç”¨äºè¡¨ç¤ºæ•°ç»„æ˜¯å¦åˆå§‹åŒ–
     /// </summary>
     private bool isStringInit = false;
 
@@ -39,36 +39,36 @@ public class ColorDownload : UdonSharpBehaviour
         VRCStringDownloader.LoadUrl(url[0], (IUdonEventReceiver)this);
     }
 
-    // ×Ö·û´®ÏÂÔØ³É¹¦»Øµ÷
+    // å­—ç¬¦ä¸²ä¸‹è½½æˆåŠŸå›è°ƒ
     public override void OnStringLoadSuccess(IVRCStringDownload result)
     {
-        //²ğ·Ö×Ö·û´®£¬°´;²ğ·Ö
-        //µ±Ç°×Ö·û´®×éÓ¦¸ÃÎª "Name","Color"
+        //æ‹†åˆ†å­—ç¬¦ä¸²ï¼ŒæŒ‰;æ‹†åˆ†
+        //å½“å‰å­—ç¬¦ä¸²ç»„åº”è¯¥ä¸º "Name","Color"
         string[] ListTmp = result.Result.Split(';', StringSplitOptions.RemoveEmptyEntries);
 
-        //³õÊ¼»¯Êı×é
+        //åˆå§‹åŒ–æ•°ç»„
         Name = new string[ListTmp.Length];
         Color = new string[ListTmp.Length];
 
-        //Èç¹ûÄÚ´æÉêÇë³É¹¦£¬ÔòÉèÖÃÊı×é³õÊ¼»¯±äÁ¿Îªtrue
+        //å¦‚æœå†…å­˜ç”³è¯·æˆåŠŸï¼Œåˆ™è®¾ç½®æ•°ç»„åˆå§‹åŒ–å˜é‡ä¸ºtrue
         if(Name != null && Color != null)
         {
             isStringInit = true;    
         }
 
-        //Ñ­»·²ğ·ÖÍæ¼ÒÃûºÍ²ÊÉ«´úÂë O(N)
+        //å¾ªç¯æ‹†åˆ†ç©å®¶åå’Œå½©è‰²ä»£ç  O(N)
         for (int i = 0;i < ListTmp.Length; i++)
         {
-            //ÅĞ¿Õ
+            //åˆ¤ç©º
             if (ListTmp[i] != null)
             {
-                //°´ £¬ ·Ö¸î×Ö·û´®£¬·Ö¸îÎªÍæ¼ÒÃûºÍ²ÊÉ«´úÂë
+                //æŒ‰ ï¼Œ åˆ†å‰²å­—ç¬¦ä¸²ï¼Œåˆ†å‰²ä¸ºç©å®¶åå’Œå½©è‰²ä»£ç 
                 string[] ColorTmp = ListTmp[i].Split(',', StringSplitOptions.RemoveEmptyEntries);
 
                 //DEBUG
                 //Debug.Log("Name:" + ColorTmp.Length);
 
-                //Èç¹û³¤¶È == 2 ÔòÂ¼Èë (Split¿ÉÄÜ»á¶àÒ»Î»¿ÕÊı×é£¬unityÀÏbug)
+                //å¦‚æœé•¿åº¦ == 2 åˆ™å½•å…¥ (Splitå¯èƒ½ä¼šå¤šä¸€ä½ç©ºæ•°ç»„ï¼Œunityè€bug)
                 if (ColorTmp.Length == 2)
                 {
                     Name[i] = ColorTmp[0];
@@ -78,37 +78,37 @@ public class ColorDownload : UdonSharpBehaviour
         }
     }
 
-    //×Ö·û´®ÏÂÔØÊ§°Ü»Øµ÷
+    //å­—ç¬¦ä¸²ä¸‹è½½å¤±è´¥å›è°ƒ
     public override void OnStringLoadError(IVRCStringDownload result)
     {
-        //Ñ­»·³¢ÊÔ¼ÓÔØurlÊı×é¼¯ÖĞµÄURL
+        //å¾ªç¯å°è¯•åŠ è½½urlæ•°ç»„é›†ä¸­çš„URL
         if (reloadStep < url.Length)
         {
-            //Èç¹ûÃ»ÓĞ¼ÓÔØµ½×îºóÒ»¸öURL£¬Ôò¼ÓÔØURLÊı×é¼¯ÖĞµÄÏÂÒ»¸öURL
+            //å¦‚æœæ²¡æœ‰åŠ è½½åˆ°æœ€åä¸€ä¸ªURLï¼Œåˆ™åŠ è½½URLæ•°ç»„é›†ä¸­çš„ä¸‹ä¸€ä¸ªURL
             SendCustomEventDelayedSeconds("_AutoReloadColor", 10);
             reloadStep++;
         }
         else
         {
-            //Èç¹ûµ½×îºóÒ»¸öURL£¬Ôò´ÓµÚÒ»¸öURL¿ªÊ¼¼ÓÔØ
+            //å¦‚æœåˆ°æœ€åä¸€ä¸ªURLï¼Œåˆ™ä»ç¬¬ä¸€ä¸ªURLå¼€å§‹åŠ è½½
             SendCustomEventDelayedSeconds("_AutoReloadColor", 10);
             reloadStep = 0;
         }
     }
 
-    //ÖØĞÂ¼ÓÔØ×Ö·û´®º¯Êı
+    //é‡æ–°åŠ è½½å­—ç¬¦ä¸²å‡½æ•°
     public void _AutoReloadColor()
     {
-        //VRCÏÂÔØAPI
+        //VRCä¸‹è½½API
         VRCStringDownloader.LoadUrl(url[reloadStep], (IUdonEventReceiver)this);
     }
 
-    //¶ÁÈ¡Íæ¼Ò¶ÔÓ¦²ÊÉ«ID
+    //è¯»å–ç©å®¶å¯¹åº”å½©è‰²ID
     public string GetColorColor(string name)
     {
         if(Name != null && isStringInit == true)
         {
-            //Ñ­»·¶ÁÈ¡²ÊÉ«×´Ì¬ O(N)
+            //å¾ªç¯è¯»å–å½©è‰²çŠ¶æ€ O(N)
             for (int i = 0; i < Name.Length; i++)
             {
                 if (Name[i] == name)
