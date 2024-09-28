@@ -367,10 +367,9 @@ public class GraphicsManager : UdonSharpBehaviour
         table.nameColorHook.SendCustomEvent("_GetNameColor");
 
         string color = (string)table.nameColorHook.GetProgramVariable("outColor");
-        if (color == "rainbow")
-        {
-            return rainbow(player.displayName);
-        }
+
+        if (color == "dark") return darkColors(player.displayName);
+        if (color == "rainbow") return rainbow(player.displayName);
 
         return $"<color=#{color}>{player.displayName}</color>";
     }
@@ -421,6 +420,61 @@ public class GraphicsManager : UdonSharpBehaviour
                 blue = 255;
             }
 
+            colors[i] = $"{red.ToString("X2")}{green.ToString("X2")}{blue.ToString("X2")}";
+        }
+        return colors;
+    }
+
+    private string darkColors(string name)
+    {
+        string[] colors = generateDarkColors(name.Length);
+        for (int i = 0; i < name.Length; i++)
+        {
+            colors[i] = $"<color=#{colors[i]}>{name[i]}</color>";
+        }
+        return string.Join("", colors);
+    }
+
+    private string[] generateDarkColors(int numColors)
+    {
+        string[] colors = new string[numColors];
+
+        float n = (float)numColors;
+        int baseBrightness = 64; // 设置一个基础亮度值  
+
+        for (int i = 0; i < numColors; i++)
+        {
+            int red = 0;
+            int green = 0;
+            int blue = 0;
+
+            // 深蓝色到深紫色  
+            if (i <= n / 4)
+            {
+                blue = baseBrightness + (int)(64 / (n / 4) * (n / 4 - i)); // 蓝色逐渐减少，但保持较高亮度  
+                red = baseBrightness + (int)(32 / (n / 4) * i);           // 红色逐渐增加  
+                green = 0;
+            }
+            else if (i <= n / 2) // 深紫色到深红色  
+            {
+                blue = 0;
+                red = baseBrightness + (int)(64 / (n / 4) * (i - (n / 4))); // 红色继续增加  
+                green = 0;
+            }
+            else if (i <= (.75) * n) // 深红色到暗黄绿色（增加绿色以提高亮度）  
+            {
+                red = baseBrightness + 32; // 保持一定的红色  
+                green = baseBrightness + (int)(64 / (n / 4) * (i - (n / 2))); // 绿色逐渐增加  
+                blue = baseBrightness; // 保持一定的蓝色  
+            }
+            else // 暗黄绿色到深青色（保持亮度并增加蓝色）  
+            {
+                red = baseBrightness; // 保持红色不变  
+                green = baseBrightness + 64; // 绿色达到最高  
+                blue = baseBrightness + (int)(32 / (n / 4) * (i - (.75 * n))); // 蓝色逐渐增加  
+            }
+
+            // 转换为十六进制字符串  
             colors[i] = $"{red.ToString("X2")}{green.ToString("X2")}{blue.ToString("X2")}";
         }
         return colors;
