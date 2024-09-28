@@ -1,6 +1,8 @@
 ﻿#define EIJIS_MANY_BALLS
 #define EIJIS_SNOOKER15REDS
 #define EIJIS_PYRAMID
+#define EIJIS_CAROM
+#define EIJIS_CUSHION_EFFECT
 
 // #define EIJIS_DEBUG_PIRAMIDSCORE
 
@@ -22,6 +24,10 @@ public class GraphicsManager : UdonSharpBehaviour
     [SerializeField] TextMeshProUGUI blueScore;
     [SerializeField] TextMeshProUGUI orangeScore;
     [SerializeField] TextMeshProUGUI snookerInstruction;
+#if EIJIS_CUSHION_EFFECT
+    [Header("Carom")]
+    [SerializeField] GameObject[] caromCushionTouch;
+#endif
 
     [Header("Text")]
     [SerializeField] TextMeshProUGUI[] playerNames;
@@ -60,6 +66,10 @@ public class GraphicsManager : UdonSharpBehaviour
 
     private bool fourBallPointActive;
     private float fourBallPointTime;
+#if EIJIS_CUSHION_EFFECT
+    private bool[] caromCushionTouchActive;
+    private float[] caromCushionTouchTime;
+#endif
 
     private float introAnimationTime = 0.0f;
 
@@ -127,6 +137,16 @@ public class GraphicsManager : UdonSharpBehaviour
             meshOverrideRegular[i + 1] = balls[13 + i].GetComponent<MeshFilter>().sharedMesh;
         }
 #endif
+#if EIJIS_CUSHION_EFFECT
+        
+        caromCushionTouchActive = new bool[caromCushionTouch.Length];
+        caromCushionTouchTime = new float[caromCushionTouch.Length];
+        for (int i = 0; i < caromCushionTouch.Length; i++)
+        {
+            caromCushionTouchActive[i] = false;
+            caromCushionTouchTime[i] = 0;
+        }
+#endif
     }
 
     public void _InitializeTable()
@@ -151,6 +171,9 @@ public class GraphicsManager : UdonSharpBehaviour
     {
         tickBallPositions();
         tickFourBallPoint();
+#if EIJIS_CUSHION_EFFECT
+        tickCaromCushionTouch();
+#endif
         tickIntroAnimation();
         tickTableColor();
         tickWinner();
@@ -208,6 +231,43 @@ public class GraphicsManager : UdonSharpBehaviour
             fourBallPoint.SetActive(false);
         }
     }
+#if EIJIS_CUSHION_EFFECT
+
+    private void tickCaromCushionTouch()
+    {
+        for (int i = 0; i < caromCushionTouch.Length; i++)
+        {
+            if (!caromCushionTouchActive[i]) continue;
+
+            // Evaluate time
+            caromCushionTouchTime[i] += Time.deltaTime * 0.25f;
+
+            // Sustained step
+            float s = Mathf.Max(caromCushionTouchTime[i] - 0.1f, 0.0f);
+            float v = Mathf.Min(caromCushionTouchTime[i] * caromCushionTouchTime[i] * 100.0f, 21.0f * s * Mathf.Exp(-15.0f * s));
+
+            // Exponential step
+            float e = Mathf.Exp(-17.0f * Mathf.Pow(Mathf.Max(caromCushionTouchTime[i] - 1.2f, 0.0f), 3.0f));
+
+            float scale = e * v * 2.0f;
+
+            // Set scale
+            caromCushionTouch[i].transform.localScale = new Vector3(scale, scale, scale);
+
+            // Set position
+            Vector3 temp = caromCushionTouch[i].transform.localPosition;
+            temp.y = caromCushionTouchTime[i] * 0.5f;
+            caromCushionTouch[i].transform.localPosition = temp;
+
+            // Particle death
+            if (caromCushionTouchTime[i] > 2.0f)
+            {
+                caromCushionTouchActive[i] = false;
+                caromCushionTouch[i].SetActive(false);
+            }
+        }
+    }
+#endif
 
     private void tickIntroBall(Transform ball, float offset)
     {
@@ -441,6 +501,21 @@ public class GraphicsManager : UdonSharpBehaviour
         fourBallPoint.transform.localScale = Vector3.zero;
         fourBallPoint.transform.LookAt(Networking.LocalPlayer.GetPosition());
     }
+#if EIJIS_CUSHION_EFFECT
+
+    public void _SpawnCushionTouch(Vector3 pos, int color)
+    {
+        if (color < 0 || caromCushionTouch.Length <= color) return;
+        
+        caromCushionTouch[color].SetActive(true);
+        caromCushionTouchActive[color] = true;
+        caromCushionTouchTime[color] = 0.1f;
+
+        caromCushionTouch[color].transform.localPosition = pos;
+        caromCushionTouch[color].transform.localScale = Vector3.zero;
+        caromCushionTouch[color].transform.LookAt(Networking.LocalPlayer.GetPosition());
+    }
+#endif
 
     public void _FlashTableLight()
     {
@@ -693,7 +768,11 @@ int uniform_cue_colour;
             table.balls[0].SetActive(true);
             table.balls[13].SetActive(true);
             table.balls[14].SetActive(true);
+#if EIJIS_CAROM
+            table.balls[15].SetActive(!table.is3Cusion && !table.is2Cusion && !table.is1Cusion && !table.is0Cusion);
+#else
             table.balls[15].SetActive(true);
+#endif
         }
 #if EIJIS_SNOOKER15REDS
         else if (table.isSnooker)
@@ -749,7 +828,13 @@ int uniform_cue_colour;
         scorecard_info.SetActive(true);
         scorecard_gameobject.SetActive(true);
 #if EIJIS_PYRAMID
+#if EIJIS_CAROM
+        scorecard.SetInt("_GameMode", (int)(table.isPyramid ? 0 : 
+            (table.is3Cusion || table.is1Cusion || table.is2Cusion || table.is0Cusion ? 2 : table.gameModeLocal)
+            ));
+#else
         scorecard.SetInt("_GameMode", (int)(table.isPyramid ? 0 : table.gameModeLocal));
+#endif
 #else
         scorecard.SetInt("_GameMode", (int)table.gameModeLocal);
 #endif
@@ -891,6 +976,12 @@ int uniform_cue_colour;
         scorecard_gameobject.SetActive(false);
         table.marker9ball.SetActive(false);
         fourBallPoint.SetActive(false);
+#if EIJIS_CUSHION_EFFECT
+        for (int i = 0; i < caromCushionTouch.Length; i++)
+        {
+            caromCushionTouch[i].SetActive(false);
+        }
+#endif
         orangeScore.gameObject.SetActive(false);
         blueScore.gameObject.SetActive(false);
         snookerInstruction.gameObject.SetActive(false);

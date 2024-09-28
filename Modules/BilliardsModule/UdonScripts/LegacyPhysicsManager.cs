@@ -1,5 +1,7 @@
 ﻿#define EIJIS_MANY_BALLS
 #define EIJIS_SNOOKER15REDS
+#define EIJIS_CAROM
+#define EIJIS_CUSHION_EFFECT
 
 using System;
 using UdonSharp;
@@ -673,6 +675,9 @@ public class LegacyPhysicsManager : UdonSharpBehaviour
         Vector3 source_v = balls_V[id];
         if (Vector3.Dot(source_v, N) > 0.0f)
         {
+#if EIJIS_CUSHION_EFFECT
+            table._TriggerBounceCushion(id, balls_P[id]);
+#endif
             return;
         }
 
@@ -717,6 +722,10 @@ public class LegacyPhysicsManager : UdonSharpBehaviour
         // Unrotate result
         balls_V[id] += rb * V1;
         balls_W[id] += rb * W1;
+#if EIJIS_CUSHION_EFFECT
+        
+        table._TriggerBounceCushion(id, balls_P[id]);
+#endif
     }
 
 

@@ -1,5 +1,6 @@
 ﻿#define EIJIS_SNOOKER15REDS
 #define EIJIS_PYRAMID
+#define EIJIS_CAROM
 
 using System;
 using UdonSharp;
@@ -53,6 +54,9 @@ public class MenuManager : UdonSharpBehaviour
                 joinMenuRotation = menuJoin.localRotation;
                 joinMenuScale = menuJoin.localScale;
             }
+#if EIJIS_CAROM
+            selectedTable = (uint)table.tableModelLocal;
+#endif
         }
 
         _RefreshTimer();
@@ -167,6 +171,28 @@ public class MenuManager : UdonSharpBehaviour
             case BilliardsModule.GAMEMODE_PYRAMID:
                 modeName = "Russian Pyramid";
                 selectionPoint = table.transform.Find("intl.menu/MenuAnchor/LobbyMenu/GameMode/SelectionPoints/Pyramid");
+                table.setTransform(selectionPoint, selection, true);
+                break;
+#endif
+#if EIJIS_CAROM
+            case BilliardsModule.GAMEMODE_3CUSHION:
+                modeName = "3-Cushion";
+                selectionPoint = table.transform.Find("intl.menu/MenuAnchor/LobbyMenu/GameMode/SelectionPoints/3Cushion");
+                table.setTransform(selectionPoint, selection, true);
+                break;
+            case BilliardsModule.GAMEMODE_2CUSHION:
+                modeName = "2-Cushion";
+                selectionPoint = table.transform.Find("intl.menu/MenuAnchor/LobbyMenu/GameMode/SelectionPoints/2Cushion");
+                table.setTransform(selectionPoint, selection, true);
+                break;
+            case BilliardsModule.GAMEMODE_1CUSHION:
+                modeName = "1-Cushion";
+                selectionPoint = table.transform.Find("intl.menu/MenuAnchor/LobbyMenu/GameMode/SelectionPoints/1Cushion");
+                table.setTransform(selectionPoint, selection, true);
+                break;
+            case BilliardsModule.GAMEMODE_0CUSHION:
+                modeName = "0-Cushion";
+                selectionPoint = table.transform.Find("intl.menu/MenuAnchor/LobbyMenu/GameMode/SelectionPoints/0Cushion");
                 table.setTransform(selectionPoint, selection, true);
                 break;
 #endif
@@ -332,6 +358,24 @@ public class MenuManager : UdonSharpBehaviour
     {
         table._TriggerGameModeChanged(3);
     }
+#if EIJIS_CAROM
+    public void Mode3Cushion()
+    {
+        table._TriggerGameModeChanged(BilliardsModule.GAMEMODE_3CUSHION);
+    }
+    public void Mode2Cushion()
+    {
+        table._TriggerGameModeChanged(BilliardsModule.GAMEMODE_2CUSHION);
+    }
+    public void Mode1Cushion()
+    {
+        table._TriggerGameModeChanged(BilliardsModule.GAMEMODE_1CUSHION);
+    }
+    public void Mode0Cushion()
+    {
+        table._TriggerGameModeChanged(BilliardsModule.GAMEMODE_0CUSHION);
+    }
+#endif
     public void ModeSnooker6Red()
     {
         table._TriggerGameModeChanged(4);
@@ -474,6 +518,24 @@ public class MenuManager : UdonSharpBehaviour
             {
                 table._TriggerGameModeChanged(3);
             }
+#if EIJIS_CAROM
+            else if (button.name == "3Cushion")
+            {
+                table._TriggerGameModeChanged(BilliardsModule.GAMEMODE_3CUSHION);
+            }
+            else if (button.name == "2Cushion")
+            {
+                table._TriggerGameModeChanged(BilliardsModule.GAMEMODE_2CUSHION);
+            }
+            else if (button.name == "1Cushion")
+            {
+                table._TriggerGameModeChanged(BilliardsModule.GAMEMODE_1CUSHION);
+            }
+            else if (button.name == "0Cushion")
+            {
+                table._TriggerGameModeChanged(BilliardsModule.GAMEMODE_0CUSHION);
+            }
+#endif
             else if (button.name == "Snooker6Red")
             {
                 table._TriggerGameModeChanged(4);

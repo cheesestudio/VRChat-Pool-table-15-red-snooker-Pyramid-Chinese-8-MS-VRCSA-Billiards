@@ -1,5 +1,7 @@
 ﻿#define EIJIS_MANY_BALLS
 #define EIJIS_SNOOKER15REDS
+#define EIJIS_CAROM
+#define EIJIS_CUSHION_EFFECT
 
 //#define HT8B_DRAW_REGIONS
 using System;
@@ -925,7 +927,11 @@ public class StandardPhysicsManager : UdonSharpBehaviour
         balls_V[id] += rb * V1;
         balls_W[id] += rb * W1;
 
+#if EIJIS_CUSHION_EFFECT
+        table._TriggerBounceCushion(id, balls_P[id]);
+#else
         table._TriggerBounceCushion(id);
+#endif
     }
 
 

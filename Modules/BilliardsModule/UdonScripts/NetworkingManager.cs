@@ -2,6 +2,7 @@
 #define EIJIS_MANY_BALLS
 #define EIJIS_SNOOKER15REDS
 #define EIJIS_CUEBALLSWAP
+#define EIJIS_CAROM
 
 using System;
 using UdonSharp;
@@ -68,6 +69,9 @@ public class NetworkingManager : UdonSharpBehaviour
     [UdonSynced][NonSerialized] public byte turnStateSynced;
 
     // the current gamemode (0 is 8ball, 1 is 9ball, 2 is jp4b, 3 is kr4b, 4 is Snooker6Red)
+#if EIJIS_PYRAMID || EIJIS_CAROM
+    // additional games 4 is Snooker15Red, 5 is RussianPyramid, 6-9 is 3-Cushion(2,1,0-Cushion)
+#endif
     [UdonSynced][NonSerialized] public byte gameModeSynced;
 
     // the timer for the current game in seconds
@@ -705,7 +709,12 @@ public class NetworkingManager : UdonSharpBehaviour
 
     private void swapFourBallCueBalls()
     {
+#if EIJIS_CAROM
+        if (gameModeSynced != 2 && gameModeSynced != 3 && 
+            gameModeSynced != 6 && gameModeSynced != 7 && gameModeSynced != 8 && gameModeSynced != 9) return;
+#else
         if (gameModeSynced != 2 && gameModeSynced != 3) return;
+#endif
 
         fourBallCueBallSynced ^= 0x01;
 
@@ -921,6 +930,13 @@ public class NetworkingManager : UdonSharpBehaviour
             fourBallScoresSynced[1] = (byte)((spec & 0x0fu) >> 4);
             if ((spec & 0x100u) == 0x100u) gameModeSynced = 3;
         }
+#if EIJIS_CAROM
+        else if (6 <= gameModeSynced)
+        {
+            fourBallScoresSynced[0] = (byte)(spec & 0x0fu);
+            fourBallScoresSynced[1] = (byte)((spec & 0x0fu) >> 4);
+        }
+#endif
         else
         {
             ballsPocketedSynced = spec;

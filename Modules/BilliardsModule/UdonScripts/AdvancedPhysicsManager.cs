@@ -3,6 +3,7 @@
 #define EIJIS_SNOOKER15REDS
 #define EIJIS_PYRAMID
 #define EIJIS_CUEBALLSWAP
+#define EIJIS_CUSHION_EFFECT
 
 // #define HT8B_DRAW_REGIONS
 using System;
@@ -2707,7 +2708,11 @@ public class AdvancedPhysicsManager : UdonSharpBehaviour
                 balls_P[id] = Vector3.Scale(newPos, _sign_pos);
                 balls_V[id] = newVel;
                 balls_W[id] = newAngVel;
+#if EIJIS_CUSHION_EFFECT
+                table._TriggerBounceCushion(id, balls_P[id]);
+#else
                 table._TriggerBounceCushion(id);
+#endif
                 balls_inBounds[id] = true;
             }
             else
@@ -3249,7 +3254,11 @@ public class AdvancedPhysicsManager : UdonSharpBehaviour
                 balls_P[id] = Vector3.Scale(newPos, _sign_pos);
                 balls_V[id] = newVel;
                 balls_W[id] = newAngVel;
+#if EIJIS_CUSHION_EFFECT
+                table._TriggerBounceCushion(id, balls_P[id]);
+#else
                 table._TriggerBounceCushion(id);
+#endif
                 balls_inBounds[id] = true;
                 balls_transitioningBounds[id] = false;
             }
