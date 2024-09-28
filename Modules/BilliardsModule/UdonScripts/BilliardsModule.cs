@@ -1331,6 +1331,14 @@ public class BilliardsModule : UdonSharpBehaviour
 #endif
         }
 
+        //UP24/6/15  重构by cheese  24/9/26 难以想象居然撑了三个月
+        if (isScoreManagerEnable && !isPracticeMode)
+        {
+            if (!BreakFinish)  //斯诺克有可能出问题,因为Breakfinish是由复用的参数计算的
+                ScoreManager.AddScore(playerIDsCached[0], playerIDsCached[1], playerIDsCached[winningTeamLocal], isSnooker15Red);
+        }
+        //这段代码必须在resetCachedData前面,不然gamemode被重置了,不过用snooker简化就没事,放这里以防万一
+
         gameLive = false;
         isPracticeMode = false;
 
@@ -1355,12 +1363,6 @@ public class BilliardsModule : UdonSharpBehaviour
 
         menuManager._RefreshLobby();
 
-        //UP24/6/15  重构by cheese  24/9/26 难以想象居然撑了三个月
-        if (isScoreManagerEnable && !isPracticeMode)
-        {
-            if (!BreakFinish)  //斯诺克有可能出问题,因为Breakfinish是由复用的参数计算的
-                ScoreManager.AddScore(playerIDsCached[0], playerIDsCached[1], playerIDsCached[winningTeamLocal],isSnooker15Red);
-        }
     }
 
     private void onRemoteBallsPocketedChanged(uint ballsPocketedSynced)
@@ -2663,7 +2665,7 @@ public class BilliardsModule : UdonSharpBehaviour
 
         tableModelLocal = newTableModel;
 
-        isChinese8Ball = tableModelLocal == 2u;
+        isChinese8Ball = (string)tableModels[tableModelLocal].GetProgramVariable("TABLENAME") == "China 9ft";
 
         ModelData data = tableModels[tableModelLocal];
         k_TABLE_WIDTH = data.tableWidth * .5f;

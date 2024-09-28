@@ -49,7 +49,6 @@ public class RankingSystem : UdonSharpBehaviour
         scoreManager.M_Score_Reset();
         copyField.text = "Upload Starting";
         errorText.text = "loading";
-        //notePickup.ResetNote();
     }
     public override void OnStringLoadSuccess(IVRCStringDownload result)
     {
