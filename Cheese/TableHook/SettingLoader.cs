@@ -16,14 +16,13 @@ public class SettingLoader : UdonSharpBehaviour
 
     private int reloadStep = 0;
 
-    private string[] Name;
-    private string[] SettingString;
+    private string[] Name = null;
+    private string[] SettingString = null;
+
+    private bool isStringInit = false;
 
     void Start()
     {
-        Name = new string[1024];    //ʺ
-        SettingString = new string[1024];
-
         VRCStringDownloader.LoadUrl(url[0], (IUdonEventReceiver)this);
     }
 
@@ -31,12 +30,20 @@ public class SettingLoader : UdonSharpBehaviour
     {
         string[] ListTmp = result.Result.Split(';', StringSplitOptions.RemoveEmptyEntries);
 
+        Name = new string[ListTmp.Length];
+        SettingString = new string[ListTmp.Length];
+
+        if(Name != null && SettingString!=null)
+        {
+            isStringInit = true;
+        }
+
         for (int i = 0; i < ListTmp.Length; i++)
         {
             if (ListTmp[i] != null)
             {
                 string[] ColorTmp = ListTmp[i].Split(',', StringSplitOptions.RemoveEmptyEntries);
-                Debug.Log("Name:" + ColorTmp.Length);
+                //Debug.Log("Name:" + ColorTmp.Length);
                 if (ColorTmp.Length == 2)
                 {
                     //Debug.Log("Name:" + ColorTmp[0] + "," + "Color:" + ColorTmp[1]);
@@ -70,11 +77,14 @@ public class SettingLoader : UdonSharpBehaviour
 
     public string GetSettingString(string name)
     {
-        for (int i = 0; i < Name.Length; i++)
+        if (name == null && isStringInit == true)
         {
-            if (Name[i] == name)
+            for (int i = 0; i < Name.Length; i++)
             {
-                return SettingString[i];
+                if (Name[i] == name)
+                {
+                    return SettingString[i];
+                }
             }
         }
         return null;

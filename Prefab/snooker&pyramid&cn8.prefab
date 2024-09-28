@@ -23992,7 +23992,13 @@ MonoBehaviour:
   _udonSharpBackingUdonBehaviour: {fileID: 5138032323552326888}
   inOwner: 
   outColor: 
-  ColorName: []
+  ColorName:
+  - "Cheese \u227Bv\u227A"
+  - WangQAQ
+  - Sacchan
+  - COCOA GAME
+  - RokaOvO
+  - eijis-pan
   ColorDOW: {fileID: 1473979116009711832}
 --- !u!114 &5138032323552326888
 MonoBehaviour:
