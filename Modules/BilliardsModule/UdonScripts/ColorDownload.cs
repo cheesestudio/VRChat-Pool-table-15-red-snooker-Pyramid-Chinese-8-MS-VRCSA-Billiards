@@ -26,8 +26,8 @@ public class ColorDownload : UdonSharpBehaviour
     /// 玩家名称颜色集
     /// Name为玩家名数组，Color是玩家颜色，下标一一对应
     /// </summary>
-    private string[] Name = null;                                                   //玩家名称数组
-    private string[] Color = null;                                                  //玩家颜色集
+    [HideInInspector] public string[] Name = null;                                                   //玩家名称数组
+    [HideInInspector] public string[] Color = null;                                                  //玩家颜色集
 
     /// <summary>
     /// 新加，用于表示数组是否初始化

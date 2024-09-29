@@ -1,4 +1,4 @@
-#define EIJIS_ISSUE_FIX
+﻿#define EIJIS_ISSUE_FIX
 #define EIJIS_TABLE_LABEL
 #define EIJIS_MANY_BALLS
 #define EIJIS_SNOOKER15REDS
@@ -40,6 +40,8 @@ public class BilliardsModule : UdonSharpBehaviour
 #else
     [NonSerialized] public readonly string VERSION = "6.0.0";
 #endif
+
+    #region PhysicsVariables
 
     // table model properties
     [NonSerialized] public float k_TABLE_WIDTH; // horizontal span of table
@@ -90,6 +92,8 @@ public class BilliardsModule : UdonSharpBehaviour
     private GameObject auto_colliderBaseVFX;
     [NonSerialized] public MeshRenderer[] tableMRs;
 
+    #endregion
+
     // cue guideline
     private readonly Color k_aimColour_aim = new Color(0.7f, 0.7f, 0.7f, 1.0f);
     private readonly Color k_aimColour_locked = new Color(1.0f, 1.0f, 1.0f, 1.0f);
@@ -131,6 +135,11 @@ public class BilliardsModule : UdonSharpBehaviour
     [SerializeField] public bool isScoreManagerEnable = false;
     [SerializeField] public ScoreManagerV2 ScoreManager;
     public Translations _translations;
+
+    //2024/9/29 预留api，用于以后修改
+    [SerializeField] public UdonBehaviour ScoreManagerHook = null;
+
+    #region BallModeSetting
 
     // constants
 #if EIJIS_MANY_BALLS
@@ -251,6 +260,10 @@ public class BilliardsModule : UdonSharpBehaviour
     public ReflectionProbe reflection_main;
     #endregion
 
+    #endregion
+
+    #region DebugSetting
+
     // debugger
     [NonSerialized] public int PERF_MAIN = 0;
     [NonSerialized] public int PERF_PHYSICS_MAIN = 1;
@@ -276,8 +289,12 @@ public class BilliardsModule : UdonSharpBehaviour
     private int LOG_PTR = 0;
     private string[] LOG_LINES = new string[32];
 
+    #endregion
+
     // cached copies of networked data, may be different from local game state
     [NonSerialized] public int[] playerIDsCached = { -1, -1, -1, -1 };//the 4 is MAX_PLAYERS from NetworkingManager
+
+    #region LocalState
 
     // local game state
     [NonSerialized] public bool lobbyOpen;
@@ -318,6 +335,8 @@ public class BilliardsModule : UdonSharpBehaviour
     private float calledBallIdDelayTimestamp = 0;
     private float callDelay = 0.4f;
 #endif
+
+    #endregion
 
     // physics simulation data, must be reset before every simulation
     [NonSerialized] public bool isLocalSimulationRunning;
@@ -953,39 +972,6 @@ public class BilliardsModule : UdonSharpBehaviour
     }
     #endregion
 
-    public bool _CanUseTableSkin(string owner, int skin)
-    {
-        if (tableSkinHook == null) return false;
-
-        tableSkinHook.SetProgramVariable("inOwner", owner);
-        tableSkinHook.SetProgramVariable("inSkin", skin);
-        tableSkinHook.SendCustomEvent("_CanUseTableSkin");
-
-        return (bool)tableSkinHook.GetProgramVariable("outCanUse");
-    }
-
-    //public bool _CanUseCueSkin(int owner, int skin)
-    //{
-    //    if (cueSkinHook == null) return false;
-
-    //    cueSkinHook.SetProgramVariable("inOwner", owner);
-    //    cueSkinHook.SetProgramVariable("inSkin", skin);
-    //    cueSkinHook.SendCustomEvent("_CanUseCueSkin");
-
-    //    return (bool)cueSkinHook.GetProgramVariable("outCanUse");
-    //}
-    public int _CanUseCueSkin(int owner, int skin)   //改了改
-    {
-        if (tableHook == null) return 0;
-
-        tableHook.SetProgramVariable("inOwner", owner);
-        tableHook.SetProgramVariable("inSkin", skin);
-        tableHook.SendCustomEvent("_CanUseCueSkin");
-
-        return (int)tableHook.GetProgramVariable("outCanUse");
-    }
-
-
     #region NetworkingClient
     // the order is important, unfortunately
     public void _OnRemoteDeserialization()
@@ -1138,6 +1124,7 @@ public class BilliardsModule : UdonSharpBehaviour
     {
         // int myOldSlot = _GetPlayerSlot(Networking.LocalPlayer, playerIDsLocal);
 
+        //当菜单参数一直，则直接返回
         if (intArrayEquals(playerIDsLocal, playerIDsSynced)) return;
 
         Array.Copy(playerIDsLocal, playerIDsCached, playerIDsLocal.Length);
@@ -1157,19 +1144,32 @@ public class BilliardsModule : UdonSharpBehaviour
         localPlayerId = Array.IndexOf(playerIDsLocal, Networking.LocalPlayer.playerId);
         if (localPlayerId != -1) localTeamId = (uint)(localPlayerId & 0x1u);
         else localTeamId = uint.MaxValue;
+
         cueControllers[0]._SetAuthorizedOwners(new int[] { playerIDsLocal[0], playerIDsLocal[2] });
         cueControllers[1]._SetAuthorizedOwners(new int[] { playerIDsLocal[1], playerIDsLocal[3] });
         cueControllers[1]._RefreshRenderer();// 2nd cue is invisible in practice mode
+
         if (playerIDsLocal[0] == -1 && playerIDsLocal[2] == -1)
         {
             cueControllers[0]._ResetCuePosition();
         }
+
         if (playerIDsLocal[1] == -1 && playerIDsLocal[3] == -1)
         {
             cueControllers[1]._ResetCuePosition();
         }
 
         applyCueAccess();
+
+        //这里适合加插件
+
+        //预留API，当游戏玩家变更，调用玩家变更事件
+        if (ScoreManagerHook != null)
+        {
+            ScoreManagerHook.SetProgramVariable("nowPlayerList", getPlayerNames(playerIDsLocal));
+            //发送事件
+            ScoreManagerHook.SendCustomEvent("_PlayerChanged");
+        }
 
         if (networkingManager.gameStateSynced != 3) { graphicsManager._SetScorecardPlayers(playerIDsLocal); } // don't remove player names when match is won
 
@@ -1244,8 +1244,19 @@ public class BilliardsModule : UdonSharpBehaviour
         if (callbacks != null) callbacks.SendCustomEvent("_OnLobbyClosed");
     }
 
+    /*
+    *  经过对代码的查证，此处同时接受来自远程和本地的调用，且不会重复，故此时候HOOK
+    *  调用轨迹 this._TriggerGameStart -> NetworkingManager._OnGameStart                                                                填写当前状态
+    *           this.Update -> NetworkingManager._FlushBuffer -> NetworkingManager.RequestSerialization                                 发起同步请求
+    *           VRCNetwork -> NetworkingManager.OnDeserialization -> this._OnRemoteDeserialization -> this.onRemoteGameStarted          接受同步请求并回调
+    *      2024/9/28 WangQAQ
+    */
+
     private void onRemoteGameStarted()
     {
+
+        Debug.Log("ss1");
+
         _LogInfo($"onRemoteGameStarted");
 
         lobbyOpen = false;
@@ -1291,6 +1302,15 @@ public class BilliardsModule : UdonSharpBehaviour
 #else
         activeCue = cueControllers[0];
 #endif
+
+        //预留API，当游戏完成初始化，加载完毕后调用游戏启动事件
+        if(ScoreManagerHook != null)
+        {
+            ScoreManagerHook.SetProgramVariable("startPlayerList" , getPlayerNames(playerIDsLocal));
+            //发送事件
+            ScoreManagerHook.SendCustomEvent("_GameStarted");
+        }
+        
     }
 
     private void onRemoteBallPositionsChanged(Vector3[] ballsPSynced)
@@ -1304,8 +1324,19 @@ public class BilliardsModule : UdonSharpBehaviour
         _Update9BallMarker();
     }
 
+    /*
+    *  经过对代码的查证，此处同时接受来自远程和本地的调用，且不会重复，故此时候HOOK
+    *  调用轨迹 this.onLocalTeamWin -> NetworkingManager._OnGameWin                                                                     填写当前状态
+    *           this.Update -> NetworkingManager._FlushBuffer -> NetworkingManager.RequestSerialization                                 发起同步请求
+    *           VRCNetwork -> NetworkingManager.OnDeserialization -> this._OnRemoteDeserialization -> this.onRemoteGameEnded            接受同步请求并回调
+    *      2024/9/28 WangQAQ
+    */
+
     private void onRemoteGameEnded(uint winningTeamSynced)
     {
+
+        Debug.Log("ss2");
+
         _LogInfo($"onRemoteGameEnded winningTeam={winningTeamSynced}");
 
         isLocalSimulationRunning = false;
@@ -1346,6 +1377,18 @@ public class BilliardsModule : UdonSharpBehaviour
                 ScoreManager.AddScore(playerIDsCached[0], playerIDsCached[1], playerIDsCached[winningTeamLocal], isSnooker15Red);
         }
         //这段代码必须在resetCachedData前面,不然gamemode被重置了,不过用snooker简化就没事,放这里以防万一
+
+        //预留API，当游戏结束，调用游戏结束事件
+        if (ScoreManagerHook != null && !isPracticeMode)
+        {
+            if (!BreakFinish)
+            {
+                //发送赢家
+                ScoreManagerHook.SetProgramVariable("gameWinner", winningTeamLocal);
+                //发送事件
+                ScoreManagerHook.SendCustomEvent("_GameEnd");
+            }
+        }
 
         gameLive = false;
         isPracticeMode = false;
@@ -3949,6 +3992,41 @@ public class BilliardsModule : UdonSharpBehaviour
 #endif
     #endregion
 
+    #region MiscFunction
+
+    public bool _CanUseTableSkin(string owner, int skin)
+    {
+        if (tableSkinHook == null) return false;
+
+        tableSkinHook.SetProgramVariable("inOwner", owner);
+        tableSkinHook.SetProgramVariable("inSkin", skin);
+        tableSkinHook.SendCustomEvent("_CanUseTableSkin");
+
+        return (bool)tableSkinHook.GetProgramVariable("outCanUse");
+    }
+
+    //public bool _CanUseCueSkin(int owner, int skin)
+    //{
+    //    if (cueSkinHook == null) return false;
+
+    //    cueSkinHook.SetProgramVariable("inOwner", owner);
+    //    cueSkinHook.SetProgramVariable("inSkin", skin);
+    //    cueSkinHook.SendCustomEvent("_CanUseCueSkin");
+
+    //    return (bool)cueSkinHook.GetProgramVariable("outCanUse");
+    //}
+    public int _CanUseCueSkin(int owner, int skin)   //改了改
+    {
+        if (tableHook == null) return 0;
+
+        tableHook.SetProgramVariable("inOwner", owner);
+        tableHook.SetProgramVariable("inSkin", skin);
+        tableHook.SendCustomEvent("_CanUseCueSkin");
+
+        return (int)tableHook.GetProgramVariable("outCanUse");
+    }
+
+
     public void checkDistanceLoop()
     {
 #if EIJIS_ISSUE_FIX
@@ -3991,6 +4069,34 @@ public class BilliardsModule : UdonSharpBehaviour
         menuManager._RefreshLobby();
         graphicsManager._UpdateLOD();
     }
+
+    private string[] getPlayerNames(int[] PlayerIDs)
+    {
+        if (PlayerIDs == null)
+            return null;
+
+        //返回值数组
+        string[] ret = new string[PlayerIDs.Length];
+
+        for (int i = 0; i < PlayerIDs.Length; i++)
+        {
+            //获取玩家API对象
+            VRCPlayerApi Tmp = VRCPlayerApi.GetPlayerById(PlayerIDs[i]);
+
+            //存储玩家名到String数组
+            if (Tmp != null)
+            {
+                if (Tmp.IsValid())
+                {
+                    ret[i] = Tmp.displayName;
+                }
+            }
+
+        }
+        return ret;
+    }
+
+    #endregion
 
     #region Debugger
     const string LOG_LOW = "<color=\"#ADADAD\">";
