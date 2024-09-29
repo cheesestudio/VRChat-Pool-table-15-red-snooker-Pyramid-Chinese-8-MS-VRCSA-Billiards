@@ -14,7 +14,6 @@ using System.Data;
 [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
 public class GraphicsManager : UdonSharpBehaviour
 {
-    public Translations _translations;
     [Header("4 Ball")]
     [SerializeField] GameObject fourBallPoint;
     [SerializeField] Mesh fourBallMeshPlus;
@@ -247,12 +246,11 @@ public class GraphicsManager : UdonSharpBehaviour
 
     private void tickTableColor()
     {
-
-        if (table.TableHook != null)
+        if (table.tableHook != null)
         {
             //table custom color by cheese
-            float tableColor = (float)table.TableHook.GetProgramVariable("TableColor");
-            float tableLightness = (float)table.TableHook.GetProgramVariable("TableColorLightness");
+            float tableColor = (float)table.tableHook.GetProgramVariable("TableColor");
+            float tableLightness = (float)table.tableHook.GetProgramVariable("TableColorLightness");
             tableMaterial.SetFloat("_ClothHue", tableColor);
             tableMaterial.SetFloat("_ClothSaturation", tableLightness);
             // Debug.Log((float)table.TableHook.GetProgramVariable("TableColor"));
@@ -929,7 +927,7 @@ int uniform_cue_colour;
 
             //table hook change ball material
             int i = 0;
-            if (table.TableHook != null)    i= (int)table.TableHook.GetProgramVariable("ball");
+            if (table.tableHook != null)    i= (int)table.tableHook.GetProgramVariable("ball");
             //ballMaterial.SetTexture("_MainTex", usColors ? usColorTexture : table.textureSets[0]);
             ballMaterial.SetTexture("_MainTex",table.textureSets[i]);
         }
@@ -1051,17 +1049,17 @@ int uniform_cue_colour;
             bool freeBall = table.foulStateLocal == 5;
             if (table.colorTurnLocal)
             {
-                snookerInstruction.text = _translations.Get("Pot any color but red");
+                snookerInstruction.text = table._translations.Get("Pot any color but red");
                 //snookerInstruction.text = "Pot any color but red";
             }
             else
             {
                 if (redOnTable)
                 {
-                    snookerInstruction.text = _translations.Get("Pot a Red");
+                    snookerInstruction.text = table._translations.Get("Pot a Red");
                     //snookerInstruction.text = "Pot a Red";
                     if (freeBall)
-                        snookerInstruction.text += _translations.Get(" or free ball of choice");
+                        snookerInstruction.text += table._translations.Get(" or free ball of choice");
                         //snookerInstruction.text += " or free ball of choice";
                 }
                 else
@@ -1073,11 +1071,11 @@ int uniform_cue_colour;
                     if (nextcolor < 12 && nextcolor > -1)
 #endif
                     {
-                        string Pot = _translations.Get("Pot ");
-                        snookerInstruction.text = Pot + _translations.Get(table.sixRedNumberToColor(nextcolor, true));
+                        string Pot = table._translations.Get("Pot ");
+                        snookerInstruction.text = Pot + table._translations.Get(table.sixRedNumberToColor(nextcolor, true));
                         //snookerInstruction.text = "Pot " + table.sixRedNumberToColor(nextcolor, true);
                         if (freeBall)
-                            snookerInstruction.text += _translations.Get(" or free ball of choice");
+                            snookerInstruction.text += table._translations.Get(" or free ball of choice");
                             //snookerInstruction.text += " or free ball of choice";
                     }
                     else

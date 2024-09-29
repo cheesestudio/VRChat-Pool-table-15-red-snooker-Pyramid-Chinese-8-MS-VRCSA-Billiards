@@ -1,4 +1,5 @@
-﻿using UdonSharp;
+﻿using Newtonsoft.Json;
+using UdonSharp;
 using UnityEngine;
 
 using VRC.SDK3.Data;
@@ -30,9 +31,6 @@ public class Translations : UdonSharpBehaviour
             if (VRCJson.TryDeserializeFromJson(t.text, out var json))
             {
                 _translations[t.name] = json.DataDictionary;
-
-                //Debug.Log(t.name);
-                //Debug.Log(json.DataDictionary);
             }
             else Debug.LogError($"Failed to parse translation file {json.Error}");
         }
@@ -57,7 +55,7 @@ public class Translations : UdonSharpBehaviour
             Debug.LogError($"Language {language} not found, falling back to {fallbackLanguage}");
             language = fallbackLanguage;
         }
-
+        
         currentLanguage = language;
         _currentLanguageDict = _translations[language].DataDictionary;
 

@@ -102,7 +102,7 @@ public class BilliardsModule : UdonSharpBehaviour
 
     // hooks
     [NonSerialized] public UdonBehaviour tableSkinHook;//no need to use
-    [SerializeField] public UdonBehaviour TableHook;
+    [SerializeField] public TableHook tableHook;
     [SerializeField] public UdonBehaviour nameColorHook;
 
     // globals
@@ -130,7 +130,7 @@ public class BilliardsModule : UdonSharpBehaviour
     [Header("Plug")]
     [SerializeField] public bool isScoreManagerEnable = false;
     [SerializeField] public ScoreManagerV2 ScoreManager;
-    public Translations _translates;
+    public Translations _translations;
 
     // constants
 #if EIJIS_MANY_BALLS
@@ -473,8 +473,16 @@ public class BilliardsModule : UdonSharpBehaviour
             checkingDistant = true;
             SendCustomEventDelayedSeconds(nameof(checkDistanceLoop), UnityEngine.Random.Range(0, 1f));
         }
+
+        //init table hook
+        //if(tableHook!=null)
+            tableHook.AddTranslation(_translations);
     }
 
+    private void Start()
+    {
+        
+    }
     private void OnDisable()
     {
         checkingDistant = false;
@@ -697,7 +705,7 @@ public class BilliardsModule : UdonSharpBehaviour
     public void _TriggerCueDeactivate()
     {
         canHitCueBall = false;
-
+        
 #if !HT_QUEST
         guideline.gameObject.transform.Find("guide_display").GetComponent<MeshRenderer>().material.SetColor("_Colour", k_aimColour_aim);
 #endif
@@ -902,13 +910,13 @@ public class BilliardsModule : UdonSharpBehaviour
         if (Time.time - lastResetTime > 0.3f)
         {
             //infReset.text = "Double Click To Reset"; ClearResetInfo();
-            infReset.text = _translates.Get("Double Click To Reset"); ClearResetInfo();
+            infReset.text = _translations.Get("Double Click To Reset"); ClearResetInfo();
         }
         else if (allPlayersOffline || isAllowedPlayer || _IsModerator(Networking.LocalPlayer) || (Time.time - lastActionTime > 300) || allPlayersAway)
         {
             _LogInfo("force resetting game");
             //infReset.text = "Game Reset!"; ClearResetInfo();
-            infReset.text = _translates.Get("Game Reset!"); ClearResetInfo();
+            infReset.text = _translations.Get("Game Reset!"); ClearResetInfo();
             networkingManager._OnGameReset();
         }
         else
@@ -925,7 +933,7 @@ public class BilliardsModule : UdonSharpBehaviour
             }
 
             //infReset.text = "<size=60%>Only these players may reset:\n" + playerStr; ClearResetInfo();
-            infReset.text = _translates.Get("<size=60%>Only these players may reset:\n") + playerStr; ClearResetInfo();
+            infReset.text = _translations.Get("<size=60%>Only these players may reset:\n") + playerStr; ClearResetInfo();
         }
         lastResetTime = Time.time;
     }
@@ -968,13 +976,13 @@ public class BilliardsModule : UdonSharpBehaviour
     //}
     public int _CanUseCueSkin(int owner, int skin)   //改了改
     {
-        if (TableHook == null) return 0;
+        if (tableHook == null) return 0;
 
-        TableHook.SetProgramVariable("inOwner", owner);
-        TableHook.SetProgramVariable("inSkin", skin);
-        TableHook.SendCustomEvent("_CanUseCueSkin");
+        tableHook.SetProgramVariable("inOwner", owner);
+        tableHook.SetProgramVariable("inSkin", skin);
+        tableHook.SendCustomEvent("_CanUseCueSkin");
 
-        return (int)TableHook.GetProgramVariable("outCanUse");
+        return (int)tableHook.GetProgramVariable("outCanUse");
     }
 
 

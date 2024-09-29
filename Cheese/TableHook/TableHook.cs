@@ -5,6 +5,7 @@ using VRC.Udon;
 using UnityEngine.UI;
 using VRC.SDKBase;
 using TMPro;
+using VRC.SDK3.Data;
 
 public class TableHook : UdonSharpBehaviour
 {
@@ -32,8 +33,13 @@ public class TableHook : UdonSharpBehaviour
     public InputField inputField;
     [SerializeField] public SettingLoader SettingLoader;
 
-    void Start()
+    public Translations hookTranslation;
+    private DataList Translations = new DataList();
+
+    void OnEnable()
     {
+        Translations.Add(hookTranslation);
+
         PlayerID.text = Networking.LocalPlayer.displayName;
 
         outCanUse = 0;
@@ -84,6 +90,10 @@ public class TableHook : UdonSharpBehaviour
         return (float)TableColorLightnessSlider.GetProgramVariable("localValue");
     }
 
+    public void AddTranslation(Translations translations)
+    {
+        Translations.Add(translations);
+    }
     //Sava and load system
     #region ConvertFunction
     private void floatToBytes(byte[] data, int pos, float v)
@@ -326,4 +336,17 @@ public class TableHook : UdonSharpBehaviour
         ball = 6;
     }
     #endregion
+
+#region Language
+
+
+    public void SetLanguage(string language)
+    {
+        foreach(var translate in Translations.ToArray()) ((Translations)translate.Reference).SetLanguage(language);
+    }
+
+    public void zh() { SetLanguage("zh"); }
+    public void en() { SetLanguage("en"); }
+    public void ja() { SetLanguage("ja"); }
+#endregion
 }
