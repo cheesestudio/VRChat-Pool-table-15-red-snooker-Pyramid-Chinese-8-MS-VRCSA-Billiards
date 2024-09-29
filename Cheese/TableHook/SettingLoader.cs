@@ -77,7 +77,7 @@ public class SettingLoader : UdonSharpBehaviour
 
     public string GetSettingString(string name)
     {
-        if (name == null && isStringInit == true)
+        if (name != null && isStringInit == true)
         {
             for (int i = 0; i < Name.Length; i++)
             {

@@ -4679,40 +4679,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2159553478517529666, guid: a7c858cb8bf0fce42b4614d85717a92c,
         type: 3}
-    - target: {fileID: 2413905470549297564, guid: a7c858cb8bf0fce42b4614d85717a92c,
-        type: 3}
-      propertyPath: m_margin.w
-      value: -4.3514977
-      objectReference: {fileID: 0}
     - target: {fileID: 2998317268459739185, guid: a7c858cb8bf0fce42b4614d85717a92c,
         type: 3}
       propertyPath: m_Name
       value: Leaderboard
-      objectReference: {fileID: 0}
-    - target: {fileID: 4309541687361906909, guid: a7c858cb8bf0fce42b4614d85717a92c,
-        type: 3}
-      propertyPath: m_margin.w
-      value: -3.6476297
-      objectReference: {fileID: 0}
-    - target: {fileID: 4309541687361906909, guid: a7c858cb8bf0fce42b4614d85717a92c,
-        type: 3}
-      propertyPath: m_lineSpacing
-      value: 17.25
-      objectReference: {fileID: 0}
-    - target: {fileID: 4380359465819870385, guid: a7c858cb8bf0fce42b4614d85717a92c,
-        type: 3}
-      propertyPath: m_LocalScale.x
-      value: 4.9999995
-      objectReference: {fileID: 0}
-    - target: {fileID: 4380359465819870385, guid: a7c858cb8bf0fce42b4614d85717a92c,
-        type: 3}
-      propertyPath: m_LocalScale.y
-      value: 4.9999995
-      objectReference: {fileID: 0}
-    - target: {fileID: 4380359465819870385, guid: a7c858cb8bf0fce42b4614d85717a92c,
-        type: 3}
-      propertyPath: m_LocalScale.z
-      value: 4.9999995
       objectReference: {fileID: 0}
     - target: {fileID: 4380359465819870385, guid: a7c858cb8bf0fce42b4614d85717a92c,
         type: 3}

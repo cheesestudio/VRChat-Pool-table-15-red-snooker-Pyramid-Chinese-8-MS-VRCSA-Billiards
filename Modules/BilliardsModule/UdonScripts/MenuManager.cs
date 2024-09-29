@@ -141,7 +141,7 @@ public class MenuManager : UdonSharpBehaviour
         switch (mode)
         {
             case 0:
-                modeName = selectedTable == 2 ? table._translations.Get("CN 8 Ball") : table._translations.Get("EN 8 Ball");
+                modeName = table.isChinese8Ball ? table._translations.Get("CN 8 Ball") : table._translations.Get("EN 8 Ball");
                 //modeName = selectedTable == 2 ? "CN 8 Ball" : "EN 8 Ball";
                 selectionPoint = table.transform.Find("intl.menu/MenuAnchor/LobbyMenu/GameMode/SelectionPoints/8ball");
                 table.setTransform(selectionPoint, selection, true);
@@ -184,22 +184,22 @@ public class MenuManager : UdonSharpBehaviour
 #endif
 #if EIJIS_CAROM
             case BilliardsModule.GAMEMODE_3CUSHION:
-                modeName = "3-Cushion";
+                modeName = table._translations.Get("3-Cushion");
                 selectionPoint = table.transform.Find("intl.menu/MenuAnchor/LobbyMenu/GameMode/SelectionPoints/3Cushion");
                 table.setTransform(selectionPoint, selection, true);
                 break;
             case BilliardsModule.GAMEMODE_2CUSHION:
-                modeName = "2-Cushion";
+                modeName = table._translations.Get("2-Cushion");
                 selectionPoint = table.transform.Find("intl.menu/MenuAnchor/LobbyMenu/GameMode/SelectionPoints/2Cushion");
                 table.setTransform(selectionPoint, selection, true);
                 break;
             case BilliardsModule.GAMEMODE_1CUSHION:
-                modeName = "1-Cushion";
+                modeName = table._translations.Get("1-Cushion");
                 selectionPoint = table.transform.Find("intl.menu/MenuAnchor/LobbyMenu/GameMode/SelectionPoints/1Cushion");
                 table.setTransform(selectionPoint, selection, true);
                 break;
             case BilliardsModule.GAMEMODE_0CUSHION:
-                modeName = "0-Cushion";
+                modeName = table._translations.Get("0-Cushion");
                 selectionPoint = table.transform.Find("intl.menu/MenuAnchor/LobbyMenu/GameMode/SelectionPoints/0Cushion");
                 table.setTransform(selectionPoint, selection, true);
                 break;

@@ -187,7 +187,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: b3f4c49ee7ee28f40a2783341140fea8, type: 2}
+  - {fileID: 2100000, guid: 0315e1aea7e600647a806cd973220512, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -270,7 +270,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: b3f4c49ee7ee28f40a2783341140fea8, type: 2}
+  - {fileID: 2100000, guid: 0315e1aea7e600647a806cd973220512, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -353,7 +353,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 59bb547cdd33c2345bc24cb1efdeae16, type: 2}
+  - {fileID: 2100000, guid: 9e35c73cf59a16b42bc4a6412e56f380, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1975,6 +1975,36 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1962969579540544057, guid: 1aa5131fbe9aa314d80ae7e10735367b,
         type: 3}
+      propertyPath: ColorName.Array.size
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 1962969579540544057, guid: 1aa5131fbe9aa314d80ae7e10735367b,
+        type: 3}
+      propertyPath: ColorName.Array.data[0]
+      value: Sacchan
+      objectReference: {fileID: 0}
+    - target: {fileID: 1962969579540544057, guid: 1aa5131fbe9aa314d80ae7e10735367b,
+        type: 3}
+      propertyPath: ColorName.Array.data[1]
+      value: COCOA GAME
+      objectReference: {fileID: 0}
+    - target: {fileID: 1962969579540544057, guid: 1aa5131fbe9aa314d80ae7e10735367b,
+        type: 3}
+      propertyPath: ColorName.Array.data[2]
+      value: RokaOvO
+      objectReference: {fileID: 0}
+    - target: {fileID: 1962969579540544057, guid: 1aa5131fbe9aa314d80ae7e10735367b,
+        type: 3}
+      propertyPath: ColorName.Array.data[3]
+      value: eijis-pan
+      objectReference: {fileID: 0}
+    - target: {fileID: 1962969579540544057, guid: 1aa5131fbe9aa314d80ae7e10735367b,
+        type: 3}
+      propertyPath: ColorName.Array.data[4]
+      value: eijis-pan
+      objectReference: {fileID: 0}
+    - target: {fileID: 1962969579540544057, guid: 1aa5131fbe9aa314d80ae7e10735367b,
+        type: 3}
       propertyPath: serializationData.Prefab
       value: 
       objectReference: {fileID: 1962969579540544057, guid: 1aa5131fbe9aa314d80ae7e10735367b,
@@ -1999,6 +2029,16 @@ PrefabInstance:
         type: 3}
       propertyPath: serializationData.SerializedFormat
       value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2265743303477143331, guid: 1aa5131fbe9aa314d80ae7e10735367b,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -2.547
+      objectReference: {fileID: 0}
+    - target: {fileID: 2265743303477143331, guid: 1aa5131fbe9aa314d80ae7e10735367b,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.989
       objectReference: {fileID: 0}
     - target: {fileID: 2342608599013858199, guid: 1aa5131fbe9aa314d80ae7e10735367b,
         type: 3}
