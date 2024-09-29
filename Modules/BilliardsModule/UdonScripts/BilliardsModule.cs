@@ -4,11 +4,14 @@
 #define EIJIS_SNOOKER15REDS
 #define EIJIS_PYRAMID
 #define EIJIS_CUEBALLSWAP
+#define EIJIS_CAROM
+#define EIJIS_CUSHION_EFFECT
 
 
 // #define EIJIS_DEBUG_INITIALIZERACK
 // #define EIJIS_DEBUG_BALLCHOICE
 // #define EIJIS_DEBUG_PIRAMIDSCORE
+// #define EIJIS_DEBUG_CUSHIONTOUCH
 
 #if UNITY_ANDROID
 #define HT_QUEST
@@ -35,8 +38,8 @@ using TMPro;
 public class BilliardsModule : UdonSharpBehaviour
 {
     [NonSerialized] public readonly string[] DEPENDENCIES = new string[] { nameof(CameraOverrideModule) };
-#if EIJIS_SNOOKER15REDS || EIJIS_PYRAMID
-    [NonSerialized] public readonly string VERSION = "6.0.0 (15Reds|Pyramid)";
+#if EIJIS_SNOOKER15REDS || EIJIS_PYRAMID || EIJIS_CAROM
+    [NonSerialized] public readonly string VERSION = "6.0.0 (15Reds|Pyramid|Carom)";
 #else
     [NonSerialized] public readonly string VERSION = "6.0.0";
 #endif
@@ -108,9 +111,9 @@ public class BilliardsModule : UdonSharpBehaviour
     // globals
     [NonSerialized] public AudioSource aud_main;
     [NonSerialized] public UdonBehaviour callbacks;
-#if EIJIS_PYRAMID
-    private Vector3[][] initialPositions = new Vector3[6][];
-    private uint[] initialBallsPocketed = new uint[6];
+#if EIJIS_PYRAMID || EIJIS_CAROM
+    private Vector3[][] initialPositions = new Vector3[10][];
+    private uint[] initialBallsPocketed = new uint[10];
 #else
     private Vector3[][] initialPositions = new Vector3[5][];
     private uint[] initialBallsPocketed = new uint[5];
@@ -310,6 +313,12 @@ public class BilliardsModule : UdonSharpBehaviour
 #if EIJIS_PYRAMID
     [NonSerialized] public const uint GAMEMODE_PYRAMID = 5u;
 #endif
+#if EIJIS_CAROM
+    [NonSerialized] public const uint GAMEMODE_3CUSHION = 6u;
+    [NonSerialized] public const uint GAMEMODE_2CUSHION = 7u;
+    [NonSerialized] public const uint GAMEMODE_1CUSHION = 8u;
+    [NonSerialized] public const uint GAMEMODE_0CUSHION = 9u;
+#endif
 #if EIJIS_CUEBALLSWAP
     [NonSerialized] public int stateIdLocal;
     [NonSerialized] public uint calledBallsLocal;
@@ -333,6 +342,10 @@ public class BilliardsModule : UdonSharpBehaviour
     private int thirdHit = 0;
     private bool jumpShotFoul;
     private bool fallOffFoul;
+#if EIJIS_CAROM
+    private int cushionBeforeSecondBall = 0;
+    private int cushionHitGoal = 3;
+#endif
 
     private bool fbMadePoint = false;
     private bool fbMadeFoul = false;
@@ -375,6 +388,12 @@ public class BilliardsModule : UdonSharpBehaviour
 #if EIJIS_PYRAMID
     [NonSerialized] public bool isPyramid = false;
     [NonSerialized] public bool isChinese8Ball = false;
+#endif
+#if EIJIS_CAROM
+    [NonSerialized] public bool is3Cusion = false;
+    [NonSerialized] public bool is2Cusion = false;
+    [NonSerialized] public bool is1Cusion = false;
+    [NonSerialized] public bool is0Cusion = false;
 #endif
     [NonSerialized] public bool isPracticeMode = false;
     [NonSerialized] public bool isPlayer = false;
@@ -428,6 +447,11 @@ public class BilliardsModule : UdonSharpBehaviour
         for (int i = 0; i < cueControllers.Length; i++)
         { cueControllers[i]._Init(); }
         networkingManager._Init(this);
+#if EIJIS_CAROM
+        tableModelLocal = 4;
+        networkingManager.tableModelSynced = (byte)tableModelLocal;
+        networkingManager.gameModeSynced = (byte)GAMEMODE_3CUSHION;
+#endif
         practiceManager._Init(this);
         repositionManager._Init(this);
         desktopManager._Init(this);
@@ -1090,7 +1114,16 @@ public class BilliardsModule : UdonSharpBehaviour
 #if EIJIS_PYRAMID
             isPyramid = gameModeLocal == GAMEMODE_PYRAMID;
 #endif
+#if EIJIS_CAROM
+            is3Cusion = gameModeLocal == GAMEMODE_3CUSHION;
+            is2Cusion = gameModeLocal == GAMEMODE_2CUSHION;
+            is1Cusion = gameModeLocal == GAMEMODE_1CUSHION;
+            is0Cusion = gameModeLocal == GAMEMODE_0CUSHION;
+            cushionHitGoal = is0Cusion ? 0 : (is1Cusion ? 1 : (is2Cusion ? 2 : 3));
+            is4Ball = isJp4Ball || isKr4Ball || is3Cusion || is2Cusion || is1Cusion || is0Cusion;
+#else
             is4Ball = isJp4Ball || isKr4Ball;
+#endif
 #if EIJIS_SNOOKER15REDS
             isSnooker = isSnooker6Red || isSnooker15Red;
 #endif
@@ -1581,6 +1614,9 @@ public class BilliardsModule : UdonSharpBehaviour
         firstHit = 0;
         secondHit = 0;
         thirdHit = 0;
+#if EIJIS_CAROM
+        cushionBeforeSecondBall = 0;
+#endif
         fbMadePoint = false;
         fbMadeFoul = false;
         ballBounced = false;
@@ -1668,7 +1704,11 @@ public class BilliardsModule : UdonSharpBehaviour
     #endregion
 
     #region PhysicsEngineCallbacks
+#if EIJIS_CUSHION_EFFECT
+    public void _TriggerBounceCushion(int ball, Vector3 pos)
+#else
     public void _TriggerBounceCushion(int ball)
+#endif
     {
         if (!ballhasHitCushion[ball] && ball != 0)
         {
@@ -1677,6 +1717,19 @@ public class BilliardsModule : UdonSharpBehaviour
         }
         if (firstHit != 0)
         { ballBounced = true; }
+#if EIJIS_CAROM
+#if EIJIS_DEBUG_CUSHIONTOUCH
+        _LogInfo($"EIJIS_DEBUG BilliardsModule::_TriggerCushionAtPosition(ball = {ball}, pos = {pos})");
+#endif
+        if ((is3Cusion || is2Cusion || is1Cusion /* || is0Cusion */) && ball == 0 && secondHit == 0)
+        {
+            if (cushionBeforeSecondBall < cushionHitGoal)
+            {
+                graphicsManager._SpawnCushionTouch(pos, cushionBeforeSecondBall);
+            }
+            cushionBeforeSecondBall++;
+        }
+#endif
     }
     public void _TriggerCollision(int srcId, int dstId)
     {
@@ -1747,6 +1800,29 @@ public class BilliardsModule : UdonSharpBehaviour
                 //Snooker
                 if (firstHit == 0) firstHit = dstId;
                 break;
+#if EIJIS_CAROM
+            case GAMEMODE_3CUSHION:
+            case GAMEMODE_2CUSHION:
+            case GAMEMODE_1CUSHION:
+            case GAMEMODE_0CUSHION:
+                if (firstHit == 0)
+                {
+                    firstHit = dstId;
+                    break;
+                }
+                if (secondHit == 0)
+                {
+                    if (dstId != firstHit)
+                    {
+                        secondHit = dstId;
+                        if (cushionHitGoal <= cushionBeforeSecondBall)
+                        {
+                            handle4BallHit(ballsP[dstId], true);
+                        }
+                    }
+                }
+                break;
+#endif
         }
     }
 
@@ -2465,8 +2541,8 @@ public class BilliardsModule : UdonSharpBehaviour
         float k_BALL_PL_X = k_BALL_RADIUS; // break placement X
         float k_BALL_PL_Y = Mathf.Sin(60 * Mathf.Deg2Rad) * k_BALL_DIAMETRE; // break placement Y
         float quarterTable = k_TABLE_WIDTH / 2;
-#if EIJIS_PYRAMID
-        for (int i = 0; i < 6; i++)
+#if EIJIS_PYRAMID || EIJIS_CAROM
+        for (int i = 0; i < 10; i++)
 #else
         for (int i = 0; i < 5; i++)
 #endif
@@ -2643,6 +2719,27 @@ public class BilliardsModule : UdonSharpBehaviour
                     );
                 }
             }
+        }
+#endif
+#if EIJIS_CAROM
+        
+        {
+            // 3-Cushion
+#if EIJIS_MANY_BALLS
+            initialBallsPocketed[6] = 0xFFFF9FFEu;
+#else
+            initialBallsPocketed[6] = 0x9FFEu;
+#endif
+            initialPositions[6][0] = new Vector3(-k_SPOT_POSITION_X, 0.0f, -0.15f);
+            initialPositions[6][13] = new Vector3(-k_SPOT_POSITION_X, 0.0f, 0.0f);
+            initialPositions[6][14] = new Vector3(k_SPOT_POSITION_X, 0.0f, 0.0f);
+        }
+
+        for (int i = 7; i <= 9; i++)
+        {
+            // 0 ～ 2-Cushion
+            initialBallsPocketed[i] = initialBallsPocketed[6];
+            initialPositions[i] = initialPositions[6];
         }
 #endif
     }
@@ -3079,8 +3176,15 @@ public class BilliardsModule : UdonSharpBehaviour
         { ballsP[14] = initialPositions[2][14]; fourteenPocketed = true; }
         if ((ballsPocketedLocal & (0x1U << 15)) > 0)
         { ballsP[15] = initialPositions[2][15]; fifteenPocketed = true; }
+#if EIJIS_CAROM
+        fifteenPocketed = (fifteenPocketed && !is3Cusion && !is2Cusion && !is1Cusion && !is0Cusion);
+#endif
 
+#if EIJIS_CAROM
+        ballsPocketedLocal = initialBallsPocketed[gameModeLocal];
+#else
         ballsPocketedLocal = initialBallsPocketed[2];
+#endif
         Vector3 dir = Vector3.right * k_BALL_RADIUS * .051f;
         if (zeroPocketed) moveBallInDirUntilNotTouching(0, dir);
         if (thirteenPocketed) moveBallInDirUntilNotTouching(13, dir);
