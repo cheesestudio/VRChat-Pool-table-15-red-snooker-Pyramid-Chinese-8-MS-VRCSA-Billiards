@@ -467,9 +467,9 @@ public class BilliardsModule : UdonSharpBehaviour
         { cueControllers[i]._Init(); }
         networkingManager._Init(this);
 #if EIJIS_CAROM
-        tableModelLocal = 4;
-        networkingManager.tableModelSynced = (byte)tableModelLocal;
-        networkingManager.gameModeSynced = (byte)GAMEMODE_3CUSHION;
+        //tableModelLocal = 1;
+        //networkingManager.tableModelSynced = (byte)tableModelLocal;
+        networkingManager.gameModeSynced = 0;// (byte)GAMEMODE_3CUSHION;
 #endif
         practiceManager._Init(this);
         repositionManager._Init(this);
@@ -518,14 +518,10 @@ public class BilliardsModule : UdonSharpBehaviour
         }
 
         //init table hook
-        //if(tableHook!=null)
+        if(tableHook!=null)
             tableHook.AddTranslation(_translations);
     }
 
-    private void Start()
-    {
-        
-    }
     private void OnDisable()
     {
         checkingDistant = false;
