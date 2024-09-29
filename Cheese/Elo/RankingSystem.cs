@@ -17,13 +17,17 @@ public class RankingSystem : UdonSharpBehaviour
     public InputField copyField;
     public VRCUrlInputField pasteField;
     public ScoreManagerV2 scoreManager;
-    public Text errorText; 
+    public Text errorText;
+    private string Player1 = "";
+    private string Player2 = "";
 
     private string hashKey = "CheeseIsTheHashKeyForNoReason";
     private string ScoreUploadBaseURL = "https://wangqaq.com/api/eol/upload_score.php";
 
     public void UpdateCopyData(String player1,String player2,string score1,string score2)
     {
+        Player1 = player1;
+        Player2 = player2;
         if (score1 == score2)
         {
             copyField.text = "null";
@@ -43,6 +47,13 @@ public class RankingSystem : UdonSharpBehaviour
             errorText.text = ("not equal to copy text! ! !");
             return;
         }
+        string localPlayer =Networking.LocalPlayer.displayName;
+        if (localPlayer != Player1 && localPlayer != Player2)
+        {
+            errorText.text = ("不是你的比赛你上传???,don't upload others score");
+            return;
+        }
+
        // noteDownloader.newNoteButton.interactable = false;
         VRCStringDownloader.LoadUrl(url, (IUdonEventReceiver)this);
 
