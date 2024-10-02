@@ -50,7 +50,7 @@ public class RankingSystem : UdonSharpBehaviour
         string localPlayer =Networking.LocalPlayer.displayName;
         if (localPlayer != Player1 && localPlayer != Player2)
         {
-            errorText.text = ("不是你的比赛你上传???,don't upload others score");
+            errorText.text = ("不是你的比赛你上传???don't upload others score");
             return;
         }
 
