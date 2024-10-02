@@ -15,7 +15,7 @@ remember to set the billiard Module layer 22 and physics part(just click the but
 your can add your custom cue.(and add texture in table hook)  
 Udonchips Supported.  
 ## 功能介绍 Features
-- 在原来的基础上加了:15球斯诺克,俄罗斯台球,中式八球（包括规则和集球器） 
+- 在原来的基础上加了:15球斯诺克,俄罗斯台球,中式八球（包括规则和集球器）,开仑台球   
 - 桌子控件:自选球杆皮肤,球材质和桌子颜色(球杆同步，球和桌子本地),自动保存和加载设置,可以通过dc或者qq群上传设置
 - 继承原项目大部分更新，45秒计时器，库边颜色切换等
 - 计分板自动记录对局分数,支持擂台式计分
