@@ -28,7 +28,7 @@ Udonchips Supported.
 一定要设置table hook!!!
 ![image](https://github.com/user-attachments/assets/f453ae11-0735-4885-b700-87101d5971c7)
 
-![A1${86C(YGWI)~3G{RT7J6U](https://github.com/user-attachments/assets/2e4d0cda-78aa-42a3-bbf0-c2da4d901561)
+![Q84OOB{37Q{XY946MTR$E`F](https://github.com/user-attachments/assets/6bf18499-5926-4ca2-8a8c-8f8e33fd9faa)
 更多自定义功能:  
 -自定义球杆皮肤和球材质（下面视频，还要在tablehook里面加贴图现在）代码里面预留了几个空位  
 -有udonchips对应,在BilliardsModule里面点一下按钮
