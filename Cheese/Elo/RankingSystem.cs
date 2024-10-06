@@ -10,13 +10,14 @@ using VRC.SDKBase;
 using VRC.Udon;
 using VRC.Udon.Common.Interfaces;
 
-[UdonBehaviourSyncMode(BehaviourSyncMode.None)]
+[UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
 public class RankingSystem : UdonSharpBehaviour
 {
     [Header("References")]
     public InputField copyField;
     public VRCUrlInputField pasteField;
     public ScoreManagerV2 scoreManager;
+    [UdonSynced] private string errorString;
     public Text errorText;
     private string Player1 = "";
     private string Player2 = "";
@@ -28,9 +29,10 @@ public class RankingSystem : UdonSharpBehaviour
     {
         Player1 = player1;
         Player2 = player2;
-        if (score1 == score2)
+        if (score1 == score2 || string.IsNullOrEmpty(player1) || string.IsNullOrEmpty(player2))
         {
             copyField.text = "null";
+            errorText.text = "";
             return;
         }
         string hash = UdonHashLib.MD5_UTF8(player1 + player2 + score1 + score2 + hashKey);
@@ -50,7 +52,7 @@ public class RankingSystem : UdonSharpBehaviour
         string localPlayer =Networking.LocalPlayer.displayName;
         if (localPlayer != Player1 && localPlayer != Player2)
         {
-            errorText.text = ("不是你的比赛你上传???don't upload others score");
+            errorText.text = ("不是你的比赛你上传???Don't upload others score");
             return;
         }
 
@@ -58,13 +60,17 @@ public class RankingSystem : UdonSharpBehaviour
         VRCStringDownloader.LoadUrl(url, (IUdonEventReceiver)this);
 
         scoreManager.M_Score_Reset();
-        copyField.text = "Upload Starting";
+        copyField.text = "Starting";
         errorText.text = "loading";
     }
     public override void OnStringLoadSuccess(IVRCStringDownload result)
     {
-        copyField.text = "Upload Finished";
-        errorText.text = "Upload connected" + result.Result;
+        copyField.text = "Finished";
+        if (!Networking.IsOwner(gameObject))
+            Networking.SetOwner(Networking.LocalPlayer, gameObject);
+        errorString = "connected  " + result.Result;
+        errorText.text = errorString;
+        RequestSerialization();
     }
 
     public override void OnStringLoadError(IVRCStringDownload result)
@@ -80,9 +86,15 @@ public class RankingSystem : UdonSharpBehaviour
             //unauthorizedErrorInfo.SetActive(true);
         }
     }
+
+
+    public override void OnDeserialization()
+    {
+        errorText.text = errorString;
+    }
     void Start()
     {
-        //UpdateCopyData("测试3", "测试4", "36", "0");
+        //UpdateCopyData("测试3", "urara․", "0", "720");
         //TryToUploadNote();
     }
 }

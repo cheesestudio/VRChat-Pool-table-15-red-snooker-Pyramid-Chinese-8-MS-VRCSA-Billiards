@@ -1465,6 +1465,13 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 144754576911236386, guid: 1aa5131fbe9aa314d80ae7e10735367b,
+        type: 3}
+      propertyPath: m_text
+      value: 'MS-VRCSA-CBC
+
+        TABLE  v1.1381'
+      objectReference: {fileID: 0}
     - target: {fileID: 156126714978706885, guid: 1aa5131fbe9aa314d80ae7e10735367b,
         type: 3}
       propertyPath: serializedProgramAsset
@@ -1976,7 +1983,7 @@ PrefabInstance:
     - target: {fileID: 1962969579540544057, guid: 1aa5131fbe9aa314d80ae7e10735367b,
         type: 3}
       propertyPath: ColorName.Array.size
-      value: 4
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 1962969579540544057, guid: 1aa5131fbe9aa314d80ae7e10735367b,
         type: 3}
@@ -2001,7 +2008,12 @@ PrefabInstance:
     - target: {fileID: 1962969579540544057, guid: 1aa5131fbe9aa314d80ae7e10735367b,
         type: 3}
       propertyPath: ColorName.Array.data[4]
-      value: eijis-pan
+      value: "Cheese \u227Bv\u227A"
+      objectReference: {fileID: 0}
+    - target: {fileID: 1962969579540544057, guid: 1aa5131fbe9aa314d80ae7e10735367b,
+        type: 3}
+      propertyPath: ColorName.Array.data[5]
+      value: WangQAQ
       objectReference: {fileID: 0}
     - target: {fileID: 1962969579540544057, guid: 1aa5131fbe9aa314d80ae7e10735367b,
         type: 3}

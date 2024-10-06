@@ -4,6 +4,7 @@ using TMPro;
 using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
+using VRC.Udon.Serialization.OdinSerializer.Utilities;
 
 [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
 public class ScoreManagerV2 : UdonSharpBehaviour
@@ -38,7 +39,7 @@ public class ScoreManagerV2 : UdonSharpBehaviour
         RedNameTMP.text = Redplayer;
         BlueNameTMP.text = BluePlayer;
 
-        if ( RedScoreTMP != null && BlueScoreTMP != null)
+        if (!string.IsNullOrEmpty(RedScoreTMP.text) && !string.IsNullOrEmpty(BlueScoreTMP.text))
         {
             RedScoreTMP.text = RedScore.ToString();
             BlueScoreTMP.text = BlueScore.ToString();
@@ -75,10 +76,11 @@ public class ScoreManagerV2 : UdonSharpBehaviour
                 IsSnooker = Snooker;
                 //下面分两种情况讨论
                 //1.未设置初始值,按队伍进行正常分配(另一种可能是是不是前两个人)
-                if((Redplayer==null && BluePlayer ==null) || ((player1.displayName != Redplayer && player2.displayName != BluePlayer) || (player1.displayName != BluePlayer && player2.displayName != Redplayer)))
+                if((string.IsNullOrEmpty(Redplayer) && string.IsNullOrEmpty(BluePlayer))
+                    || ((player1.displayName != Redplayer && player2.displayName != BluePlayer) && (player1.displayName != BluePlayer && player2.displayName != Redplayer)))
                 {
                     if (L_PlayerID1 == Winner) { RedScore = 1; BlueScore = 0; }
-                    if (L_PlayerID2 == Winner) { RedScore = 0; BlueScore = 1; }
+                    else if (L_PlayerID2 == Winner) { RedScore = 0; BlueScore = 1; }
                     Redplayer = player1.displayName;
                     BluePlayer = player2.displayName;
                 }
