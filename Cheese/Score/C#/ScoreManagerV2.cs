@@ -23,7 +23,7 @@ public class ScoreManagerV2 : UdonSharpBehaviour
     private int RedScore = 0;
 
     [UdonSynced]
-    private string Redplayer = "";
+    private string RedPlayer = "";
     [UdonSynced]
     private string BluePlayer = "";
     [UdonSynced]
@@ -36,7 +36,7 @@ public class ScoreManagerV2 : UdonSharpBehaviour
     private void Reflash()
     {
 
-        RedNameTMP.text = Redplayer;
+        RedNameTMP.text = RedPlayer;
         BlueNameTMP.text = BluePlayer;
 
         if (!string.IsNullOrEmpty(RedScoreTMP.text) && !string.IsNullOrEmpty(BlueScoreTMP.text))
@@ -47,13 +47,13 @@ public class ScoreManagerV2 : UdonSharpBehaviour
         if (IsSnooker)//斯诺克优待
         {
             if (RedScore > BlueScore)
-                RankingSystem.UpdateCopyData(Redplayer, BluePlayer, Convert.ToString(RedScore + 35), Convert.ToString(BlueScore));
+                RankingSystem.UpdateCopyData(RedPlayer, BluePlayer, Convert.ToString(RedScore + 35), Convert.ToString(BlueScore));
             else if (RedScore < BlueScore)
-                RankingSystem.UpdateCopyData(Redplayer, BluePlayer, Convert.ToString(RedScore), Convert.ToString(BlueScore + 35));
+                RankingSystem.UpdateCopyData(RedPlayer, BluePlayer, Convert.ToString(RedScore), Convert.ToString(BlueScore + 35));
         }
         else
         {
-            RankingSystem.UpdateCopyData(Redplayer, BluePlayer, Convert.ToString(RedScore), Convert.ToString(BlueScore));
+            RankingSystem.UpdateCopyData(RedPlayer, BluePlayer, Convert.ToString(RedScore), Convert.ToString(BlueScore));
         }
     }
 
@@ -76,17 +76,22 @@ public class ScoreManagerV2 : UdonSharpBehaviour
                 IsSnooker = Snooker;
                 //下面分两种情况讨论
                 //1.未设置初始值,按队伍进行正常分配(另一种可能是是不是前两个人)
-                if((string.IsNullOrEmpty(Redplayer) && string.IsNullOrEmpty(BluePlayer))
-                    || ((player1.displayName != Redplayer && player2.displayName != BluePlayer) && (player1.displayName != BluePlayer && player2.displayName != Redplayer)))
+                if((string.IsNullOrEmpty(RedPlayer) && string.IsNullOrEmpty(BluePlayer))
+                    || ((player1.displayName != RedPlayer && player2.displayName != BluePlayer) && (player1.displayName != BluePlayer && player2.displayName != RedPlayer)) //两个人不是当前记录的
+                    || (player1.displayName == RedPlayer && player2.displayName != BluePlayer)   //一个人是当前记录的,但是第二个不是
+                    || (player1.displayName != RedPlayer && player2.displayName == BluePlayer)
+                    || (player1.displayName == BluePlayer && player2.displayName != RedPlayer)
+                    || (player1.displayName != BluePlayer && player2.displayName == RedPlayer))
+
                 {
                     if (L_PlayerID1 == Winner) { RedScore = 1; BlueScore = 0; }
                     else if (L_PlayerID2 == Winner) { RedScore = 0; BlueScore = 1; }
-                    Redplayer = player1.displayName;
+                    RedPlayer = player1.displayName;
                     BluePlayer = player2.displayName;
                 }
                 else//2.保持名字顺序不变,正常加分
                 {
-                    if (winplayer.displayName == Redplayer) RedScore++;
+                    if (winplayer.displayName == RedPlayer) RedScore++;
                     else if (winplayer.displayName == BluePlayer) BlueScore++;
 
                 }
@@ -107,7 +112,7 @@ public class ScoreManagerV2 : UdonSharpBehaviour
             Networking.SetOwner(Networking.LocalPlayer, gameObject);
         }
 
-        Redplayer = "";
+        RedPlayer = "";
         BluePlayer = "";
 
         RedScore = 0;
@@ -124,7 +129,7 @@ public class ScoreManagerV2 : UdonSharpBehaviour
         {
             Networking.SetOwner(Networking.LocalPlayer, gameObject);
         }
-        if (Networking.LocalPlayer.displayName == Redplayer || Networking.LocalPlayer.displayName == BluePlayer)
+        if (Networking.LocalPlayer.displayName == RedPlayer || Networking.LocalPlayer.displayName == BluePlayer)
         {
             BlueScore++;
             RequestSerialization();
@@ -137,7 +142,7 @@ public class ScoreManagerV2 : UdonSharpBehaviour
         {
             Networking.SetOwner(Networking.LocalPlayer, gameObject);
         }
-        if (Networking.LocalPlayer.displayName == Redplayer || Networking.LocalPlayer.displayName == BluePlayer)
+        if (Networking.LocalPlayer.displayName == RedPlayer || Networking.LocalPlayer.displayName == BluePlayer)
         {
             RedScore++;
             RequestSerialization();
@@ -149,7 +154,7 @@ public class ScoreManagerV2 : UdonSharpBehaviour
         {
             Networking.SetOwner(Networking.LocalPlayer, gameObject);
         }
-        if (Networking.LocalPlayer.displayName == Redplayer || Networking.LocalPlayer.displayName == BluePlayer)
+        if (Networking.LocalPlayer.displayName == RedPlayer || Networking.LocalPlayer.displayName == BluePlayer)
         {
             BlueScore--;
             RequestSerialization();
@@ -162,7 +167,7 @@ public class ScoreManagerV2 : UdonSharpBehaviour
         {
             Networking.SetOwner(Networking.LocalPlayer, gameObject);
         }
-        if (Networking.LocalPlayer.displayName == Redplayer || Networking.LocalPlayer.displayName == BluePlayer)
+        if (Networking.LocalPlayer.displayName == RedPlayer || Networking.LocalPlayer.displayName == BluePlayer)
         {
             RedScore--;
             RequestSerialization();

@@ -498,7 +498,7 @@ public class GraphicsManager : UdonSharpBehaviour
         string[] colors = new string[numColors];
 
         float n = (float)numColors;
-        int baseBrightness = 64; // 设置一个基础亮度值  
+        int baseBrightness = 128; // 设置一个基础亮度值  
 
         for (int i = 0; i < numColors; i++)
         {
