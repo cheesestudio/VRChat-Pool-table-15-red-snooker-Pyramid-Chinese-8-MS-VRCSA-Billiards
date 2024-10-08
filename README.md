@@ -4,7 +4,7 @@
 这个项目是用于VRChat的台球桌预制键,你可以在VRChat地图 **[中文台球俱乐部 Chinese Billiiards Club
 ](https://vrchat.com/home/launch?worldId=wrld_0a35397b-2e7d-4f01-8552-034ab8e76e2e
 )**.游玩和测试这张桌子  
-非常感谢我朋友们的支持,没有他们我做不出来这张桌子的:WangQAQ,RokaOvO,eijis-pan  
+非常感谢我朋友们的支持,没有他们我做不出来这张桌子的:WangQAQ,RokaOvO,COCOA GAME,eijis-pan  
 QQ群:780855553  
 
 15 red snooker,pyramid,chinese 8 ball system added.(including 45s timer,table cloth,cue skin...).  
