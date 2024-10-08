@@ -1,6 +1,7 @@
 ﻿using BestHTTP.Extensions;
 using System;
 using System.Text;
+using TMPro;
 using UdonSharp;
 using UnityEngine;
 using UnityEngine.UI;
@@ -18,7 +19,7 @@ public class RankingSystem : UdonSharpBehaviour
     public VRCUrlInputField pasteField;
     public ScoreManagerV2 scoreManager;
     [UdonSynced] private string errorString;
-    public Text errorText;
+    public TextMeshProUGUI errorText;
     private string Player1 = "";
     private string Player2 = "";
 
