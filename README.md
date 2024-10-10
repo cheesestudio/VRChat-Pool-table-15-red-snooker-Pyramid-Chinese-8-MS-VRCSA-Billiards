@@ -4,7 +4,7 @@
 这个项目是用于VRChat的台球桌预制键,你可以在VRChat地图 **[中文台球俱乐部 Chinese Billiiards Club
 ](https://vrchat.com/home/launch?worldId=wrld_0a35397b-2e7d-4f01-8552-034ab8e76e2e
 )**.游玩和测试这张桌子  
-非常感谢我朋友们的支持,没有他们我做不出来这张桌子的:WangQAQ,RokaOvO,eijis-pan  
+非常感谢我朋友们的支持,没有他们我做不出来这张桌子的:WangQAQ,RokaOvO,COCOA GAME,eijis-pan  
 QQ群:780855553  
 
 15 red snooker,pyramid,chinese 8 ball system added.(including 45s timer,table cloth,cue skin...).  
@@ -28,7 +28,7 @@ Udonchips Supported.
 一定要设置table hook!!!
 ![image](https://github.com/user-attachments/assets/f453ae11-0735-4885-b700-87101d5971c7)
 
-![A1${86C(YGWI)~3G{RT7J6U](https://github.com/user-attachments/assets/2e4d0cda-78aa-42a3-bbf0-c2da4d901561)
+![Q84OOB{37Q{XY946MTR$E`F](https://github.com/user-attachments/assets/6bf18499-5926-4ca2-8a8c-8f8e33fd9faa)
 更多自定义功能:  
 -自定义球杆皮肤和球材质（下面视频，还要在tablehook里面加贴图现在）代码里面预留了几个空位  
 -有udonchips对应,在BilliardsModule里面点一下按钮
