@@ -30,7 +30,8 @@ public class TableHook : UdonSharpBehaviour
     private Renderer renderer;
 
     //Save & Load
-    public InputField inputField;
+    public TMP_InputField inputField;
+    //public InputField inputField;
     [SerializeField] public SettingLoader SettingLoader;
 
     public Translations hookTranslation;
@@ -318,7 +319,41 @@ public class TableHook : UdonSharpBehaviour
         outCanUseTmp = 13;
         ChangeMaterial();
     }
-
+    public void _Cue14()
+    {
+        outCanUseTmp = 14;
+        ChangeMaterial();
+    }
+    public void _Cue15()
+    {
+        outCanUseTmp = 15;
+        ChangeMaterial();
+    }
+    public void _Cue16()
+    {
+        outCanUseTmp = 16;
+        ChangeMaterial();
+    }
+    public void _Cue17()
+    {
+        outCanUseTmp = 17;
+        ChangeMaterial();
+    }
+    public void _Cue18()
+    {
+        outCanUseTmp = 18;
+        ChangeMaterial();
+    }
+    public void _Cue19()
+    {
+        outCanUseTmp = 19;
+        ChangeMaterial();
+    }
+    public void _Cue20()
+    {
+        outCanUseTmp = 20;
+        ChangeMaterial();
+    }
     public void _Ball0()
     {
         ball = 0;
