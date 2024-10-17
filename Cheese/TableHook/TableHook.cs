@@ -6,6 +6,7 @@ using UnityEngine.UI;
 using VRC.SDKBase;
 using TMPro;
 using VRC.SDK3.Data;
+using Unity.Mathematics;
 
 public class TableHook : UdonSharpBehaviour
 {
@@ -13,8 +14,8 @@ public class TableHook : UdonSharpBehaviour
     [SerializeField] public Texture2D[] cueSkins;
     [SerializeField] public TextMeshProUGUI PlayerID;
     //Slider
-    [SerializeField] public UdonBehaviour TableColorSlider;
-    [SerializeField] public UdonBehaviour TableColorLightnessSlider;
+    [SerializeField] public GlobalSlider TableColorSlider;
+    [SerializeField] public GlobalSlider TableColorLightnessSlider;
     [HideInInspector] public float TableColor;
     [HideInInspector] public float TableColorLightness;
 
@@ -24,7 +25,6 @@ public class TableHook : UdonSharpBehaviour
     private byte outCanUseTmp = 0;
     [HideInInspector] public byte ball;
     public byte DefaultCue;
-    [SerializeField] public bool keepCueRotating;
     private int isRotating;
     [NonSerialized] private int maxRotation=130;
     private Renderer renderer;
@@ -35,6 +35,7 @@ public class TableHook : UdonSharpBehaviour
     [SerializeField] public SettingLoader SettingLoader;
 
     public Translations hookTranslation;
+    private DataList table = new DataList();
     private DataList Translations = new DataList();
 
     void OnEnable()
@@ -54,6 +55,25 @@ public class TableHook : UdonSharpBehaviour
         //inputField.text=SettingLoader.GetSettingString(Networking.LocalPlayer.displayName);
     }
 
+    public void Reset()
+    {
+        _Cue0();
+        outCanUse = 0;
+        outCanUseTmp = 0;
+        ball=0;
+        TableColorSlider.slider.value = 0;
+        TableColorLightnessSlider.slider.value = 1;
+        TableColorSlider.mat.SetFloat("_ClothHue", 0);
+        TableColorSlider.mat.SetFloat("_ClothSaturation", 1);
+        TableColor = 0;
+        TableColorLightness = 1;
+
+        cueSizeSlider.value = 10;
+        cueSmoothingSlider.value = 10;
+        setCueSize();
+        setCueSmoothing();
+
+    }
     public void _CanUseCueSkin()
     {
             outCanUse = outCanUseTmp;
@@ -73,7 +93,7 @@ public class TableHook : UdonSharpBehaviour
     }
     void Update()
     {
-        if ((isRotating < maxRotation) || keepCueRotating)
+        if (isRotating < maxRotation)
         {
             renderer.transform.Rotate(new Vector3(1, 0.05f, 0.05f), Mathf.Clamp(maxRotation-isRotating,0,3), Space.Self);
             isRotating++;
@@ -94,6 +114,40 @@ public class TableHook : UdonSharpBehaviour
     public void AddTranslation(Translations translations)
     {
         Translations.Add(translations);
+    }
+    public void AddBilliardsModule(BilliardsModule module)
+    {
+        table.Add(module);
+    }
+
+    public Slider cueSizeSlider;
+    public TextMeshProUGUI cueSizeText;
+    public void setCueSize()
+    {
+        float newScale = cueSizeSlider.value / 10f;
+        renderer.transform.localScale = new Vector3(0.3f * newScale,0.3f * newScale,newScale * 0.3f);
+        foreach (var tabletmp in table.ToArray())
+        {
+            ((BilliardsModule)tabletmp.Reference).cueControllers[0].setScale(newScale);
+            ((BilliardsModule)tabletmp.Reference).cueControllers[1].setScale(newScale);
+            ((BilliardsModule)tabletmp.Reference).menuManager.cueSizeSlider.value = cueSizeSlider.value;
+            ((BilliardsModule)tabletmp.Reference).menuManager.cueSizeText.text = newScale.ToString("F1");
+            cueSizeText.text = newScale.ToString("F1");
+        }
+    }
+    public Slider cueSmoothingSlider;
+    public TextMeshProUGUI cueSmoothingText;
+    public void setCueSmoothing()
+    {
+        float newSmoothing = cueSmoothingSlider.value / 10f;
+        foreach (var tabletmp in table.ToArray())
+        {
+            ((BilliardsModule)tabletmp.Reference).cueControllers[0].setSmoothing(newSmoothing);
+            ((BilliardsModule)tabletmp.Reference).cueControllers[1].setSmoothing(newSmoothing);
+            ((BilliardsModule)tabletmp.Reference).menuManager.cueSmoothingSlider.value = cueSmoothingSlider.value;
+            ((BilliardsModule)tabletmp.Reference).menuManager.cueSmoothingText.text = newSmoothing.ToString("F1");
+            cueSmoothingText.text = newSmoothing.ToString("F1");
+        }
     }
     //Sava and load system
     #region ConvertFunction

@@ -1486,7 +1486,7 @@ MonoBehaviour:
   copyField: {fileID: 504337779768280553}
   pasteField: {fileID: 5503189700949967021}
   scoreManager: {fileID: 0}
-  errorText: {fileID: 8076734041332929176}
+  errorText: {fileID: 0}
 --- !u!114 &2747692912037376981
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -518,8 +518,11 @@ public class BilliardsModule : UdonSharpBehaviour
         }
 
         //init table hook
-        if(tableHook!=null)
+        if (tableHook != null)
+        {
             tableHook.AddTranslation(_translations);
+            tableHook.AddBilliardsModule(this);
+        }
     }
 
     private void OnDisable()

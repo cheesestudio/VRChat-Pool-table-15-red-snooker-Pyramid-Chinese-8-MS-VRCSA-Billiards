@@ -3033,7 +3033,7 @@ PrefabInstance:
     - target: {fileID: 7063497413684123312, guid: 1aa5131fbe9aa314d80ae7e10735367b,
         type: 3}
       propertyPath: serializationData.SerializedFormat
-      value: 0
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 7096429430055510694, guid: 1aa5131fbe9aa314d80ae7e10735367b,
         type: 3}

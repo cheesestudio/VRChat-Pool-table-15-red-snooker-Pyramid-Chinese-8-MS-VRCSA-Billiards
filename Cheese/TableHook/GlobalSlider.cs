@@ -5,12 +5,12 @@ using VRC.SDKBase;
 using VRC.Udon;
 using UnityEngine.UI;
 
+[UdonBehaviourSyncMode(BehaviourSyncMode.None)]
 public class GlobalSlider : UdonSharpBehaviour
 {
     public Material mat;
 	private float localValue;
-	private Slider slider;
-	private VRCPlayerApi localPlayer;
+	[HideInInspector]public Slider slider;
 
     private void Start()
     {

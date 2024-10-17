@@ -59,7 +59,28 @@ public class Translations : UdonSharpBehaviour
         currentLanguage = language;
         _currentLanguageDict = _translations[language].DataDictionary;
 
-        foreach (var text in _translatedTexts.ToArray()) ((TranslatedText)text.Reference).UpdateText();
+        StartTextUpdate();
+    }
+    // 当前更新的索引
+    private int currentIndex = 0;
+    // 延迟时间（以秒为单位）
+    public float delay = 0.1f;
+
+    public void StartTextUpdate()
+    {
+        currentIndex = 0; // 重置索引
+        SendCustomEventDelayedSeconds(nameof(UpdateNextText), delay);
+    }
+
+    public void UpdateNextText()
+    {
+        if (currentIndex < _translatedTexts.Count)
+        {
+            ((TranslatedText)_translatedTexts[currentIndex].Reference).UpdateText(); // 更新文本
+            currentIndex++; // 增加索引
+            // 再次调用，添加延迟
+            SendCustomEventDelayedSeconds(nameof(UpdateNextText), delay);
+        }
     }
 
     public string Get(string key)

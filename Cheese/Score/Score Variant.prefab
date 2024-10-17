@@ -704,7 +704,7 @@ MonoBehaviour:
     PrefabModifications: []
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 711115990410713365}
-  l_ScoreManager: {fileID: 5642835468889198365}
+  l_ScoreManager: {fileID: 0}
 --- !u!114 &711115990410713365
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1149,12 +1149,12 @@ PrefabInstance:
         type: 3}
       propertyPath: errorText
       value: 
-      objectReference: {fileID: 208538447621319214}
+      objectReference: {fileID: 0}
     - target: {fileID: 3453762975699824077, guid: 800bd520007bb02489e4f5f51830acd7,
         type: 3}
       propertyPath: scoreManager
       value: 
-      objectReference: {fileID: 5642835468889198365}
+      objectReference: {fileID: 0}
     - target: {fileID: 3453762975699824077, guid: 800bd520007bb02489e4f5f51830acd7,
         type: 3}
       propertyPath: serializationData.Prefab
@@ -1221,18 +1221,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 800bd520007bb02489e4f5f51830acd7, type: 3}
---- !u!114 &208538447621319214 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 8076734041332929176, guid: 800bd520007bb02489e4f5f51830acd7,
-    type: 3}
-  m_PrefabInstance: {fileID: 8282878710794598582}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!4 &6676201974605457915 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3338310950788796749, guid: 800bd520007bb02489e4f5f51830acd7,
