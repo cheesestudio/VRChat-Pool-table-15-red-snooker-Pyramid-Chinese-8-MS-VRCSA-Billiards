@@ -36301,7 +36301,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 12800000, guid: 6c149c583d0c39c4e9c3442dc2da1d8a, type: 3}
+    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
     m_FontSize: 14
     m_FontStyle: 0
     m_BestFit: 0
@@ -40869,59 +40869,31 @@ MonoBehaviour:
     PrefabModifications: []
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 7070820942012934062}
-  isOpenUIBtton: 0
-  button8Ball: {fileID: 0}
-  button9Ball: {fileID: 0}
-  button4Ball: {fileID: 0}
-  button4BallJP: {fileID: 0}
-  button4BallKR: {fileID: 0}
-  button3Cushion: {fileID: 0}
-  button2Cushion: {fileID: 0}
-  button1Cushion: {fileID: 0}
-  button0Cushion: {fileID: 0}
-  buttonSixReds: {fileID: 0}
-  buttonPyramid: {fileID: 0}
-  buttonTimerLeft: {fileID: 0}
-  buttonTimerRight: {fileID: 0}
-  buttonTableLeft: {fileID: 0}
-  buttonTableRight: {fileID: 0}
-  buttonPhysicsLeft: {fileID: 0}
-  buttonPhysicsRight: {fileID: 0}
-  buttonTeamsToggle: {fileID: 0}
-  buttonGuidelineToggle: {fileID: 0}
-  buttonLockingToggle: {fileID: 0}
-  buttonLeave: {fileID: 0}
-  buttonPlay: {fileID: 0}
-  buttonJoinOrange: {fileID: 0}
-  buttonJoinBlue: {fileID: 0}
-  MenuAnimation: {fileID: 0}
   menuStart: {fileID: 3896186093036742300}
   menuJoinLeave: {fileID: 7779057169346788031}
   menuLobby: {fileID: 6506318004148072068}
-  leave_Button: {fileID: 5847424456574939576}
-  gameModeDisplay: {fileID: 8854252671879203973}
-  TeamsToggle_button: {fileID: 448159623835983471}
-  GuidelineToggle_button: {fileID: 4424882644685126809}
-  LockingToggle_button: {fileID: 7003589608678329141}
   menuLoad: {fileID: 1145037894615967176}
   menuOther: {fileID: 7346091755378977102}
   menuUndo: {fileID: 664693574949907688}
   buttonSkipTurn: {fileID: 320750465869382690}
   buttonSnookerUndo: {fileID: 6197287303363129437}
-  timelimitDisplay: {fileID: 1241214441429092961}
-  tableDisplay: {fileID: 4265237230564351345}
-  physicsDisplay: {fileID: 3306757434663902329}
   lobbyNames:
   - {fileID: 8792785998638549817}
   - {fileID: 2755047539666566706}
   - {fileID: 2238399849074483642}
   - {fileID: 5901406571155396350}
+  gameModeDisplay: {fileID: 8854252671879203973}
+  timelimitDisplay: {fileID: 1241214441429092961}
+  tableDisplay: {fileID: 4265237230564351345}
+  physicsDisplay: {fileID: 3306757434663902329}
   Initialized: 0
-  cueSizeSlider: {fileID: 472870300321497123}
-  cueSizeText: {fileID: 359169877417129652}
+  TeamsToggle_button: {fileID: 448159623835983471}
+  GuidelineToggle_button: {fileID: 4424882644685126809}
+  LockingToggle_button: {fileID: 7003589608678329141}
   cueSmoothingSlider: {fileID: 8258984624695288249}
   cueSmoothingText: {fileID: 8522901606422291529}
-  inButton: {fileID: 0}
+  cueSizeSlider: {fileID: 472870300321497123}
+  cueSizeText: {fileID: 359169877417129652}
 --- !u!114 &7070820942012934062
 MonoBehaviour:
   m_ObjectHideFlags: 0

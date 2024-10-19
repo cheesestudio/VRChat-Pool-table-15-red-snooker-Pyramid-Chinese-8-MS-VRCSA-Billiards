@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f11136daadff0b44ac2278a314682ab, type: 3}
   m_Name: toggleAnim
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: def889adf7d09db45aa3fbdb82c15c03,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 96078ca179b3ae6418e31ef2e8fde1f3,
     type: 2}
   udonAssembly: ".data_start\r\n\r\n    .export behaviour\r\n    .export eventNameEnter\r\n   
     .export eventNameExit\r\n    .export toggle\r\n    \r\n    __Boolean_0: %SystemBoolean,
