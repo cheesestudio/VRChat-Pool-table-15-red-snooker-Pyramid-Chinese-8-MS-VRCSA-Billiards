@@ -241,15 +241,18 @@ public class ScoreManagerV4 : UdonSharpBehaviour
             return;
 
         // 跟新状态
-        if (string.IsNullOrEmpty(Network.PlayerA) && string.IsNullOrEmpty(Network.PlayerB))
+        if (
+            string.IsNullOrEmpty(nowPlayerList[0]) && 
+            string.IsNullOrEmpty(nowPlayerList[1]) &&
+            Network.State == 1
+            )
         {
             Debug.Log("[SCM] Empty");
 
             _ResetValue();
 
             // 赋值玩家名
-            _SetName(nowPlayerList);
-
+            //_SetName(nowPlayerList);
             Network.State = 0;
         }
         else if (Network.State == 2)
@@ -270,10 +273,10 @@ public class ScoreManagerV4 : UdonSharpBehaviour
                 if (
                     (nowPlayerList[0] == Network.PlayerAStart ||
                     nowPlayerList[0] == Network.PlayerBStart  ||
-                    nowPlayerList[1].Length == 0)             &&
+                    string.IsNullOrEmpty(nowPlayerList[0]))             &&
                     (nowPlayerList[1] == Network.PlayerAStart ||
                     nowPlayerList[1] == Network.PlayerBStart  ||
-                    nowPlayerList[1].Length == 0)
+                    string.IsNullOrEmpty(nowPlayerList[1]))
                     )
                 {
                     //是否反转
