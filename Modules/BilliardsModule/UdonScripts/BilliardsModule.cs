@@ -157,7 +157,7 @@ public class BilliardsModule : UdonSharpBehaviour
 #if EIJIS_SNOOKER15REDS
     private readonly int[] sixredsnooker_ballpoints =
     {
-        0, 7, 2, 5, 1, 6, 1, 3, 
+        0, 7, 2, 5, 1, 6, 1, 3,
         4, 1, 1, 1, 1, 1, 1, 1,
         0, 0, 0, 0, 0, 0, 0, 0,
         0, 1, 1, 1, 1, 1, 1, 0
@@ -165,13 +165,14 @@ public class BilliardsModule : UdonSharpBehaviour
     private readonly uint SNOOKER_BALLS_MASK = 0x7E00FFFEu;
     private readonly uint SNOOKER_REDS_MASK = 0x7E00FE50u;
     private const int SNOOKER_REDS_COUNT = 15;
-    [NonSerialized] public readonly int[] break_order_sixredsnooker = 
-    { 
-        4, 6, 9, 10, 11, 
+    [NonSerialized]
+    public readonly int[] break_order_sixredsnooker =
+    {
+        4, 6, 9, 10, 11,
         12, 13, 14, 15, 25,
         26, 27, 28, 29, 30,
         2, 7, 8, 3, 5,
-        1 
+        1
     };
 #else
     private readonly int[] sixredsnooker_ballpoints = { 0, 7, 2, 5, 1, 6, 1, 3, 4, 1, 1, 1, 1 };
@@ -583,6 +584,19 @@ public class BilliardsModule : UdonSharpBehaviour
         if (lobbyOpen) return;
         menuManager._EnableLobbyMenu();
         networkingManager._OnLobbyOpened();
+
+        Debug.Log("_TriggerLobbyOpen");
+        // 在_OnLobbyOpened后调用
+        // 预留API，启动菜单时调用
+        if (ScoreManagerHook != null)
+        {
+            //调用networkingManager的playerID 当前Local并未初始化
+            ScoreManagerHook.SetProgramVariable("lobbyPlayerList", getPlayerNames(networkingManager.playerIDsSynced));
+            //发送事件
+            ScoreManagerHook.SendCustomEvent("_LobbyOpen");
+        }
+
+
     }
 
     public void _TriggerTeamsChanged(bool teamsEnabled)
@@ -654,12 +668,12 @@ public class BilliardsModule : UdonSharpBehaviour
     public void _TriggerOtherBallHit(int ballId, bool desktop)
     {
         if (localTeamId != teamIdLocal && !isPracticeMode) return; // is there a better way to do this?
-         
+
         // if (callShotLockLocal)
         // {
         //     return;
         // }
-        
+
         if (!desktop && calledBallId == ballId)
         {
             return;
@@ -718,7 +732,7 @@ public class BilliardsModule : UdonSharpBehaviour
 
         bool enable = (calledBallsLocal < calledBalls);
         // if (enable) semiAutoCalledTimeBall = (Networking.GetServerTimeInMilliseconds() - timerStartLocal) / 1000.0f;
-        
+
         networkingManager._OnCalledBallChanged(enable, (uint)id);
         calledBallOff = false;
 
@@ -747,7 +761,7 @@ public class BilliardsModule : UdonSharpBehaviour
     public void _TriggerCueDeactivate()
     {
         canHitCueBall = false;
-        
+
 #if !HT_QUEST
         guideline.gameObject.transform.Find("guide_display").GetComponent<MeshRenderer>().material.SetColor("_Colour", k_aimColour_aim);
 #endif
@@ -849,9 +863,19 @@ public class BilliardsModule : UdonSharpBehaviour
             }
         }
 
+        Debug.Log("_TriggerGameStart");
+
+        if (ScoreManagerHook != null)
+        {
+            ScoreManagerHook.SetProgramVariable("startPlayerList", getPlayerNames(playerIDsLocal));
+            //发送事件
+            ScoreManagerHook.SendCustomEvent("_GameStarted");
+        }
+
         networkingManager._OnGameStart(initialBallsPocketed[gameModeLocal], randomPositions);
     }
 
+    //LocalJoinTeam
     public void _TriggerJoinTeam(int teamId)
     {
         if (networkingManager.gameStateSynced == 0 || networkingManager.gameStateSynced == 3) return;
@@ -892,6 +916,17 @@ public class BilliardsModule : UdonSharpBehaviour
             int[] playerIDsLocal_new = new int[4];
             Array.Copy(playerIDsLocal, playerIDsLocal_new, 4);
             playerIDsLocal_new[newslot] = lp.playerId;
+
+            Debug.Log("_TriggerJoinTeam");
+
+            //预留API，当游戏玩家变更，调用玩家变更事件
+            if (ScoreManagerHook != null)
+            {
+                ScoreManagerHook.SetProgramVariable("nowPlayerList", getPlayerNames(playerIDsLocal_new));
+                //发送事件
+                ScoreManagerHook.SendCustomEvent("_PlayerChanged");
+            }
+
             onRemotePlayersChanged(playerIDsLocal_new);
         }
         else
@@ -900,6 +935,7 @@ public class BilliardsModule : UdonSharpBehaviour
         }
     }
 
+    //LocalLeaveLobby
     public void _TriggerLeaveLobby()
     {
 #if UDON_CHIPS
@@ -919,6 +955,16 @@ public class BilliardsModule : UdonSharpBehaviour
         {
             playerIDsLocal_new[localPlayerId] = -1;
         }
+
+        Debug.Log("_TriggerLeaveLobby");
+        //预留API，当游戏玩家变更，调用玩家变更事件
+        if (ScoreManagerHook != null)
+        {
+            ScoreManagerHook.SetProgramVariable("nowPlayerList", getPlayerNames(playerIDsLocal_new));
+            //发送事件
+            ScoreManagerHook.SendCustomEvent("_PlayerChanged");
+        }
+
         onRemotePlayersChanged(playerIDsLocal_new);
     }
     private float lastActionTime;
@@ -958,6 +1004,16 @@ public class BilliardsModule : UdonSharpBehaviour
         {
             _LogInfo("force resetting game");
             //infReset.text = "Game Reset!"; ClearResetInfo();
+
+            Debug.Log("_TriggerGameReset");
+
+            //预留API，游戏重置时调用
+            if (ScoreManagerHook != null)
+            {
+                //发送事件
+                ScoreManagerHook.SendCustomEvent("_GameReset");
+            }
+
             infReset.text = _translations.Get("Game Reset!"); ClearResetInfo();
             networkingManager._OnGameReset();
         }
@@ -978,6 +1034,8 @@ public class BilliardsModule : UdonSharpBehaviour
             infReset.text = _translations.Get("<size=60%>Only these players may reset:\n") + playerStr; ClearResetInfo();
         }
         lastResetTime = Time.time;
+
+
     }
 
     int resetInfoCount = 0;
@@ -1193,16 +1251,6 @@ public class BilliardsModule : UdonSharpBehaviour
 
         applyCueAccess();
 
-        //这里适合加插件
-
-        //预留API，当游戏玩家变更，调用玩家变更事件
-        if (ScoreManagerHook != null)
-        {
-            ScoreManagerHook.SetProgramVariable("nowPlayerList", getPlayerNames(playerIDsLocal));
-            //发送事件
-            ScoreManagerHook.SendCustomEvent("_PlayerChanged");
-        }
-
         if (networkingManager.gameStateSynced != 3) { graphicsManager._SetScorecardPlayers(playerIDsLocal); } // don't remove player names when match is won
 
         int myNewSlot = _GetPlayerSlot(Networking.LocalPlayer, playerIDsLocal);
@@ -1283,11 +1331,10 @@ public class BilliardsModule : UdonSharpBehaviour
     *           VRCNetwork -> NetworkingManager.OnDeserialization -> this._OnRemoteDeserialization -> this.onRemoteGameStarted          接受同步请求并回调
     *      2024/9/28 WangQAQ
     */
+    //预留API，当游戏完成初始化，加载完毕后调用游戏启动事件
 
     private void onRemoteGameStarted()
     {
-
-        Debug.Log("ss1");
 
         _LogInfo($"onRemoteGameStarted");
 
@@ -1335,14 +1382,6 @@ public class BilliardsModule : UdonSharpBehaviour
         activeCue = cueControllers[0];
 #endif
 
-        //预留API，当游戏完成初始化，加载完毕后调用游戏启动事件
-        if(ScoreManagerHook != null)
-        {
-            ScoreManagerHook.SetProgramVariable("startPlayerList" , getPlayerNames(playerIDsLocal));
-            //发送事件
-            ScoreManagerHook.SendCustomEvent("_GameStarted");
-        }
-        
     }
 
     private void onRemoteBallPositionsChanged(Vector3[] ballsPSynced)
@@ -1366,8 +1405,6 @@ public class BilliardsModule : UdonSharpBehaviour
 
     private void onRemoteGameEnded(uint winningTeamSynced)
     {
-
-        Debug.Log("ss2");
 
         _LogInfo($"onRemoteGameEnded winningTeam={winningTeamSynced}");
 
@@ -1406,21 +1443,9 @@ public class BilliardsModule : UdonSharpBehaviour
         if (isScoreManagerEnable && !isPracticeMode)
         {
             if (!BreakFinish)  //斯诺克有可能出问题,因为Breakfinish是由复用的参数计算的
-                ScoreManager.AddScore(playerIDsCached[0], playerIDsCached[1], playerIDsCached[winningTeamLocal], isSnooker15Red  && (string)tableModels[tableModelLocal].GetProgramVariable("TABLENAME") ==  "Snooker 12ft" );
+                ScoreManager.AddScore(playerIDsCached[0], playerIDsCached[1], playerIDsCached[winningTeamLocal], isSnooker15Red && (string)tableModels[tableModelLocal].GetProgramVariable("TABLENAME") == "Snooker 12ft");
         }
         //这段代码必须在resetCachedData前面,不然gamemode被重置了,不过用snooker简化就没事,放这里以防万一
-
-        //预留API，当游戏结束，调用游戏结束事件
-        if (ScoreManagerHook != null && !isPracticeMode)
-        {
-            if (!BreakFinish)
-            {
-                //发送赢家
-                ScoreManagerHook.SetProgramVariable("gameWinner", winningTeamLocal);
-                //发送事件
-                ScoreManagerHook.SendCustomEvent("_GameEnd");
-            }
-        }
 
         gameLive = false;
         isPracticeMode = false;
@@ -1473,7 +1498,7 @@ public class BilliardsModule : UdonSharpBehaviour
             //don't escape, as this will always be true for the sender, and they may need to run the rest.
         }
 #if EIJIS_SNOOKER15REDS
-        if (!isSnooker && !is4Ball && !isPyramid ) { return; }   //cheese fix
+        if (!isSnooker && !is4Ball && !isPyramid) { return; }   //cheese fix
 #else
         if (!isSnooker6Red && !is4Ball) { return; }
 #endif
@@ -1875,7 +1900,7 @@ public class BilliardsModule : UdonSharpBehaviour
 
         // Get total for X positioning
 #if EIJIS_SNOOKER15REDS
-        int count_extent = is9Ball ? 10 : (isSnooker15Red ? 31  : 16);
+        int count_extent = is9Ball ? 10 : (isSnooker15Red ? 31 : 16);
 #else
         int count_extent = is9Ball ? 10 : 16;
 #endif
@@ -1897,7 +1922,7 @@ public class BilliardsModule : UdonSharpBehaviour
             //}
             ////// 计算列数偏移
             //float j = (float)total - (float)(count - i); // 当前球在该行的第几列
-            int i=0,j = 0;
+            int i = 0, j = 0;
             int count = 0;
             bool breaktime = false;
             for (i = 0; i < 5; i++)
@@ -1909,7 +1934,7 @@ public class BilliardsModule : UdonSharpBehaviour
                         breaktime = true; break;
                     }
                     count++;
-                  
+
                 }
                 if (breaktime) break;
             }
@@ -1918,9 +1943,9 @@ public class BilliardsModule : UdonSharpBehaviour
             //Vector3 result = new Vector3(k_rack_position.x, k_rack_position.y + col_offset * k_BALL_DIAMETRE, k_rack_position.z + row  * k_BALL_DIAMETRE);
             ballsP[id] = new Vector3
                     (
-                        (k_rack_position.x - i * k_BALL_PL_Y) ,
-                        5-i*5,
-                        ((-i + j * 2) * k_BALL_PL_X)+0.17f
+                        (k_rack_position.x - i * k_BALL_PL_Y),
+                        5 - i * 5,
+                        ((-i + j * 2) * k_BALL_PL_X) + 0.17f
                         );
             _LogInfo($"i={i},j={j},total={total},pos={balls[id]}");
         }
@@ -2092,7 +2117,7 @@ public class BilliardsModule : UdonSharpBehaviour
 
                 winCondition = (isSetComplete || colorTurnLocal) && is8Sink;
 
-                if (is8Sink && isPracticeMode && !winCondition)  
+                if (is8Sink && isPracticeMode && !winCondition)
                 {
                     is8Sink = false;
 
@@ -2419,7 +2444,7 @@ public class BilliardsModule : UdonSharpBehaviour
             {
                 isObjectiveSink = isScratch || (ballsPocketedLocal & 0xFFFEu) > (ballsPocketedOrig & 0xFFFEu);
                 // foulCondition = (firstHit == 0 && !isObjectiveSink) || fallOffFoul;      eijis
-                foulCondition = (firstHit == 0 && isScratch) || (!ballBounced&& !isObjectiveSink) || fallOffFoul;// hope it works ,as the var from 9ball but seems not
+                foulCondition = (firstHit == 0 && isScratch) || (!ballBounced && !isObjectiveSink) || fallOffFoul;// hope it works ,as the var from 9ball but seems not
 #if EIJIS_DEBUG_PIRAMIDSCORE
                 _LogInfo($"  isObjectiveSink = {isObjectiveSink}, foulCondition = {foulCondition}");
 #endif
@@ -2740,7 +2765,7 @@ public class BilliardsModule : UdonSharpBehaviour
             initialPositions[3] = initialPositions[2];
         }
 #if EIJIS_PYRAMID
-        
+
         {
             // Russsian Pyramid
 #if EIJIS_MANY_BALLS
@@ -2764,7 +2789,7 @@ public class BilliardsModule : UdonSharpBehaviour
         }
 #endif
 #if EIJIS_CAROM
-        
+
         {
             // 3-Cushion
 #if EIJIS_MANY_BALLS
@@ -3014,7 +3039,18 @@ public class BilliardsModule : UdonSharpBehaviour
 
     private void onLocalTeamWin(uint winner)
     {
+        Debug.Log("onLocalTeamWin");
+
         _LogInfo($"onLocalTeamWin {(winner)}");
+
+        //预留API，当游戏结束，调用游戏结束事件
+        if (ScoreManagerHook != null && !isPracticeMode)
+        {
+            //发送赢家
+            ScoreManagerHook.SetProgramVariable("winningTeamLocal", winner);
+            //发送事件
+            ScoreManagerHook.SendCustomEvent("_GameEnd");
+        }
 
         networkingManager._OnGameWin(winner);
     }
@@ -3237,7 +3273,7 @@ public class BilliardsModule : UdonSharpBehaviour
     public string sixRedNumberToColor(int ball, bool doBreakOrder = false)
     {
 #if EIJIS_SNOOKER15REDS
-        if ((doBreakOrder && (ball < 0 || 20 < ball)) || 
+        if ((doBreakOrder && (ball < 0 || 20 < ball)) ||
             (!doBreakOrder && ((ball < 0 || 15 < ball) && (ball < 25 || 30 < ball))))
 #else
         if (ball < 0 || ball > 12)
@@ -4078,7 +4114,7 @@ public class BilliardsModule : UdonSharpBehaviour
         return true;
     }
 #if EIJIS_SNOOKER15REDS
-    
+
     public static uint SoftwareFallback(uint value)
     {
         const uint c1 = 0x55555555u;
@@ -4178,6 +4214,7 @@ public class BilliardsModule : UdonSharpBehaviour
         if (PlayerIDs == null)
             return null;
 
+        Debug.Log("[SCM] IDlen" + PlayerIDs.Length);
         //返回值数组
         string[] ret = new string[PlayerIDs.Length];
 
@@ -4193,9 +4230,13 @@ public class BilliardsModule : UdonSharpBehaviour
                 {
                     ret[i] = Tmp.displayName;
                 }
+                else
+                {
+                    ret[i] = "";
+                }
             }
-
         }
+        Debug.Log("[SCM] IDDATA" + ret[0] + ";" + ret[1]);
         return ret;
     }
 

@@ -17,7 +17,7 @@ public class RankingSystem : UdonSharpBehaviour
     [Header("References")]
     public InputField copyField;
     public VRCUrlInputField pasteField;
-    public ScoreManagerV2 scoreManager;
+    public ScoreManagerV4 _scoreManager;
     [UdonSynced] private string errorString;
     public TextMeshProUGUI errorText;
     private string Player1 = "";
@@ -25,6 +25,11 @@ public class RankingSystem : UdonSharpBehaviour
 
     private string hashKey = "CheeseIsTheHashKeyForNoReason";
     private string ScoreUploadBaseURL = "https://wangqaq.com/api/eol/upload_score.php";
+
+    public void _Init(ScoreManagerV4 scoreManager)
+    {
+        _scoreManager = scoreManager;
+    }
 
     public void UpdateCopyData(String player1,String player2,string score1,string score2)
     {
@@ -60,7 +65,7 @@ public class RankingSystem : UdonSharpBehaviour
        // noteDownloader.newNoteButton.interactable = false;
         VRCStringDownloader.LoadUrl(url, (IUdonEventReceiver)this);
 
-        scoreManager.M_Score_Reset();
+        _scoreManager.gameResetLocal();
         copyField.text = "Starting";
         errorText.text = "loading";
     }
