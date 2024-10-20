@@ -36,11 +36,9 @@ public class ScoreManagerV4 : UdonSharpBehaviour
     #region APIs
     public string[] lobbyPlayerList = null;
     public string[] nowPlayerList = null;
-    public string[] startPlayerList = null;               //暂时没用
+    public string[] startPlayerList = null;
     public uint winningTeamLocal = 0xFFFFFFFF;
     #endregion
-
-    private bool isInvert = false; 
 
     private void Start()
     {
@@ -94,7 +92,7 @@ public class ScoreManagerV4 : UdonSharpBehaviour
         Network.PlayerAScore = 0;
         Network.PlayerBScore = 0;
 
-        isInvert = false;
+        Network.isInvert = false;
     }
 
     private void _SetName(string[] name)
@@ -106,7 +104,7 @@ public class ScoreManagerV4 : UdonSharpBehaviour
         Network.PlayerB = name[1];
     }
 
-    private void _ReflashEloScore() 
+    private void _ReflashEloScore()
     {
         Elo1.text = EloAPI.GetElo(Network.PlayerA).ToString();
         Elo2.text = EloAPI.GetElo(Network.PlayerB).ToString();
@@ -207,7 +205,12 @@ public class ScoreManagerV4 : UdonSharpBehaviour
     {
         Debug.Log("[SCM] LobbyOpened");
 
-        if(Network.State == 0)
+        if (
+        ((lobbyPlayerList[0] != Network.PlayerA &&
+        lobbyPlayerList[0] != Network.PlayerB)  &&  
+        Network.State == 3)                     ||
+        Network.State == 0
+        )
         {
             _ResetValue();
 
@@ -217,11 +220,11 @@ public class ScoreManagerV4 : UdonSharpBehaviour
             // 赋值玩家名
             _SetName(lobbyPlayerList);
 
-            // 释放数组
-            lobbyPlayerList = null;
-
             Network.State = 1;
         }
+
+        // 释放数组
+        lobbyPlayerList = null;
 
         // 跟新状态
         if (Network.funcStackTop < 8)
@@ -242,7 +245,7 @@ public class ScoreManagerV4 : UdonSharpBehaviour
 
         // 跟新状态
         if (
-            string.IsNullOrEmpty(nowPlayerList[0]) && 
+            string.IsNullOrEmpty(nowPlayerList[0]) &&
             string.IsNullOrEmpty(nowPlayerList[1]) &&
             Network.State == 1
             )
@@ -267,28 +270,18 @@ public class ScoreManagerV4 : UdonSharpBehaviour
         }
         else
         {
-            if (Network.State == 3) 
+            if (Network.State == 3)
             {
                 Debug.Log("[SCM] get" + nowPlayerList[0] + ";" + nowPlayerList[1]);
                 if (
-                    (nowPlayerList[0] == Network.PlayerAStart ||
-                    nowPlayerList[0] == Network.PlayerBStart  ||
-                    string.IsNullOrEmpty(nowPlayerList[0]))             &&
-                    (nowPlayerList[1] == Network.PlayerAStart ||
-                    nowPlayerList[1] == Network.PlayerBStart  ||
+                    (nowPlayerList[0] == Network.PlayerA    ||
+                    nowPlayerList[0] == Network.PlayerB     ||
+                    string.IsNullOrEmpty(nowPlayerList[0])) &&
+                    (nowPlayerList[1] == Network.PlayerA    ||
+                    nowPlayerList[1] == Network.PlayerB     ||
                     string.IsNullOrEmpty(nowPlayerList[1]))
                     )
                 {
-                    //是否反转
-                    if(nowPlayerList[0] == Network.PlayerBStart || nowPlayerList[1] == Network.PlayerAStart)
-                    {
-                        isInvert = true;
-                    }
-                    else
-                    {
-                        isInvert = false;
-                    }
-
                     Network.State = 3;
                 }
                 else
@@ -298,7 +291,7 @@ public class ScoreManagerV4 : UdonSharpBehaviour
                     _SetName(nowPlayerList);
                 }
             }
-            else 
+            else
             {
                 Network.State = 1;
                 _ResetValue();
@@ -322,9 +315,20 @@ public class ScoreManagerV4 : UdonSharpBehaviour
     {
         if (Network.State == 3 || Network.State == 1)
         {
-            // 同步开局玩家名到本地变量
-            Network.PlayerAStart = Network.PlayerA;
-            Network.PlayerBStart = Network.PlayerB;
+            //是否反转
+            if (startPlayerList[0] == Network.PlayerB || startPlayerList[1] == Network.PlayerA)
+            {
+                Network.isInvert = true;
+            }
+            else
+            {
+                Network.isInvert = false;
+            }
+
+            // 同步开局玩家名到本地变量(废弃)
+            //Network.PlayerAStart = Network.PlayerA;
+            //Network.PlayerBStart = Network.PlayerB;
+
             Network.State = 2;
         }
 
@@ -353,7 +357,7 @@ public class ScoreManagerV4 : UdonSharpBehaviour
         }
         else if (Network.State == 2)
         {
-            if (isInvert)
+            if (Network.isInvert)
                 winningTeamLocal = (uint)(winningTeamLocal == 1 ? 0 : 1);
 
             if (winningTeamLocal == 0)

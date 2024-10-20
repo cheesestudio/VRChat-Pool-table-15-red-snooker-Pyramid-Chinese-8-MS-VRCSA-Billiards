@@ -73,9 +73,13 @@ game reset       _GameReset
     [HideInInspector][UdonSynced] public byte State;
     [HideInInspector][UdonSynced] public bool MessagesState = false;
 
-    // 游戏开始时玩家ID
-    [HideInInspector][UdonSynced] public string PlayerAStart;
-    [HideInInspector][UdonSynced] public string PlayerBStart;
+    // 游戏开始时玩家ID(废弃)
+    //[HideInInspector][UdonSynced] public string PlayerAStart;
+    //[HideInInspector][UdonSynced] public string PlayerBStart;
+
+    // 反转状态
+    [HideInInspector][UdonSynced] public bool isInvert = false;
+
 
     // 远程调用函数,存储函数ID
     #region List
