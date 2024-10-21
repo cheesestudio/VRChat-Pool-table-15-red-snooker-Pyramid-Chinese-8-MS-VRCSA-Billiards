@@ -13,11 +13,9 @@ public class TableHook : UdonSharpBehaviour
     //Data
     [SerializeField] public Texture2D[] cueSkins;
     [SerializeField] public TextMeshProUGUI PlayerID;
-    //Slider
-    [SerializeField] public GlobalSlider TableColorSlider;
-    [SerializeField] public GlobalSlider TableColorLightnessSlider;
     [HideInInspector] public float TableColor;
     [HideInInspector] public float TableColorLightness;
+    [HideInInspector] public float cueHue;
 
     // Cue Skin & Ball Skin
     [HideInInspector] public int inOwner;
@@ -27,8 +25,10 @@ public class TableHook : UdonSharpBehaviour
     public byte DefaultCue;
     private int isRotating;
     [NonSerialized] private int maxRotation=130;
-    private Renderer renderer;
 
+    private Renderer renderer;
+    private Material cueStickMaterial;
+    private Material cueCentermaterial;
     //Save & Load
     public TMP_InputField inputField;
     //public InputField inputField;
@@ -44,15 +44,25 @@ public class TableHook : UdonSharpBehaviour
 
         PlayerID.text = Networking.LocalPlayer.displayName;
 
+        cueHue = 0;
         outCanUse = 0;
         ball = 0;
         outCanUseTmp = DefaultCue;
         isRotating = maxRotation;
+        //Table
+        TableColor = 0;
+        TableColorLightness = 1
+            ;
+        //CUE
         renderer = this.transform.Find("body/render").GetComponent<Renderer>();
+        Material[] materials = renderer.materials;
+        cueCentermaterial=materials[0];
+        cueStickMaterial = materials[1];
+        cueCentermaterial.name = cueCentermaterial + "forTableHook";
+        cueStickMaterial.name = cueStickMaterial + "forTableHook";
+        renderer.materials = new Material[] {cueCentermaterial,cueStickMaterial};//create a new instance for hook
 
-        //Load PlayerSettings from my server
-        //string LocalData = EncodeLocalData();
-        //inputField.text=SettingLoader.GetSettingString(Networking.LocalPlayer.displayName);
+
     }
 
     public void Reset()
@@ -61,17 +71,20 @@ public class TableHook : UdonSharpBehaviour
         outCanUse = 0;
         outCanUseTmp = 0;
         ball=0;
-        TableColorSlider.slider.value = 0;
-        TableColorLightnessSlider.slider.value = 1;
-        TableColorSlider.mat.SetFloat("_ClothHue", 0);
-        TableColorSlider.mat.SetFloat("_ClothSaturation", 1);
+
+        tableColorSlider.value = 0;
+        tableColorLightnessSlider.value = 1;
+        tableShow.SetFloat("_ClothHue", 0);
+        tableShow.SetFloat("_ClothSaturation", 1);
         TableColor = 0;
         TableColorLightness = 1;
 
         cueSizeSlider.value = 10;
         cueSmoothingSlider.value = 10;
+        cueColorShiftSlider.value = 0;
         setCueSize();
         setCueSmoothing();
+        setCueColorShift();
 
     }
     public void _CanUseCueSkin()
@@ -98,19 +111,7 @@ public class TableHook : UdonSharpBehaviour
             renderer.transform.Rotate(new Vector3(1, 0.05f, 0.05f), Mathf.Clamp(maxRotation-isRotating,0,3), Space.Self);
             isRotating++;
         }
-        TableColor=GetTableColor();
-        TableColorLightness=GetTableLightness();
     }
-
-    public float GetTableColor()
-    {
-        return (float)TableColorSlider.GetProgramVariable("localValue");
-    }
-    public float GetTableLightness()
-    {
-        return (float)TableColorLightnessSlider.GetProgramVariable("localValue");
-    }
-
     public void AddTranslation(Translations translations)
     {
         Translations.Add(translations);
@@ -118,6 +119,20 @@ public class TableHook : UdonSharpBehaviour
     public void AddBilliardsModule(BilliardsModule module)
     {
         table.Add(module);
+    }
+
+    public Slider tableColorSlider;
+    public Slider tableColorLightnessSlider;
+    public Material tableShow;
+    public void setTableColor()
+    {
+        TableColor = tableColorSlider.value;
+        tableShow.SetFloat("_ClothHue", TableColor);
+    }
+    public void setTableColorLightness()
+    {
+        TableColorLightness = tableColorLightnessSlider.value;
+        tableShow.SetFloat("_ClothSaturation", TableColorLightness);
     }
 
     public Slider cueSizeSlider;
@@ -132,8 +147,8 @@ public class TableHook : UdonSharpBehaviour
             ((BilliardsModule)tabletmp.Reference).cueControllers[1].setScale(newScale);
             ((BilliardsModule)tabletmp.Reference).menuManager.cueSizeSlider.value = cueSizeSlider.value;
             ((BilliardsModule)tabletmp.Reference).menuManager.cueSizeText.text = newScale.ToString("F1");
-            cueSizeText.text = newScale.ToString("F1");
         }
+        cueSizeText.text = newScale.ToString("F1");
     }
     public Slider cueSmoothingSlider;
     public TextMeshProUGUI cueSmoothingText;
@@ -146,8 +161,27 @@ public class TableHook : UdonSharpBehaviour
             ((BilliardsModule)tabletmp.Reference).cueControllers[1].setSmoothing(newSmoothing);
             ((BilliardsModule)tabletmp.Reference).menuManager.cueSmoothingSlider.value = cueSmoothingSlider.value;
             ((BilliardsModule)tabletmp.Reference).menuManager.cueSmoothingText.text = newSmoothing.ToString("F1");
-            cueSmoothingText.text = newSmoothing.ToString("F1");
         }
+        cueSmoothingText.text = newSmoothing.ToString("F1");
+    }
+
+    public Slider cueColorShiftSlider;
+    public TextMeshProUGUI cueColorShiftText;
+    public void setCueColorShift()
+    {
+        float newShift = cueColorShiftSlider.value;
+        cueHue = newShift;
+        Color color = new Color(1,1,1);
+        if(cueHue != 0)
+        {
+            color = Color.HSVToRGB(newShift, 1f, 1f);
+        }
+
+        renderer.materials[1].color = color;
+
+
+        cueColorShiftText.text = newShift.ToString("F1");
+
     }
     //Sava and load system
     #region ConvertFunction
@@ -207,7 +241,7 @@ public class TableHook : UdonSharpBehaviour
 
     #region Save & Load
     // I Call it : Cheese Version ,for short CV,rewrite from "NetworingManagers" 
-    uint LocalDataLength = 11;
+    uint LocalDataLength = 23;
     private string EncodeLocalData()
     {
         byte[] gameState = new byte[LocalDataLength];
@@ -221,10 +255,18 @@ public class TableHook : UdonSharpBehaviour
         floatToBytes(gameState, encodePos, TableColorLightness);
         encodePos += 4;
 
+        //CV1
+        floatToBytes(gameState, encodePos, cueSizeSlider.value);
+        encodePos += 4;
+        floatToBytes(gameState,encodePos,cueSmoothingSlider.value);
+        encodePos += 4;
+        floatToBytes(gameState, encodePos, cueHue);
+        encodePos += 4;
+
         // find gameStateLength
         //Debug.Log("gameStateLength = " + (encodePos + 1));
         
-        return "CV:"+Convert.ToBase64String(gameState);
+        return "CV1:"+Convert.ToBase64String(gameState);
 
         //Debug.Log("CV:" + Convert.ToBase64String(gameState));
     }
@@ -234,7 +276,6 @@ public class TableHook : UdonSharpBehaviour
         if (!isValidBase64(gameStateStr)) return;
 
         byte[] gameState = Convert.FromBase64String(gameStateStr);
-        if (gameState.Length != LocalDataLength) return;
 
         int encoodePos = 0;
 
@@ -249,17 +290,56 @@ public class TableHook : UdonSharpBehaviour
 
         ChangeMaterial();
     }
+    private void LoadLocalDataV1(string gameStateStr)
+    {
+        if (!isValidBase64(gameStateStr)) return;
 
+        byte[] gameState = Convert.FromBase64String(gameStateStr);
+        if (gameState.Length != LocalDataLength) return;
+
+        int encoodePos = 0;
+
+        outCanUseTmp = gameState[encoodePos];
+        encoodePos += 1;
+        ball = gameState[encoodePos];
+        encoodePos += 1;
+        TableColor = bytesToFloat(gameState, encoodePos);
+        encoodePos += 4;
+        TableColorLightness = bytesToFloat(gameState, encoodePos);
+        encoodePos += 4;
+        tableColorSlider.value = TableColor;
+        tableColorLightnessSlider.value = TableColorLightness;
+        tableShow.SetFloat("_ClothHue", TableColor);
+        tableShow.SetFloat("_ClothSaturation", TableColorLightness);
+
+        //dif
+        cueSizeSlider.value = bytesToFloat(gameState, encoodePos);
+        encoodePos += 4;
+        cueSmoothingSlider.value =bytesToFloat(gameState, encoodePos);
+        encoodePos += 4;
+        cueHue = bytesToFloat(gameState, encoodePos);
+        cueColorShiftSlider.value = cueHue;
+        encoodePos += 4;
+
+        setCueSize();
+        setCueSmoothing();
+        setCueColorShift();
+
+        ChangeMaterial();
+    }
     private void LoadLocalData(string gameStateStr)
     {
-        if (gameStateStr.StartsWith("CV:"))
+        if(gameStateStr.StartsWith("CV1:"))
+        {
+            LoadLocalDataV1(gameStateStr.Substring(4));
+        }
+        else if (gameStateStr.StartsWith("CV:"))
         {
             LoadLocalDataV0(gameStateStr.Substring(3));
         }
     }
     public void OnSaveButtonPushed()
     {
-
         if (ReferenceEquals(null, inputField))
         {
             Debug.Log("Table Hook::OnSaveButtonPushed() inputField property is not set !");

@@ -1053,7 +1053,7 @@ MonoBehaviour:
       m_Calls: []
   m_text: 'MS-VRCSA-CBC
 
-    TABLE  v1.1382'
+    TABLE  v1.1383'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 21ac83a342a0b7144a87e1d2c869c740, type: 2}
   m_sharedMaterial: {fileID: -3406411368475958213, guid: 21ac83a342a0b7144a87e1d2c869c740,
@@ -48488,17 +48488,17 @@ PrefabInstance:
     - target: {fileID: 1695235443263896825, guid: 40111879adc2a844a8493e727616e240,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.8799
+      value: -0.009
       objectReference: {fileID: 0}
     - target: {fileID: 1695235443263896825, guid: 40111879adc2a844a8493e727616e240,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: -0.322
       objectReference: {fileID: 0}
     - target: {fileID: 1695235443263896825, guid: 40111879adc2a844a8493e727616e240,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 1695235443263896825, guid: 40111879adc2a844a8493e727616e240,
         type: 3}

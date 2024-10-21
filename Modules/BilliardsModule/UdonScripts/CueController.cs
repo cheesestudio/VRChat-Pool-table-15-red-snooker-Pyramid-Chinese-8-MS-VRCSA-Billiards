@@ -18,7 +18,9 @@ public class CueController : UdonSharpBehaviour
     [SerializeField] private GameObject cuetip;
 
     [UdonSynced] private byte syncedCueSkin;
+    [UdonSynced] private float syncedCueHue;
     private int activeCueSkin;
+    private float activeCueHue;
 
     private bool holderIsDesktop;
     [UdonSynced] private bool syncedHolderIsDesktop;
@@ -94,6 +96,7 @@ public class CueController : UdonSharpBehaviour
 #endif
         //activeCueSkin = table._CanUseCueSkin(owner, syncedCueSkin) ? syncedCueSkin : 0;
         activeCueSkin = syncedCueSkin;//table._CanUseCueSkin(owner, syncedCueSkin);
+        activeCueHue = syncedCueHue;
 
         refreshCueSkin();
         refreshCueScale();
@@ -103,6 +106,16 @@ public class CueController : UdonSharpBehaviour
     {
         cueRenderer = this.transform.Find("body/render").GetComponent<Renderer>();
         cueRenderer.materials[1].SetTexture("_MainTex", table.cueSkins[activeCueSkin]);
+
+        //Cheese table hook
+        if (activeCueHue == 0)
+        {
+            cueRenderer.materials[1].color =new Color(1,1,1);
+        }
+        else
+        {
+            cueRenderer.materials[1].color = Color.HSVToRGB(activeCueHue, 1f, 1f);
+        }
     }
 
     private void refreshCueScale()
@@ -320,6 +333,9 @@ public class CueController : UdonSharpBehaviour
         primaryHolding = true;
         primaryLocked = false;
         syncedCueSkin = (byte)table._CanUseCueSkin(Networking.GetOwner(this.gameObject).playerId, syncedCueSkin);
+        //cheese table hook
+        syncedCueHue = table.tableHook.cueHue;
+
         //syncedCueSkin = table.activeCueSkin;
         cueScale = cueScaleMine;
         RequestSerialization();

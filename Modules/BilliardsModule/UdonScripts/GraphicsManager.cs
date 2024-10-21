@@ -309,8 +309,10 @@ public class GraphicsManager : UdonSharpBehaviour
         if (table.tableHook != null)
         {
             //table custom color by cheese
-            float tableColor = (float)table.tableHook.GetProgramVariable("TableColor");
-            float tableLightness = (float)table.tableHook.GetProgramVariable("TableColorLightness");
+            //float tableColor = (float)table.tableHook.GetProgramVariable("TableColor");
+            //float tableLightness = (float)table.tableHook.GetProgramVariable("TableColorLightness");
+            float tableColor = table.tableHook.TableColor;
+            float tableLightness = table.tableHook.TableColorLightness;
             tableMaterial.SetFloat("_ClothHue", tableColor);
             tableMaterial.SetFloat("_ClothSaturation", tableLightness);
             // Debug.Log((float)table.TableHook.GetProgramVariable("TableColor"));
