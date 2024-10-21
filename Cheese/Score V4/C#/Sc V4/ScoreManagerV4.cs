@@ -52,12 +52,22 @@ public class ScoreManagerV4 : UdonSharpBehaviour
             Elo2 == null ||
             Messages == null ||
             Network == null ||
-            RankingSystem == null ||
-            EloAPI == null
+            RankingSystem == null
           )
         {
             this.enabled = false;
             return;
+        }
+
+        // 尝试寻找控件
+        if(EloAPI == null)
+        {
+            EloAPI = GameObject.Find("EloDownload").GetComponent<EloDownload>();
+            if (EloAPI == null) 
+            {
+                this.enabled = false;
+                return;
+            }
         }
 
         //Init
