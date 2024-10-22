@@ -45,6 +45,7 @@ public class EloDownload : UdonSharpBehaviour
         {
             _eloData = json.DataDictionary["scores"].DataDictionary;
         }
+        SendCustomEventDelayedSeconds("_AutoReload", 60);
     }
 
     //字符串下载失败回调
@@ -72,7 +73,10 @@ public class EloDownload : UdonSharpBehaviour
         if (_eloData == null)
             return 0;
 
-        string score = _eloData[name].ToString();
+        // 使用新的查询，防止破坏原有排序
+        var _dataClone = _eloData.DeepClone();
+
+        string score = _dataClone[name].ToString();
         Debug.Log(score);
         if (!string.IsNullOrEmpty(score))
             if(score != "KeyDoesNotExist")
