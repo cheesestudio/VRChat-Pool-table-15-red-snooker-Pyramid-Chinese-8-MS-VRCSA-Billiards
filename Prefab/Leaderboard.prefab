@@ -563,11 +563,10 @@ MonoBehaviour:
     PrefabModifications: []
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 8353106332473547041}
-  url:
-    url: https://wangqaq.com/api/eol/output.php
   loadOnStart: 1
   autoReload: 1
   autoReloadTime: 1
+  _eloDownload: {fileID: 0}
   text: {fileID: 0}
   textMeshPro: {fileID: 4309541687361906909}
   textMeshProUGUI: {fileID: 0}
@@ -2253,11 +2252,10 @@ MonoBehaviour:
     PrefabModifications: []
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 1944730566063839805}
-  url:
-    url: https://wangqaq.com/api/eol/output.php
   loadOnStart: 1
   autoReload: 1
   autoReloadTime: 1
+  _eloDownload: {fileID: 0}
   text: {fileID: 0}
   textMeshPro: {fileID: 2413905470549297564}
   textMeshProUGUI: {fileID: 0}
@@ -2440,7 +2438,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0.70428014, y: 0.8290726, z: 1.6202799, w: -4.3514977}
+  m_margin: {x: 0.5669856, y: -0.4985485, z: 1.5565408, w: -4.4780054}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   _SortingLayer: 0

@@ -519,6 +519,12 @@ public class BilliardsModule : UdonSharpBehaviour
         }
 
         //init table hook
+        if(tableHook == null)
+        {
+            tableHook = GameObject.Find("TableHook (replica) 2").GetComponent<TableHook>();
+            if (tableHook == null)
+                Debug.Log("Please put table hook in scene! 请把Tablehook放入场景");
+        }
         if (tableHook != null)
         {
             tableHook.AddTranslation(_translations);
