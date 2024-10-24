@@ -94,7 +94,8 @@ namespace DrBlackRat
             {
                 // 转码，去除小数点，格式化，替换空格 \u0020 到 \u00A0 
                 leaderBoardString += 
-                    names[i].ToString().Replace(" ", " ")
+                    (i+1).ToString()+"."
+                    + names[i].ToString().Replace(" ", " ")
                     + " "
                     + ((int)float.Parse(scores[i].ToString())).ToString() 
                     + "\n";

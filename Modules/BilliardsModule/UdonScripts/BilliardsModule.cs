@@ -3048,7 +3048,7 @@ public class BilliardsModule : UdonSharpBehaviour
         _LogInfo($"onLocalTeamWin {(winner)}");
 
         //预留API，当游戏结束，调用游戏结束事件
-        if (ScoreManagerHook != null && !isPracticeMode)
+        if (ScoreManagerHook != null && !isPracticeMode && !BreakFinish)
         {
             //发送赢家
             ScoreManagerHook.SetProgramVariable("winningTeamLocal", winner);
