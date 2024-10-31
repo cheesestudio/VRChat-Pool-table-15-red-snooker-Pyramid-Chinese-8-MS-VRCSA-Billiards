@@ -30,6 +30,9 @@ public class ScoreManagerV4 : UdonSharpBehaviour
     [SerializeField] public ScoreNetwork Network = null;
     [SerializeField] public RankingSystem RankingSystem = null;
     [SerializeField] public EloDownload EloAPI = null;
+
+    // Ioc
+    [HideInInspector] public BilliardsModule _billiardsModule;
     #endregion
 
     //APIs   ONLY use in Local!!!!! [HideInInspector] 
@@ -38,9 +41,9 @@ public class ScoreManagerV4 : UdonSharpBehaviour
     public string[] nowPlayerList = null;
     public string[] startPlayerList = null;
     public uint winningTeamLocal = 0xFFFFFFFF;
-    #endregion
+	#endregion
 
-    private void Start()
+	private void Start()
     {
         //  判空
         if (
@@ -192,6 +195,12 @@ public class ScoreManagerV4 : UdonSharpBehaviour
     // ID3
     public void gameEndRemote()
     {
+        // 分数上传系统 (当正常结束，没有触发换人反作弊时生成链接)
+        if(Network.State == 3)
+        {
+			RankingSystem.UpdateCopyData(Network.PlayerA, Network.PlayerB, Network.PlayerAScore.ToString(), Network.PlayerBScore.ToString(), Network.Mode);
+		}
+
         Debug.Log("[SCM] gameEndRemote");
         _ReflashEloScore();
         _Reflash();
@@ -356,7 +365,7 @@ public class ScoreManagerV4 : UdonSharpBehaviour
     {
         Debug.Log("[SCM] gameEndLocal");
 
-        if (winningTeamLocal == 0xFFFFFFFF)
+        if (winningTeamLocal == (uint)0xFFFFFFFF)
             return;
 
         if (Network.State == 1)
@@ -367,16 +376,20 @@ public class ScoreManagerV4 : UdonSharpBehaviour
         }
         else if (Network.State == 2)
         {
-            if (Network.isInvert)
-                winningTeamLocal = (uint)(winningTeamLocal == 1 ? 0 : 1);
+            // 判断黄金开局
+            if(winningTeamLocal != 2)
+            {
+				if (Network.isInvert)
+					winningTeamLocal = (uint)(winningTeamLocal == 1 ? 0 : 1);
 
-            if (winningTeamLocal == 0)
-                Network.PlayerAScore++;
-            else if (winningTeamLocal == 1)
-                Network.PlayerBScore++;
+				if (winningTeamLocal == 0)
+					Network.PlayerAScore++;
+				else if (winningTeamLocal == 1)
+					Network.PlayerBScore++;
+			}
 
-            RankingSystem.UpdateCopyData(Network.PlayerA, Network.PlayerB, Network.PlayerAScore.ToString(), Network.PlayerBScore.ToString());
-            Network.State = 3;
+            Network.Mode = _billiardsModule.gameModeLocal;
+			Network.State = 3;
         }
 
         if (Network.funcStackTop < 8)
