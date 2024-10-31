@@ -14,35 +14,68 @@ using VRC.Udon.Common.Interfaces;
 [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
 public class RankingSystem : UdonSharpBehaviour
 {
+    public bool useV2API = false;
     [Header("References")]
     public InputField copyField;
     public VRCUrlInputField pasteField;
-    public ScoreManagerV4 _scoreManager;
     [UdonSynced] private string errorString;
     public TextMeshProUGUI errorText;
-    private string Player1 = "";
-    private string Player2 = "";
 
-    private string hashKey = "CheeseIsTheHashKeyForNoReason";
-    private string ScoreUploadBaseURL = "https://wangqaq.com/api/eol/upload_score.php";
+    // 台球名称
+    public string[] TableName = null;
+
+    public string WorldGUID = null;
+	public string hashKey = "CheeseIsTheHashKeyForNoReason";
+	public string ScoreUploadBaseURL = "https://wangqaq.com/api/eol/upload_score.php";
+
+	private string Player1 = "";
+	private string Player2 = "";
+
+	// Ioc 
+	[HideInInspector] public ScoreManagerV4 _scoreManager;
+
+#if DEBUG
+	//Debug
+	[HideInInspector] public string scoreDebugA = "";
+	[HideInInspector] public string scoreDebugB = "";
+	public void DebugUpload()
+    {
+        UpdateCopyData("testa", "testb", scoreDebugA, scoreDebugB,0);
+	}
+#endif
 
     public void _Init(ScoreManagerV4 scoreManager)
     {
         _scoreManager = scoreManager;
     }
 
-    public void UpdateCopyData(String player1,String player2,string score1,string score2)
+    public void UpdateCopyData(string player1, string player2,string score1,string score2,uint ballMode)
     {
         Player1 = player1;
         Player2 = player2;
-        if (score1 == score2 || string.IsNullOrEmpty(player1) || string.IsNullOrEmpty(player2))
+        if (score1 == score2                || 
+            string.IsNullOrEmpty(player1)   ||
+            string.IsNullOrEmpty(player2))
         {
             copyField.text = "null";
             errorText.text = "";
             return;
         }
-        string hash = UdonHashLib.MD5_UTF8(player1 + player2 + score1 + score2 + hashKey);
-        copyField.text = $"{ScoreUploadBaseURL}?player1={player1}&player2={player2}&score1={score1}&score2={score2}&hash={hash}";
+
+		if (useV2API)
+        {
+            var modeString = mapModeName(ballMode);
+			// 新API
+			string hash = UdonHashLib.MD5_UTF8(player1 + player2 + score1 + score2 + modeString + WorldGUID + DateTime.UtcNow.ToString("yyyy/MM/dd HH:mm:ss") + hashKey);
+			copyField.text = $"{ScoreUploadBaseURL}?Player1={player1}&Player2={player2}&PlayerScore1={score1}&PlayerScore2={score2}&mode={modeString}&WorldGUID={WorldGUID}&time={DateTime.UtcNow.ToString()}&MD5={hash}";
+		}
+        else
+        {
+			// 老API
+			string hash = UdonHashLib.MD5_UTF8(player1 + player2 + score1 + score2 + hashKey);
+			copyField.text = $"{ScoreUploadBaseURL}?player1={player1}&player2={player2}&score1={score1}&score2={score2}&hash={hash}";
+		}
+
         //Debug.Log($"copyField =  {copyField.text}");
     }
     public void TryToUploadNote()
@@ -98,9 +131,18 @@ public class RankingSystem : UdonSharpBehaviour
     {
         errorText.text = errorString;
     }
+
     void Start()
     {
         //UpdateCopyData("测试3", "urara․", "0", "720");
         //TryToUploadNote();
     }
+
+    // 找台球名称（如果有的话）
+    private string mapModeName(uint mode)
+    {
+        if (!string.IsNullOrEmpty(TableName[mode]))
+            return TableName[mode];
+        return "NotFind";
+	}
 }

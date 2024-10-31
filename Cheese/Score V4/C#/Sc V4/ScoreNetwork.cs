@@ -21,6 +21,8 @@ public class ScoreNetwork : UdonSharpBehaviour
     [HideInInspector][UdonSynced] public int PlayerAScore;
     [HideInInspector][UdonSynced] public int PlayerBScore;
 
+    [HideInInspector][UdonSynced] public uint Mode;
+
     #region Info
     /*
 api 
