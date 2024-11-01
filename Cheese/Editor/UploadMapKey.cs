@@ -68,6 +68,7 @@ public class UploadMapKey : EditorWindow
 
 			foreach (var obj in uploadOBJ)
 			{
+				obj.useV2API = true;
 				obj.hashKey = key;
 				obj.ScoreUploadBaseURL = UrlAPI;
 				obj.WorldGUID = WorldGuid.ToString();
@@ -80,6 +81,7 @@ public class UploadMapKey : EditorWindow
 	private async Task<int> OnButtonClick()
 	{
 		HttpClient httpClient = new HttpClient();
+		httpClient.Timeout = TimeSpan.FromSeconds(15);
 		httpClient.DefaultRequestHeaders.Add("User-Agent", "UnityPlayer");
 		var pipelineOBJ = FindObjectsOfType<PipelineManager>().SingleOrDefault();
 
@@ -87,14 +89,21 @@ public class UploadMapKey : EditorWindow
 		string Name = string.Empty;
 
 		// GUID
-		if(pipelineOBJ.GetType() == typeof(PipelineManager))
+		if(pipelineOBJ != null)
 		{
-			var tmp = pipelineOBJ.blueprintId.Split("_",StringSplitOptions.RemoveEmptyEntries);
+			if (pipelineOBJ.GetType() == typeof(PipelineManager))
+			{
+				var tmp = pipelineOBJ.blueprintId.Split("_", StringSplitOptions.RemoveEmptyEntries);
 
-			if (tmp.Length == 2)
-				WorldGuid = Guid.Parse(tmp[1]);
+				if (tmp.Length == 2)
+					WorldGuid = Guid.Parse(tmp[1]);
+				else
+					return 1;
+			}
 			else
+			{
 				return 1;
+			}
 		}
 		else
 		{
