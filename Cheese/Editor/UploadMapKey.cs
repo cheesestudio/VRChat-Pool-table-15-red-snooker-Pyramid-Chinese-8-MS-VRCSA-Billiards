@@ -1,66 +1,63 @@
-using Newtonsoft.Json;
-using System;
+ï»¿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Security.Cryptography;
-using System.Text;
 using System.Threading.Tasks;
 using UnityEditor;
-using UnityEditor.PackageManager;
 using UnityEngine;
 using VRC.Core;
 using VRC.SDKBase.Editor.Api;
-using static VRC.Core.ApiInfoPushSystem;
 
 public class UploadMapKey : EditorWindow
 { 
 	[HideInInspector] public string UrlAPI = "https://www.wangqaq.com/AspAPI/table/UploadScore";
 	[HideInInspector] public string KeyAPI = "https://www.wangqaq.com/AspAPI/table/UploadMapKey";
 
-	private string message;
-	private string key;
+	private string Message;
+	private string Key;
 	private Guid WorldGuid = Guid.Empty;
 
 	[MenuItem("MS-VRCSA/Upload Map Key")]
 	static void OpenMenu()
 	{
-		GetWindow<UploadMapKey>("Ì¨ÇòKeyÉÏ´«");
+		GetWindow<UploadMapKey>("å°çƒKeyä¸Šä¼ ");
 	}
 
-	// VRCAPIÒ»ÛçÊº£¬¶¼ÊÇ·´±àÒëÕÒ³öÀ´µÄ£¬Á¬¸öÎÄµµ¶¼Ã», ÀÁµÃÕûÀí´úÂëÁË
+	// VRCAPIä¸€å¨å±ï¼Œéƒ½æ˜¯åç¼–è¯‘æ‰¾å‡ºæ¥çš„ï¼Œè¿ä¸ªæ–‡æ¡£éƒ½æ²¡, æ‡’å¾—æ•´ç†ä»£ç äº†
 
 	private async void OnGUI()
 	{
 		HttpClient httpClient = new HttpClient();
 		var mapState = httpClient.GetAsync(KeyAPI);
 
-		GUILayout.Label("³õÊ¼»¯·ÖÊı¿Ø¼şºÍÏî·şÎñÆ÷Ìí¼ÓMapKey", EditorStyles.largeLabel);
+		GUILayout.Label("åˆå§‹åŒ–åˆ†æ•°æ§ä»¶å’Œé¡¹æœåŠ¡å™¨æ·»åŠ MapKey", EditorStyles.largeLabel);
 
-		GUILayout.Label("API²ÎÊıĞŞ¸Ä", EditorStyles.boldLabel);
+		GUILayout.Label("APIå‚æ•°ä¿®æ”¹", EditorStyles.boldLabel);
 		UrlAPI = EditorGUILayout.TextField("UrlKey", UrlAPI);
 		KeyAPI = EditorGUILayout.TextField("UrlKey", KeyAPI);
 
-		GUILayout.Label(message, EditorStyles.boldLabel);
+		GUILayout.Label(Message, EditorStyles.boldLabel);
 
-		if (GUILayout.Button("ÉÏ´«·ÖÊı²¢Éú³É"))
+		if (GUILayout.Button("ä¸Šä¼ åˆ†æ•°å¹¶ç”Ÿæˆ"))
 		{
-			var state = await OnButtonClick(); // °´Å¥±»µã»÷Ê±µ÷ÓÃ»Øµ÷·½·¨
+			var state = await OnButtonClick(); // æŒ‰é’®è¢«ç‚¹å‡»æ—¶è°ƒç”¨å›è°ƒæ–¹æ³•
 
 			switch (state)
 			{
 				case 0:
-					message = "ÉÏ´«³É¹¦£¬ÇëµÈ´ıÉóºË";
+					Message = "ä¸Šä¼ æˆåŠŸï¼Œè¯·ç­‰å¾…å®¡æ ¸";
 					break;
 				case 1:
-					message = "ÇëÏÈÍê³ÉÊ×´ÎÉÏ´«";
+					Message = "è¯·å…ˆå®Œæˆé¦–æ¬¡ä¸Šä¼ ";
 					return;
 				case 2:
-					message = "ÉÏ´«Ê§°Ü£¬ÊÇ·ñÒÑÉÏ´«¹ı";
+					Message = "ä¸Šä¼ å¤±è´¥ï¼Œæ˜¯å¦å·²ä¸Šä¼ è¿‡";
 					return;
 				default:
-					message = "Î´Öª´íÎó";
+					Message = "æœªçŸ¥é”™è¯¯";
 					return;
 			}
 
@@ -68,33 +65,75 @@ public class UploadMapKey : EditorWindow
 
 			foreach (var obj in uploadOBJ)
 			{
-				obj.hashKey = key;
+				obj.useV2API = true;
+				obj.hashKey = Key;
 				obj.ScoreUploadBaseURL = UrlAPI;
 				obj.WorldGUID = WorldGuid.ToString();
 			}
 		}
+
+		if (GUILayout.Button("é‡æ–°ç»‘å®šKEY"))
+		{
+			string path = "Assets/VRChatPoolMapKey.txt";
+			if (File.Exists(path))
+			{
+				var uploadOBJ = FindObjectsOfType<RankingSystem>().ToList();
+				var tmp = File.ReadAllText(path).Split("||");
+
+				if(tmp.Length != 2)
+				{
+					Message = "KEYæ–‡ä»¶é”™è¯¯";
+					return;
+				}
+
+				var tmpKey = tmp[0];
+				var tmpGuid = tmp[1];
+
+				foreach (var obj in uploadOBJ)
+				{
+					obj.useV2API = true;
+					obj.hashKey = tmpKey;
+					obj.ScoreUploadBaseURL = UrlAPI;
+					obj.WorldGUID = tmpGuid;
+				}
+				Message = "ç»‘å®šæˆåŠŸ";
+			}
+			else
+			{
+				Message = "æœªèƒ½æ‰¾åˆ°KEYæ–‡ä»¶";
+			}
+
+		}
 	}
 
-	// °´Å¥µã»÷ºóµÄ»Øµ÷·½·¨
-	// VRCAPIµÄ¶«Î÷¶¼ÊÇ·´±àÒë³öÀ´µÄ£¬½«¾Í×ÅÓÃ°É
+	// æŒ‰é’®ç‚¹å‡»åçš„å›è°ƒæ–¹æ³•
+	// VRCAPIçš„ä¸œè¥¿éƒ½æ˜¯åç¼–è¯‘å‡ºæ¥çš„ï¼Œå°†å°±ç€ç”¨å§
 	private async Task<int> OnButtonClick()
 	{
 		HttpClient httpClient = new HttpClient();
+		httpClient.Timeout = TimeSpan.FromSeconds(15);
 		httpClient.DefaultRequestHeaders.Add("User-Agent", "UnityPlayer");
 		var pipelineOBJ = FindObjectsOfType<PipelineManager>().SingleOrDefault();
 
-		key = GenerateRandomKey(32);
+		Key = GenerateRandomKey(32);
 		string Name = string.Empty;
 
 		// GUID
-		if(pipelineOBJ.GetType() == typeof(PipelineManager))
+		if(pipelineOBJ != null)
 		{
-			var tmp = pipelineOBJ.blueprintId.Split("_",StringSplitOptions.RemoveEmptyEntries);
+			if (pipelineOBJ.GetType() == typeof(PipelineManager))
+			{
+				var tmp = pipelineOBJ.blueprintId.Split("_", StringSplitOptions.RemoveEmptyEntries);
 
-			if (tmp.Length == 2)
-				WorldGuid = Guid.Parse(tmp[1]);
+				if (tmp.Length == 2)
+					WorldGuid = Guid.Parse(tmp[1]);
+				else
+					return 1;
+			}
 			else
+			{
 				return 1;
+			}
 		}
 		else
 		{
@@ -117,7 +156,7 @@ public class UploadMapKey : EditorWindow
 		{
 			new KeyValuePair<string, string>("Name", Name),
 			new KeyValuePair<string, string>("WorldGUID", WorldGuid.ToString()),
-			new KeyValuePair<string, string>("Key",key)
+			new KeyValuePair<string, string>("Key",Key)
 		});
 
 		var response = await httpClient.PostAsync(KeyAPI, formContent);
@@ -127,19 +166,29 @@ public class UploadMapKey : EditorWindow
 			return 2;
 		}
 
+		// ä¿å­˜å¯†é’¥
+
+		string path = "Assets/VRChatPoolMapKey.txt";
+
+		// ç¡®ä¿æ–‡ä»¶ä¸å­˜åœ¨å†åˆ›å»º
+		if (!File.Exists(path))
+		{
+			File.WriteAllText(path,( Key + "||" + WorldGuid.ToString()));
+		}
+
 		return 0;
 	}
 
 	public static string GenerateRandomKey(int length)
 	{
-		// Ã¿¸ö×Ö·û¿ÉÒÔ±íÊ¾Îª 4 Î»£¨¶ş½øÖÆ£©»òÕß 8 Î»£¨ASCII£©£¬ÎÒÃÇÓÃ Base64 ±àÂë
+		// æ¯ä¸ªå­—ç¬¦å¯ä»¥è¡¨ç¤ºä¸º 4 ä½ï¼ˆäºŒè¿›åˆ¶ï¼‰æˆ–è€… 8 ä½ï¼ˆASCIIï¼‰ï¼Œæˆ‘ä»¬ç”¨ Base64 ç¼–ç 
 		byte[] randomBytes = new byte[length];
 		using (RandomNumberGenerator rng = RandomNumberGenerator.Create())
 		{
 			rng.GetBytes(randomBytes);
 		}
 
-		// Ê¹ÓÃ Base64 ±àÂë£¬Ê¹½á¹û¸ü¼Ó¿É¶Á
+		// ä½¿ç”¨ Base64 ç¼–ç ï¼Œä½¿ç»“æœæ›´åŠ å¯è¯»
 		return Convert.ToBase64String(randomBytes).Substring(0, length);
 	}
 }
