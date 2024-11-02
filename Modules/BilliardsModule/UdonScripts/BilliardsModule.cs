@@ -492,6 +492,8 @@ public class BilliardsModule : UdonSharpBehaviour
 
         currentPhysicsManager.SendCustomEvent("_InitConstants");
 
+        ScoreManagerHook.SetProgramVariable("_billiardsModule", this);
+
 #if EIJIS_ISSUE_FIX
         setTableModel(tableModelLocal);
 #else
@@ -3048,10 +3050,19 @@ public class BilliardsModule : UdonSharpBehaviour
         _LogInfo($"onLocalTeamWin {(winner)}");
 
         //预留API，当游戏结束，调用游戏结束事件
-        if (ScoreManagerHook != null && !isPracticeMode && !BreakFinish)
+        if (ScoreManagerHook != null && !isPracticeMode)
         {
-            //发送赢家
-            ScoreManagerHook.SetProgramVariable("winningTeamLocal", winner);
+            if (BreakFinish)
+            {
+				//开局进黑8特殊事件
+				ScoreManagerHook.SetProgramVariable("winningTeamLocal", (uint)2);
+            }
+            else
+            {
+				//发送赢家
+				ScoreManagerHook.SetProgramVariable("winningTeamLocal", winner);
+			}
+
             //发送事件
             ScoreManagerHook.SendCustomEvent("_GameEnd");
         }
