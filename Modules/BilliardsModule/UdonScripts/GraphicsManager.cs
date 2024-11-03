@@ -430,6 +430,10 @@ public class GraphicsManager : UdonSharpBehaviour
 		if (color == "dark") return darkColors(player.displayName);
 		if (color == "rainbow") return rainbow(player.displayName);
 		if (color == "golden") return goldenColors(player.displayName);
+		if (color == "greenL") return greenColors(player.displayName);
+		if (color == "skyBlueL") return blueSkyColors(player.displayName);
+		if (color == "redWhite") return redWhiteColors(player.displayName);
+
 
 		return $"<color=#{color}>{player.displayName}</color>";
 	}
@@ -583,6 +587,91 @@ public class GraphicsManager : UdonSharpBehaviour
 		}
 		return colors;
 	}
+
+	private string greenColors(string name)
+	{
+		string[] colors = greenColors(name.Length);
+		for (int i = 0; i < name.Length; i++)
+		{
+			colors[i] = $"<color=#{colors[i]}>{name[i]}</color>";
+		}
+		return string.Join("", colors);
+	}
+
+	private string[] greenColors(int numColors)
+	{
+		string[] colors = new string[numColors];
+
+		float n = (float)numColors;
+
+		for (int i = 0; i < numColors; i++)
+		{
+			int red = (int)Mathf.Lerp(175, 80, remap(i, 0, n, 0, 1));
+			int green = 215;
+			int blue = (int)Mathf.Lerp(130, 0, remap(i, 0, n, 0, 1));
+
+			// 转换为十六进制字符串  
+			colors[i] = $"{red.ToString("X2")}{green.ToString("X2")}{blue.ToString("X2")}";
+		}
+		return colors;
+	}
+
+	private string blueSkyColors(string name)
+	{
+		string[] colors = blueSkyColors(name.Length);
+		for (int i = 0; i < name.Length; i++)
+		{
+			colors[i] = $"<color=#{colors[i]}>{name[i]}</color>";
+		}
+		return string.Join("", colors);
+	}
+
+	private string[] blueSkyColors(int numColors)
+	{
+		string[] colors = new string[numColors];
+
+		float n = (float)numColors;
+
+		for (int i = 0; i < numColors; i++)
+		{
+			int red = (int)Mathf.Lerp(0, 150, remap(i, 0, n, 0, 1));
+			int green = (int)Mathf.Lerp(130, 200, remap(i, 0, n, 0, 1));
+			int blue = 225;
+
+			// 转换为十六进制字符串  
+			colors[i] = $"{red.ToString("X2")}{green.ToString("X2")}{blue.ToString("X2")}";
+		}
+		return colors;
+	}
+
+	private string redWhiteColors(string name)
+	{
+		string[] colors = redWhiteColors(name.Length);
+		for (int i = 0; i < name.Length; i++)
+		{
+			colors[i] = $"<color=#{colors[i]}>{name[i]}</color>";
+		}
+		return string.Join("", colors);
+	}
+
+	private string[] redWhiteColors(int numColors)
+	{
+		string[] colors = new string[numColors];
+
+		float n = (float)numColors;
+
+		for (int i = 0; i < numColors; i++)
+		{
+			int red = 225;
+			int green = (int)Mathf.Lerp(120, 255, remap(i, 0, n, 0, 1));
+			int blue = (int)Mathf.Lerp(120, 255, remap(i, 0, n, 0, 1));
+
+			// 转换为十六进制字符串  
+			colors[i] = $"{red.ToString("X2")}{green.ToString("X2")}{blue.ToString("X2")}";
+		}
+		return colors;
+	}
+
 
 	private static float remap(float value, float from1, float to1, float from2, float to2)
 	{

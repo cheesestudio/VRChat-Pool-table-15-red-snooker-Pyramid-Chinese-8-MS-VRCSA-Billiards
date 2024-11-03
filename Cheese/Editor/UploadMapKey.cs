@@ -74,7 +74,7 @@ public class UploadMapKey : EditorWindow
 
 		if (GUILayout.Button("重新绑定KEY"))
 		{
-			string path = "Assets/VRChatPoolMapKey.txt";
+			const string path = "Assets/VRChatPoolMapKey.txt";
 			if (File.Exists(path))
 			{
 				var uploadOBJ = FindObjectsOfType<RankingSystem>().ToList();
@@ -167,14 +167,9 @@ public class UploadMapKey : EditorWindow
 		}
 
 		// 保存密钥
+		const string path = "Assets/VRChatPoolMapKey.txt";
 
-		string path = "Assets/VRChatPoolMapKey.txt";
-
-		// 确保文件不存在再创建
-		if (!File.Exists(path))
-		{
-			File.WriteAllText(path,( Key + "||" + WorldGuid.ToString()));
-		}
+		File.WriteAllText(path,( Key + "||" + WorldGuid.ToString()));
 
 		return 0;
 	}
