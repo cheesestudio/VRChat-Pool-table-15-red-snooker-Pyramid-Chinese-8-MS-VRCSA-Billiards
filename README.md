@@ -26,6 +26,7 @@ Udonchips Supported.
 ### 设置 Set up
 用的时候记得把billiardModule设置为22层，并把这层单独物理设置成只与自己交互（上面MS那个按钮可以自动设置）  
 一定要设置table hook!!!
+排行榜[设置说明](./Leaderboard.md) 
 ![image](https://github.com/user-attachments/assets/f453ae11-0735-4885-b700-87101d5971c7)
 
 ![Q84OOB{37Q{XY946MTR$E`F](https://github.com/user-attachments/assets/6bf18499-5926-4ca2-8a8c-8f8e33fd9faa)
