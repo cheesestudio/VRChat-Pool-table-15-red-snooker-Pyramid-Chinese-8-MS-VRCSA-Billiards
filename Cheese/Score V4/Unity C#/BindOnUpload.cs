@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using System;
 using System.IO;
 using System.Linq;
@@ -9,7 +10,7 @@ using VRC.SDKBase;
 public class BindOnUpload : MonoBehaviour , IEditorOnly
 {
 	public const string UrlAPI = "https://www.wangqaq.com/AspAPI/table/UploadScore";
-#if UNITY_EDITOR
+
 	[InitializeOnLoadMethod]
 	public static void RegisterSDKCallback()
 	{
@@ -49,5 +50,6 @@ public class BindOnUpload : MonoBehaviour , IEditorOnly
 			}
 		}
 	}
-#endif
+
 }
+#endif
