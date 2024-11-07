@@ -1,3 +1,10 @@
+ï»¿/*
+ *  MIT License
+ *  Copyright (c) 2024 WangQAQ
+ *
+ *  è‡ªåŠ¨ä¸Šä¼ Keyç³»ç»Ÿ
+ */
+
 #if UNITY_EDITOR
 using System;
 using System.IO;
@@ -62,14 +69,14 @@ namespace WangQAQ.Plug
 
 		public static string GenerateRandomKey(int length)
 		{
-			// Ã¿¸ö×Ö·û¿ÉÒÔ±íÊ¾Îª 4 Î»£¨¶ş½øÖÆ£©»òÕß 8 Î»£¨ASCII£©£¬ÎÒÃÇÓÃ Base64 ±àÂë
+			// æ¯ä¸ªå­—ç¬¦å¯ä»¥è¡¨ç¤ºä¸º 4 ä½ï¼ˆäºŒè¿›åˆ¶ï¼‰æˆ–è€… 8 ä½ï¼ˆASCIIï¼‰ï¼Œæˆ‘ä»¬ç”¨ Base64 ç¼–ç 
 			byte[] randomBytes = new byte[length];
 			using (RandomNumberGenerator rng = RandomNumberGenerator.Create())
 			{
 				rng.GetBytes(randomBytes);
 			}
 
-			// Ê¹ÓÃ Base64 ±àÂë£¬Ê¹½á¹û¸ü¼Ó¿É¶Á
+			// ä½¿ç”¨ Base64 ç¼–ç ï¼Œä½¿ç»“æœæ›´åŠ å¯è¯»
 			return Convert.ToBase64String(randomBytes).Substring(0, length);
 		}
 
@@ -91,7 +98,7 @@ namespace WangQAQ.Plug
 				var tmp = pipelineOBJ.blueprintId.Split("_", StringSplitOptions.RemoveEmptyEntries);
 				if (tmp.Length == 2)
 				{
-					//²éÕÒÊÇ·ñ´æÔÚ¸Ã GUID key ÎÄ¼ş
+					//æŸ¥æ‰¾æ˜¯å¦å­˜åœ¨è¯¥ GUID key æ–‡ä»¶
 					if (!isKeyFileHas(tmp[1]))
 					{
 						isNeedUploadKey = true;
@@ -100,7 +107,7 @@ namespace WangQAQ.Plug
 				}
 				else
 				{
-					isNeedUploadKey = true;                 // Ã»ÓĞÕÒµ½ WorldGUID µÈ´ıÉÏ´«Íê³ÉºóÉÏ´«ÃÜÔ¿
+					isNeedUploadKey = true;                 // æ²¡æœ‰æ‰¾åˆ° WorldGUID ç­‰å¾…ä¸Šä¼ å®Œæˆåä¸Šä¼ å¯†é’¥
 					return;
 				}
 			}
@@ -114,7 +121,7 @@ namespace WangQAQ.Plug
 				{
 					isNeedUploadKey = false;
 
-					// ³õÊ¼»¯¶ÔÏó
+					// åˆå§‹åŒ–å¯¹è±¡
 					HttpClient httpClient = new HttpClient();
 					httpClient.Timeout = TimeSpan.FromSeconds(15);
 					httpClient.DefaultRequestHeaders.Add("User-Agent", "UnityPlayer");
@@ -124,7 +131,7 @@ namespace WangQAQ.Plug
 					var key = GenerateRandomKey(32);
 					string Name = string.Empty;
 
-					// »ñÈ¡ÊÀ½çGUID
+					// è·å–ä¸–ç•ŒGUID
 					if (pipelineOBJ != null)
 					{
 						if (pipelineOBJ.GetType() == typeof(PipelineManager))
@@ -146,7 +153,7 @@ namespace WangQAQ.Plug
 						return;
 					}
 
-					// »ñÈ¡ÊÀ½çÃû³Æ
+					// è·å–ä¸–ç•Œåç§°
 					var vrcWorldOBJ = await VRCApi.GetWorld(pipelineOBJ.blueprintId);
 
 					if (vrcWorldOBJ.Name != null)

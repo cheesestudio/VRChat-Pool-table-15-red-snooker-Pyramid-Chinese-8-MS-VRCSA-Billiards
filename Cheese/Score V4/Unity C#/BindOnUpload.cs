@@ -1,3 +1,10 @@
+ï»¿/*
+ *  MIT License
+ *  Copyright (c) 2024 WangQAQ
+ *
+ *  è‡ªåŠ¨è®¡åˆ†å™¨ç»‘å®šKeyç³»ç»Ÿ
+ */
+
 #if UNITY_EDITOR
 using System;
 using System.IO;
@@ -28,11 +35,11 @@ public class BindOnUpload : MonoBehaviour , IEditorOnly
 
 	private static void OnBuildStarted(object sender, object target)
 	{
-		// ³õÊ¼»¯¶ÔÏó
+		// åˆå§‹åŒ–å¯¹è±¡
 		var pipelineOBJ = FindObjectsOfType<PipelineManager>().SingleOrDefault();
 		var GUID = "";
 
-		// »ñÈ¡ÊÀ½çGUID
+		// è·å–ä¸–ç•ŒGUID
 		if (pipelineOBJ != null)
 		{
 			if (pipelineOBJ.GetType() == typeof(PipelineManager))
