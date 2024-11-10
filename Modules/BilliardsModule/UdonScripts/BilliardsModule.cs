@@ -3282,6 +3282,53 @@ public class BilliardsModule : UdonSharpBehaviour
 #else
         ballsPocketedLocal = initialBallsPocketed[2];
 #endif
+#if EIJIS_CAROM
+        if (is3Cusion || is2Cusion || is1Cusion || is0Cusion)
+        {
+            int[] threeBalls = new int[] { 0, 13, 14 };
+            bool[] threeBallsPocketed = new bool[] { zeroPocketed, thirteenPocketed, fourteenPocketed };
+            Vector3[] threeBallReturnPositions = new Vector3[]
+            {
+                new Vector3(0.0f, 0.0f, 0.0f), 
+                initialPositions[gameModeLocal][13], 
+                initialPositions[gameModeLocal][14]
+            };
+            
+            for (int i = 0; i < threeBallsPocketed.Length; i++)
+            {
+                if (threeBallsPocketed[i])
+                {
+                    ballsP[threeBalls[i]] = threeBallReturnPositions[i];
+                }
+            }
+            
+            for (int i = 0; i < threeBallsPocketed.Length; i++)
+            {
+                if (threeBallsPocketed[i])
+                {
+                    int touchBallId = CheckIfBallTouchingBall(threeBalls[i]);
+                    if (0 <= touchBallId)
+                    {
+                        
+                        ballsP[touchBallId] = threeBallReturnPositions[Array.IndexOf(threeBalls, touchBallId)];
+                        for (int j = 0; j < threeBallsPocketed.Length; j++)
+                        {
+                            if (j == i)
+                                continue;
+                            
+                            int touchBallId_2 = CheckIfBallTouchingBall(threeBalls[j]);
+                            if (0 <= touchBallId_2)
+                            {
+                                ballsP[touchBallId_2] = threeBallReturnPositions[Array.IndexOf(threeBalls, touchBallId_2)];
+                            }
+                        }
+                    }
+                }
+            }
+            
+            return;
+        }
+#endif
         Vector3 dir = Vector3.right * k_BALL_RADIUS * .051f;
         if (zeroPocketed) moveBallInDirUntilNotTouching(0, dir);
         if (thirteenPocketed) moveBallInDirUntilNotTouching(13, dir);
