@@ -1,13 +1,21 @@
 ﻿#define EIJIS_MANY_BALLS
 #define EIJIS_SNOOKER15REDS
+#define EIJIS_PYRAMID
+#define EIJIS_CUEBALLSWAP
 #define EIJIS_CAROM
 #define EIJIS_CUSHION_EFFECT
+#define EIJIS_GUIDELINE2TOGGLE
+#define EIJIS_CALLSHOT
+#define EIJIS_10BALL
 
 //#define HT8B_DRAW_REGIONS
 using System;
 using BestHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Modes.Gcm;
 using UdonSharp;
 using UnityEngine;
+#if EIJIS_CUEBALLSWAP
+using VRC.SDKBase;
+#endif
 
 [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
 public class StandardPhysicsManager : UdonSharpBehaviour
@@ -192,6 +200,64 @@ public class StandardPhysicsManager : UdonSharpBehaviour
             }
             else
             {
+#if EIJIS_CUEBALLSWAP || EIJIS_CALLSHOT
+                if (!ReferenceEquals(null, Networking.LocalPlayer) && Networking.LocalPlayer.IsUserInVR())
+                {
+#if EIJIS_CALLSHOT
+#if EIJIS_10BALL
+                    if (table.isPyramid ||
+                        (table.requireCallShotLocal && (table.is8Ball || table.is9Ball || table.is10Ball)))
+#else
+                    if (table.isPyramid ||
+                            (table.requireCallShotLocal && (table.is8Ball || table.is9Ball /* || table.is10Ball */ )))
+#endif
+#else
+                    if (table.isPyramid)
+#endif
+                    {
+                        bool hit = false;
+                        for (int i = 1; i < balls_P.Length; i++)
+                        {
+                            if ((lpos2 - balls_P[i]).sqrMagnitude < k_BALL_RSQR)
+                            {
+                                table._TriggerOtherBallHit(i, false);
+                                hit = true;
+                                break;
+                            }
+                        }
+                        if (!hit)
+                        {
+                            table._TriggerOtherBallHit(-1, false);
+                        }
+                    }
+#if EIJIS_CALLSHOT
+
+#if EIJIS_10BALL
+                    if (table.requireCallShotLocal &&(table.is8Ball || table.is9Ball || table.is10Ball))
+#else
+                    if (table.requireCallShotLocal &&(table.is8Ball || table.is9Ball /* || table.is10Ball */ ))
+#endif
+                    {
+                        bool hit = false;
+                        for (int i = 0; i < table.pocketLocations.Length; i++)
+                        {
+                            // k_INNER_RADIUS = 0.072
+                            if ((lpos2 - table.pocketLocations[i]).sqrMagnitude < 0.004f) // 0.016f
+                            {
+                                table._TriggerPocketHit(i, false);
+                                hit = true;
+                                break;
+                            }
+                        }
+                        if (!hit)
+                        {
+                            table._TriggerPocketHit(-1, false);
+                        }
+                    }
+#endif
+                }
+
+#endif
                 cue_vdir = this.transform.InverseTransformVector(cuetip.transform.forward);//new Vector2( cuetip.transform.forward.z, -cuetip.transform.forward.x ).normalized;
 
                 // Get where the cue will strike the ball
@@ -201,7 +267,11 @@ public class StandardPhysicsManager : UdonSharpBehaviour
                     {
                         table.guideline.SetActive(true);
                         table.devhit.SetActive(true);
+#if EIJIS_GUIDELINE2TOGGLE        
+                        if (!table.noGuideline2Local)
+#else
                         if (table.isPracticeMode)
+#endif
                             table.guideline2.SetActive(true);
                         else
                             table.guideline2.SetActive(false);
@@ -392,7 +462,11 @@ public class StandardPhysicsManager : UdonSharpBehaviour
         {
             if (Mathf.Abs(balls_P[0].x) > table.k_TABLE_WIDTH + 0.1 || Mathf.Abs(balls_P[0].z) > table.k_TABLE_HEIGHT + 0.1)
             {
+#if EIJIS_CALLSHOT
+                table._TriggerPocketBall(0, -1);
+#else
                 table._TriggerPocketBall(0, true);
+#endif
                 pocketedTime = Time.time;
                 table._Log("out of bounds! " + balls_P[0].ToString());
                 outOfBounds = true;
@@ -798,6 +872,19 @@ public class StandardPhysicsManager : UdonSharpBehaviour
                 }
             }
         }
+#if EIJIS_10BALL
+        else if (table.is10Ball) // 10
+        {
+            // Only check to 10 ball
+            for (int i = 1; i <= 10; i++)
+            {
+                if ((balls_P[0] - balls_P[i]).sqrMagnitude < k_BALL_DSQR)
+                {
+                    return true;
+                }
+            }
+        }
+#endif
 #if EIJIS_SNOOKER15REDS
         else if (table.isSnooker)
         {
@@ -1146,28 +1233,44 @@ public class StandardPhysicsManager : UdonSharpBehaviour
 
         if ((absA - k_vE).sqrMagnitude < k_INNER_RADIUS_CORNER_SQ)
         {
+#if EIJIS_CALLSHOT
+            table._TriggerPocketBall(id, (0 < balls_P[id].z ? (0 < balls_P[id].x ? 0 : 2) : (0 < balls_P[id].x ? 1 : 3)));
+#else
             table._TriggerPocketBall(id, false);
+#endif
             pocketedTime = Time.time;
             return;
         }
 
         if ((absA - k_vF).sqrMagnitude < k_INNER_RADIUS_SIDE_SQ)
         {
+#if EIJIS_CALLSHOT
+            table._TriggerPocketBall(id, 0 <= balls_P[id].z ? 4 : 5);
+#else
             table._TriggerPocketBall(id, false);
+#endif
             pocketedTime = Time.time;
             return;
         }
 
         if (absA.z > k_vF.z)
         {
+#if EIJIS_CALLSHOT
+            table._TriggerPocketBall(id, -1);
+#else
             table._TriggerPocketBall(id, true);
+#endif
             pocketedTime = Time.time;
             return;
         }
 
         if (absA.z > -absA.x + k_vE.x + k_vE.z)
         {
+#if EIJIS_CALLSHOT
+            table._TriggerPocketBall(id, -1);
+#else
             table._TriggerPocketBall(id, true);
+#endif
             pocketedTime = Time.time;
             return;
         }

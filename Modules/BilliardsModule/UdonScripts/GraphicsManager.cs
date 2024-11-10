@@ -1,8 +1,12 @@
-﻿#define EIJIS_MANY_BALLS
+#define EIJIS_MANY_BALLS
 #define EIJIS_SNOOKER15REDS
 #define EIJIS_PYRAMID
 #define EIJIS_CAROM
 #define EIJIS_CUSHION_EFFECT
+#define EIJIS_PUSHOUT
+#define EIJIS_CALLSHOT
+#define EIJIS_SEMIAUTOCALL
+#define EIJIS_10BALL
 
 // #define EIJIS_DEBUG_PIRAMIDSCORE
 
@@ -26,6 +30,17 @@ public class GraphicsManager : UdonSharpBehaviour
 #if EIJIS_CUSHION_EFFECT
 	[Header("Carom")]
 	[SerializeField] GameObject[] caromCushionTouch;
+#endif
+#if EIJIS_CALLSHOT
+	[Header("Pocket Billiard Call-shot")]
+	[SerializeField] Material calledPocketBlue;
+	[SerializeField] Material calledPocketOrange;
+	[SerializeField] Material calledPocketWhite;
+	[SerializeField] Material calledPocketGray;
+	[SerializeField] Material calledPocketSphereBlue;
+	[SerializeField] Material calledPocketSphereOrange;
+	[SerializeField] Material calledPocketSphereWhite;
+	[SerializeField] Material calledPocketSphereGray;
 #endif
 
 	[Header("Text")]
@@ -815,7 +830,14 @@ int uniform_cue_colour;
 	private void updateCues(uint idsrc)
 	{
 		if (table.is4Ball) updateFourBallCues();
+#if EIJIS_CALLSHOT
+		else if ((table.is9Ball || table.is10Ball) && table.requireCallShotLocal) updateEightBallCues(idsrc);
+#endif
+#if EIJIS_10BALL
+		else if (table.is9Ball || table.is10Ball) updateNineBallCues();
+#else
 		else if (table.is9Ball) updateNineBallCues();
+#endif
 		else if (table.is8Ball) updateEightBallCues(idsrc);
 
 		if (table.isPracticeMode)
@@ -857,7 +879,19 @@ int uniform_cue_colour;
 				tableSrcColour = pColour1;
 			}
 		}
+#if EIJIS_CALLSHOT
+#if EIJIS_10BALL
+		else if ((table.is9Ball || table.is10Ball) && !table.requireCallShotLocal)
+#else
+		else if (table.is9Ball && !table.requireCallShotLocal)
+#endif
+#else
+#if EIJIS_10BALL
+		else if (table.is9Ball || table.is10Ball)
+#else
 		else if (table.is9Ball)
+#endif
+#endif
 		{
 			tableSrcColour = pColour2;
 		}
@@ -950,6 +984,20 @@ int uniform_cue_colour;
 #endif
 				table.balls[i].SetActive(false);
 		}
+#if EIJIS_10BALL
+		else if (table.is10Ball)
+		{
+			for (int i = 0; i <= 10; i++)
+				table.balls[i].SetActive(true);
+
+#if EIJIS_MANY_BALLS
+			for (int i = 11; i < BilliardsModule.MAX_BALLS; i++)
+#else
+			for (int i = 11; i < 16; i++)
+#endif
+				table.balls[i].SetActive(false);
+		}
+#endif
 		else if (table.is4Ball)
 		{
 #if EIJIS_MANY_BALLS
@@ -1056,7 +1104,11 @@ int uniform_cue_colour;
 		}
 
 		_UpdateTableColorScheme();
+#if EIJIS_CALLSHOT
+		_UpdateTeamColor(table.teamIdLocal);
+#else
 		_UpdateTeamColor(0);
+#endif
 
 		if (table.is4Ball)
 		{
@@ -1095,16 +1147,37 @@ int uniform_cue_colour;
 
 	public void _UpdateTableColorScheme()
 	{
+#if EIJIS_10BALL
+		if (table.is9Ball || table.is10Ball)  // 9 Ball, 10 Ball / USA colours
+#else
 		if (table.is9Ball)  // 9 Ball / USA colours
+#endif
 		{
+#if EIJIS_CALLSHOT
+			if (table.requireCallShotLocal)
+			{
+				pColour0 = table.k_teamColour_spots;
+				pColour1 = table.k_teamColour_stripes;
+			}
+			else
+			{
+				pColour0 = table.k_colour_default;
+				pColour1 = table.k_colour_default;
+			}
+#else
 			pColour0 = table.k_colour_default;
 			pColour1 = table.k_colour_default;
+#endif
 			pColour2 = table.k_colour_default;
 
 			pColourErr = table.k_colour_foul;
 
 			// 9 ball only uses one colourset / cloth colour
+#if EIJIS_10BALL
+			ballMaterial.SetTexture("_MainTex", table.textureSets[table.is9Ball ? 1 : 0]);
+#else
 			ballMaterial.SetTexture("_MainTex", table.textureSets[1]);
+#endif
 		}
 		else if (table.is4Ball)
 		{
@@ -1137,8 +1210,8 @@ int uniform_cue_colour;
 			pColourErr = table.k_colour_foul;
 			pColour2 = table.k_colour_default;
 
-			pColour0 = table.k_snookerTeamColour_0;
-			pColour1 = table.k_snookerTeamColour_1;
+			pColour0 = table.k_colour_default;
+			pColour1 = table.k_colour_default;
 
 			ballMaterial.SetTexture("_MainTex", table.textureSets[3]);
 		}
@@ -1169,6 +1242,9 @@ int uniform_cue_colour;
 		scorecard_info.SetActive(false);
 		scorecard_gameobject.SetActive(false);
 		table.marker9ball.SetActive(false);
+#if EIJIS_CALLSHOT
+		table.markerCalledBall.SetActive(false);
+#endif
 		fourBallPoint.SetActive(false);
 #if EIJIS_CUSHION_EFFECT
 		for (int i = 0; i < caromCushionTouch.Length; i++)
@@ -1180,6 +1256,9 @@ int uniform_cue_colour;
 		blueScore.gameObject.SetActive(false);
 		snookerInstruction.gameObject.SetActive(false);
 		_HideTimers();
+#if EIJIS_CALLSHOT
+		_UpdatePointPocketMarker(0, false);
+#endif
 
 		winnerText.text = "";
 	}
@@ -1419,6 +1498,45 @@ int uniform_cue_colour;
 		}
 	}
 
+#if EIJIS_CALLSHOT
+	public void _UpdatePointPocketMarker(uint pointPockets, bool callShotLock)
+	{
+		for (int i = 0; i < table.pointPocketMarkers.Length; i++)
+		{
+			bool enable = (pointPockets & (0x1u << i)) != 0;
+			if (enable)
+			{
+				table.pointPocketMarkers[i].GetComponent<MeshRenderer>().material =
+					(callShotLock ? calledPocketGray:
+						(table.isTableOpenLocal ? calledPocketWhite :
+							(table.teamIdLocal ^ table.teamColorLocal) == 0 ? calledPocketBlue : calledPocketOrange));
+				table.pointPocketMarkerSphere[i].GetComponent<MeshRenderer>().material =
+					(callShotLock ? calledPocketSphereGray :
+						(table.isTableOpenLocal ? calledPocketSphereWhite :
+							(table.teamIdLocal ^ table.teamColorLocal) == 0 ? calledPocketSphereBlue : calledPocketSphereOrange));
+			}
+			table.pointPocketMarkers[i].SetActive(enable);
+		}
+
+		table.menuManager._StateChangeCallLockMenu(callShotLock);
+	}
+
+	public void _DisablePointPocketMarker()
+	{
+		for (int i = 0; i < table.pointPocketMarkers.Length; i++)
+		{
+			table.pointPocketMarkers[i].SetActive(false);
+		}
+	}
+	
+#endif
+#if EIJIS_PUSHOUT
+	public void _UpdatePushOut(byte pushOutState)
+	{
+		table.menuManager._StateChangePushOutMenu(pushOutState == table.PUSHOUT_DOING);
+	}
+
+#endif
 	public bool _IsUSColors()
 	{
 		return usColors;

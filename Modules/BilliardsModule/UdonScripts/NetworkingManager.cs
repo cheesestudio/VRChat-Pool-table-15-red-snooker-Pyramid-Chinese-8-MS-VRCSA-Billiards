@@ -1,8 +1,14 @@
 ﻿#define EIJIS_ISSUE_FIX
 #define EIJIS_MANY_BALLS
 #define EIJIS_SNOOKER15REDS
+#define EIJIS_PYRAMID
 #define EIJIS_CUEBALLSWAP
 #define EIJIS_CAROM
+#define EIJIS_GUIDELINE2TOGGLE
+#define EIJIS_PUSHOUT
+#define EIJIS_CALLSHOT
+#define EIJIS_SEMIAUTOCALL
+#define EIJIS_10BALL
 
 using System;
 using UdonSharp;
@@ -39,7 +45,16 @@ public class NetworkingManager : UdonSharpBehaviour
 
     // bitmask of pocketed balls
     [UdonSynced][NonSerialized] public uint ballsPocketedSynced;
-#if EIJIS_CUEBALLSWAP
+#if EIJIS_CALLSHOT
+    [UdonSynced] [NonSerialized] public uint targetPocketedSynced;
+    [UdonSynced] [NonSerialized] public uint otherPocketedSynced;
+    
+    // bitmask of called pockets
+    [UdonSynced] [NonSerialized] public uint pointPocketsSynced;
+#endif
+#if EIJIS_CUEBALLSWAP || EIJIS_CALLSHOT
+    
+    // bitmask of called balls
     [UdonSynced] [NonSerialized] public uint calledBallsSynced;
 #endif
 
@@ -88,10 +103,20 @@ public class NetworkingManager : UdonSharpBehaviour
 
     // whether or not the guideline will be shown
     [UdonSynced][NonSerialized] public bool noGuidelineSynced;
+#if EIJIS_GUIDELINE2TOGGLE
+    [UdonSynced][NonSerialized] public bool noGuideline2Synced;
+#endif
 
     // whether or not the cue can be locked
     [UdonSynced][NonSerialized] public bool noLockingSynced;
 
+#if EIJIS_CALLSHOT
+    [UdonSynced] [NonSerialized] public bool requireCallShotSynced;
+#if EIJIS_SEMIAUTOCALL
+    [UdonSynced] [NonSerialized] public bool semiAutoCallSynced;
+#endif
+#endif
+    
     // scores if game state is 2 or 3 (4ball)
     [UdonSynced][NonSerialized] public byte[] fourBallScoresSynced = new byte[2];
 
@@ -104,6 +129,14 @@ public class NetworkingManager : UdonSharpBehaviour
     // 6RedSnooker: currently a turn where a color should be pocketed // Also re-used in 8ball and 9ball to track if it's the break
     [UdonSynced][NonSerialized] public bool colorTurnSynced;
 
+#if EIJIS_PUSHOUT
+    [UdonSynced] [NonSerialized] public byte pushOutStateSynced;
+
+#endif
+#if EIJIS_CALLSHOT
+    [UdonSynced] [NonSerialized] public bool callShotLockSynced;
+    
+#endif
     [SerializeField] private PlayerSlot playerSlot;
     private BilliardsModule table;
 
@@ -247,7 +280,19 @@ public class NetworkingManager : UdonSharpBehaviour
         bufferMessages(true);
     }
 
+#if EIJIS_PUSHOUT || EIJIS_CALLSHOT
+    public void _OnSimulationEnded(Vector3[] ballsP, uint ballsPocketed
+#if EIJIS_CALLSHOT
+        , uint targetPocketed, uint otherPocketed
+#endif
+        , byte[] fbScores, bool colorTurnLocal
+#if EIJIS_PUSHOUT
+        , byte pushOutStateLocal
+#endif
+        )
+#else
     public void _OnSimulationEnded(Vector3[] ballsP, uint ballsPocketed, byte[] fbScores, bool colorTurnLocal)
+#endif
     {
 #if EIJIS_MANY_BALLS
         Array.Copy(ballsP, ballsPSynced, BilliardsModule.MAX_BALLS);
@@ -256,7 +301,14 @@ public class NetworkingManager : UdonSharpBehaviour
 #endif
         Array.Copy(fbScores, fourBallScoresSynced, 2);
         ballsPocketedSynced = ballsPocketed;
+#if EIJIS_CALLSHOT
+        targetPocketedSynced = targetPocketed;
+        otherPocketedSynced = otherPocketed;
+#endif
         colorTurnSynced = colorTurnLocal;
+#if EIJIS_PUSHOUT
+        pushOutStateSynced = pushOutStateLocal;
+#endif
 
         bufferMessages(false);
     }
@@ -278,8 +330,12 @@ public class NetworkingManager : UdonSharpBehaviour
         {
             fourBallCueBallSynced = 0;
         }
-#if EIJIS_CUEBALLSWAP
+#if EIJIS_CUEBALLSWAP || EIJIS_CALLSHOT
         calledBallsSynced = 0;
+#endif
+#if EIJIS_CALLSHOT
+        pointPocketsSynced = 0;
+        callShotLockSynced = false;
 #endif
 
         bufferMessages(false);
@@ -343,8 +399,12 @@ public class NetworkingManager : UdonSharpBehaviour
             }
         }
         swapFourBallCueBalls();
-#if EIJIS_CUEBALLSWAP
+#if EIJIS_CUEBALLSWAP || EIJIS_CALLSHOT
         calledBallsSynced = 0;
+#endif
+#if EIJIS_CALLSHOT
+        pointPocketsSynced = 0;
+        callShotLockSynced = false;
 #endif
 
         bufferMessages(false);
@@ -357,8 +417,12 @@ public class NetworkingManager : UdonSharpBehaviour
         turnStateSynced = 0;
         foulStateSynced = 0;
         timerStartSynced = Networking.GetServerTimeInMilliseconds();
-#if EIJIS_CUEBALLSWAP
+#if EIJIS_CUEBALLSWAP || EIJIS_CALLSHOT
         calledBallsSynced = 0;
+#endif
+#if EIJIS_CALLSHOT
+        pointPocketsSynced = 0;
+        callShotLockSynced = false;
 #endif
 
         bufferMessages(false);
@@ -447,7 +511,11 @@ public class NetworkingManager : UdonSharpBehaviour
         {
             foulStateSynced = 1;
         }
+#if EIJIS_10BALL
+        if (table.is8Ball || table.is9Ball || table.is10Ball)
+#else
         if (table.is8Ball || table.is9Ball)
+#endif
         {
             colorTurnSynced = true;// re-used to track if it's the break
         }
@@ -468,13 +536,37 @@ public class NetworkingManager : UdonSharpBehaviour
         Array.Copy(ballPositions, ballsPSynced, MAX_BALLS);
 #endif
         Array.Clear(fourBallScoresSynced, 0, 2);
-#if EIJIS_CUEBALLSWAP
+#if EIJIS_CALLSHOT
+#if EIJIS_10BALL
+        if (table.is8Ball || table.is9Ball || table.is10Ball)
+#else
+        if (table.is8Ball || table.is9Ball)
+#endif
+        {
+#if EIJIS_10BALL
+            isTableOpenSynced = !((table.is9Ball || table.is10Ball) && table.requireCallShotLocal);
+#else
+            isTableOpenSynced = !(table.is9Ball && table.requireCallShotLocal);
+#endif
+            targetPocketedSynced = 0;
+            otherPocketedSynced = 0;
+            teamColorSynced = (byte)(teamIdSynced ^ 0x1u);
+            calledBallsSynced = 0;
+        }
+        pointPocketsSynced = 0;
+#endif
+#if EIJIS_PYRAMID
         if (table.isPyramid)
         {
             isTableOpenSynced = false;
             teamColorSynced = (byte)(teamIdSynced ^ 0x1u);
+#if EIJIS_CUEBALLSWAP
             calledBallsSynced = 0;
+#endif
         }
+#endif
+#if EIJIS_PUSHOUT
+        pushOutStateSynced = table.PUSHOUT_BEFORE_BREAK;
 #endif
 
         bufferMessages(false);
@@ -540,10 +632,67 @@ public class NetworkingManager : UdonSharpBehaviour
 
         calledBallsSynced = calledBalls;
         
+#if EIJIS_CALLSHOT
+        if (table.isPyramid)
+        {
+            Vector3 temp = ballsPSynced[0];
+            ballsPSynced[0] = ballsPSynced[id];
+            ballsPSynced[id] = temp;
+        }
+#else
         Vector3 temp = ballsPSynced[0];
         ballsPSynced[0] = ballsPSynced[id];
         ballsPSynced[id] = temp;
+#endif
 
+        bufferMessages(false);
+    }
+    
+#endif
+#if EIJIS_CALLSHOT
+    public void _OnPocketChanged(bool pocketEnabled, uint pocket)
+    {
+        uint pocketBit = 0x1u << (int)pocket;
+        uint pointPockets = pointPocketsSynced;
+        if (pocketEnabled)
+        {
+            pointPockets = pocketBit;
+        }
+        else
+        {
+            pointPockets = 0;
+        }
+
+        pointPocketsSynced = pointPockets;
+        
+        bufferMessages(false);
+    }
+
+    public void _OnCallShotLockChanged(bool callShotLockEnabled)
+    {
+        callShotLockSynced = callShotLockEnabled;
+
+        bufferMessages(false);
+    }
+
+#endif
+#if EIJIS_PUSHOUT
+    public void _OnPushOutChanged(byte currentPushOutState)
+    {
+        pushOutStateSynced = (currentPushOutState == table.PUSHOUT_DONT) ? table.PUSHOUT_DOING : 
+            ((currentPushOutState == table.PUSHOUT_DOING) ? table.PUSHOUT_DONT : currentPushOutState);
+
+#if EIJIS_CUEBALLSWAP || EIJIS_CALLSHOT
+        if (pushOutStateSynced == table.PUSHOUT_DOING)
+        {
+            calledBallsSynced = 0;
+#if EIJIS_CALLSHOT
+            pointPocketsSynced = 0;
+            callShotLockSynced = false;
+#endif
+        }
+        
+#endif
         bufferMessages(false);
     }
     
@@ -573,6 +722,15 @@ public class NetworkingManager : UdonSharpBehaviour
         bufferMessages(false);
     }
 
+#if EIJIS_GUIDELINE2TOGGLE
+    public void _OnNoGuideline2Changed(bool noGuideline2Enabled)
+    {
+        noGuideline2Synced = noGuideline2Enabled;
+
+        bufferMessages(false);
+    }
+    
+#endif
     public void _OnNoLockingChanged(bool noLockingEnabled)
     {
         noLockingSynced = noLockingEnabled;
@@ -580,6 +738,24 @@ public class NetworkingManager : UdonSharpBehaviour
         bufferMessages(false);
     }
 
+#if EIJIS_CALLSHOT
+    public void _OnRequireCallShotChanged(bool callShotEnabled)
+    {
+        requireCallShotSynced = callShotEnabled;
+
+        bufferMessages(false);
+    }
+
+#if EIJIS_SEMIAUTOCALL
+    public void _OnSemiAutoCallChanged(bool semiAutoCallEnabled)
+    {
+        semiAutoCallSynced = semiAutoCallEnabled;
+
+        bufferMessages(false);
+    }
+
+#endif
+#endif
     public void _OnTimerChanged(byte newTimer)
     {
         timerSynced = newTimer;
@@ -670,6 +846,9 @@ public class NetworkingManager : UdonSharpBehaviour
         int stateIdLocal,
         Vector3[] newBallsP, uint ballsPocketed, byte[] newScores, uint gameMode, uint teamId, uint foulState, bool isTableOpen, uint teamColor, uint fourBallCueBall,
         byte turnStateLocal, Vector3 cueBallV, Vector3 cueBallW, bool colorTurn
+#if EIJIS_PUSHOUT
+        , byte pushOutState
+#endif
     )
     {
         stateIdSynced = (ushort)stateIdLocal;
@@ -692,6 +871,9 @@ public class NetworkingManager : UdonSharpBehaviour
         fourBallCueBallSynced = (byte)fourBallCueBall;
         timerStartSynced = Networking.GetServerTimeInMilliseconds();
         colorTurnSynced = colorTurn;
+#if EIJIS_PUSHOUT
+        pushOutStateSynced = pushOutState;
+#endif
 
         bufferMessages(true);
         // OnDeserialization(); // jank! force deserialization so the practice manager knows to ignore it
