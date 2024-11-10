@@ -3012,6 +3012,10 @@ public class BilliardsModule : UdonSharpBehaviour
 
     private void handle4BallHit(Vector3 loc, bool good)
     {
+#if EIJIS_ISSUE_FIX // 四つ球で的玉が場外してもポイントできる | player can point even if the target ball is fall out of the field in a 4ball. https://github.com/Sacchan-VRC/MS-VRCSA-Billiards/pull/9/commits/5fb055b98df3660f3f2dde2e8f8eb245d4f1cbac
+        if (fallOffFoul) return;
+        
+#endif
         if (good)
         {
             handle4BallHitGood(loc);
