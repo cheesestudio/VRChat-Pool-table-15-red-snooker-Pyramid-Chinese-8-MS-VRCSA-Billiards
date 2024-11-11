@@ -3,7 +3,11 @@
 #define EIJIS_SNOOKER15REDS
 #define EIJIS_PYRAMID
 #define EIJIS_CUEBALLSWAP
+#define EIJIS_CAROM
 #define EIJIS_CUSHION_EFFECT
+#define EIJIS_GUIDELINE2TOGGLE
+#define EIJIS_CALLSHOT
+#define EIJIS_10BALL
 
 // #define HT8B_DRAW_REGIONS
 using System;
@@ -226,10 +230,20 @@ public class AdvancedPhysicsManager : UdonSharpBehaviour
             }
             else
             {
-#if EIJIS_CUEBALLSWAP
+#if EIJIS_CUEBALLSWAP || EIJIS_CALLSHOT
                 if (!ReferenceEquals(null, Networking.LocalPlayer) && Networking.LocalPlayer.IsUserInVR())
                 {
+#if EIJIS_CALLSHOT
+#if EIJIS_10BALL
+                    if (table.isPyramid ||
+                        (table.requireCallShotLocal && (table.is8Ball || table.is9Ball || table.is10Ball)))
+#else
+                    if (table.isPyramid ||
+                            (table.requireCallShotLocal && (table.is8Ball || table.is9Ball /* || table.is10Ball */ )))
+#endif
+#else
                     if (table.isPyramid)
+#endif
                     {
                         bool hit = false;
                         for (int i = 1; i < balls_P.Length; i++)
@@ -246,6 +260,31 @@ public class AdvancedPhysicsManager : UdonSharpBehaviour
                             table._TriggerOtherBallHit(-1, false);
                         }
                     }
+#if EIJIS_CALLSHOT
+
+#if EIJIS_10BALL
+                    if (table.requireCallShotLocal &&(table.is8Ball || table.is9Ball || table.is10Ball))
+#else
+                    if (table.requireCallShotLocal &&(table.is8Ball || table.is9Ball /* || table.is10Ball */ ))
+#endif
+                    {
+                        bool hit = false;
+                        for (int i = 0; i < table.pocketLocations.Length; i++)
+                        {
+                            // k_INNER_RADIUS = 0.072
+                            if ((lpos2 - table.pocketLocations[i]).sqrMagnitude < 0.004f) // 0.016f
+                            {
+                                table._TriggerPocketHit(i, false);
+                                hit = true;
+                                break;
+                            }
+                        }
+                        if (!hit)
+                        {
+                            table._TriggerPocketHit(-1, false);
+                        }
+                    }
+#endif
                 }
 
 #endif
@@ -258,7 +297,11 @@ public class AdvancedPhysicsManager : UdonSharpBehaviour
                     {
                         table.guideline.SetActive(true);
                         table.devhit.SetActive(true);
+#if EIJIS_GUIDELINE2TOGGLE        
+                        if (!table.noGuideline2Local)
+#else
                         if (table.isPracticeMode)
+#endif
                             table.guideline2.SetActive(true);
                         else
                             table.guideline2.SetActive(false);
@@ -501,7 +544,11 @@ public class AdvancedPhysicsManager : UdonSharpBehaviour
                             {
                                 // ball came to rest on top of the rail
                                 table._TriggerBallFallOffFoul();
+#if EIJIS_CALLSHOT
+                                table._TriggerPocketBall(i, -1);
+#else
                                 table._TriggerPocketBall(i, true);
+#endif
                             }
                         }
                     }
@@ -1760,6 +1807,11 @@ public class AdvancedPhysicsManager : UdonSharpBehaviour
                 case 1: // 9ball
                     k_RAIL_HEIGHT_LOWER = k_BALL_DIAMETRE * 0.635f;
                     break;
+#if EIJIS_10BALL
+                case 10: // 10ball
+                    k_RAIL_HEIGHT_LOWER = k_BALL_DIAMETRE * 0.635f;
+                    break;
+#endif
                 case 2: // jp4b
                     k_RAIL_HEIGHT_LOWER = k_BALL_DIAMETRE * 0.6504065040650407f;
                     break;
@@ -1772,6 +1824,14 @@ public class AdvancedPhysicsManager : UdonSharpBehaviour
 #endif
                     k_RAIL_HEIGHT_LOWER = k_BALL_DIAMETRE * 0.7f;
                     break;
+#if EIJIS_CAROM
+                case BilliardsModule.GAMEMODE_3CUSHION:
+                case BilliardsModule.GAMEMODE_2CUSHION:
+                case BilliardsModule.GAMEMODE_1CUSHION:
+                case BilliardsModule.GAMEMODE_0CUSHION:
+                    k_RAIL_HEIGHT_LOWER = k_BALL_DIAMETRE * 0.68f;
+                    break;
+#endif
 #if EIJIS_ISSUE_FIX
                 default:
                     k_RAIL_HEIGHT_LOWER = k_BALL_DIAMETRE * 0.635f;
@@ -1830,6 +1890,19 @@ public class AdvancedPhysicsManager : UdonSharpBehaviour
                 }
             }
         }
+#if EIJIS_10BALL
+        else if (table.is10Ball) // 10
+        {
+            // Only check to 10 ball
+            for (int i = 1; i <= 10; i++)
+            {
+                if ((balls_P[0] - balls_P[i]).sqrMagnitude < k_BALL_DSQR)
+                {
+                    return true;
+                }
+            }
+        }
+#endif
 #if EIJIS_SNOOKER15REDS
         else if (table.isSnooker)
         {
@@ -2599,7 +2672,11 @@ public class AdvancedPhysicsManager : UdonSharpBehaviour
                 inPocketBounds = true;
                 if (A.y < -k_BALL_RADIUS)
                 {
+#if EIJIS_CALLSHOT
+                    table._TriggerPocketBall(id, (0 < balls_P[id].z ? (0 < balls_P[id].x ? 0 : 2) : (0 < balls_P[id].x ? 1 : 3)));
+#else
                     table._TriggerPocketBall(id, false);
+#endif
                     pocketedTime = Time.time;
                     return true;
                 }
@@ -2625,7 +2702,11 @@ public class AdvancedPhysicsManager : UdonSharpBehaviour
                 inPocketBounds = true;
                 if (A.y < -k_BALL_RADIUS)
                 {
+#if EIJIS_CALLSHOT
+                    table._TriggerPocketBall(id, 0 <= balls_P[id].z ? 4 : 5);
+#else
                     table._TriggerPocketBall(id, false);
+#endif
                     pocketedTime = Time.time;
                     return true;
                 }
@@ -2650,7 +2731,11 @@ public class AdvancedPhysicsManager : UdonSharpBehaviour
         if (absA.z > tableEdge.y)
         {
             table._TriggerBallFallOffFoul();
+#if EIJIS_CALLSHOT
+            table._TriggerPocketBall(id, -1);
+#else
             table._TriggerPocketBall(id, true);
+#endif
             pocketedTime = Time.time;
             return true;
         }
@@ -2658,7 +2743,11 @@ public class AdvancedPhysicsManager : UdonSharpBehaviour
         if (absA.x > tableEdge.x)
         {
             table._TriggerBallFallOffFoul();
+#if EIJIS_CALLSHOT
+            table._TriggerPocketBall(id, -1);
+#else
             table._TriggerPocketBall(id, true);
+#endif
             pocketedTime = Time.time;
             return true;
         }

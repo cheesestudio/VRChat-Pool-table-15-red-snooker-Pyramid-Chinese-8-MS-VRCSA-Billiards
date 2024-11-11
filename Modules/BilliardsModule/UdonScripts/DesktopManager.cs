@@ -1,6 +1,9 @@
 ﻿#define EIJIS_ISSUE_FIX
 #define EIJIS_PYRAMID
 #define EIJIS_CUEBALLSWAP
+#define EIJIS_PUSHOUT
+#define EIJIS_CALLSHOT
+#define EIJIS_10BALL
 
 // #define EIJIS_DEBUG_BALLORDER
 
@@ -28,6 +31,16 @@ public class DesktopManager : UdonSharpBehaviour
     [SerializeField] private GameObject jumpIndicator;
     [SerializeField] private GameObject powerIndicator;
     [SerializeField] private GameObject pressE;
+#if EIJIS_CUEBALLSWAP
+    [SerializeField] private GameObject callCueBall;
+#endif
+#if EIJIS_CALLSHOT
+    [SerializeField] private GameObject callShot;
+#endif
+#if EIJIS_PUSHOUT
+    [SerializeField] private GameObject pushOut;
+    [SerializeField] private GameObject pushOutDoing;
+#endif
 
     private BilliardsModule table;
 
@@ -272,15 +285,26 @@ public class DesktopManager : UdonSharpBehaviour
                 renderCuePosition(shotDirection);
                 updateSpinIndicator();
                 updateJumpIndicator();
+#if EIJIS_PUSHOUT
+#if EIJIS_CUEBALLSWAP || EIJIS_CALLSHOT
+                updateCallShotIndicator();
+#endif
+                updatePushOutIndicator();
+#else
 #if EIJIS_CUEBALLSWAP
                 if(gameModeLocal==BilliardsModule.GAMEMODE_PYRAMID)     //cheese add
                      updateCallShotIndicator();
+#endif
 #endif
             }
         }
 
         cursorIndicator.transform.localPosition = cursor * (1 / table.tableModels[table.tableModelLocal].DesktopUIScaleFactor);
         powerIndicator.transform.localScale = new Vector3(1.0f - (power * 2.0f), 1.0f, 1.0f);
+#if EIJIS_PUSHOUT
+        
+        pushOutDoing.SetActive(table.pushOutStateLocal == table.PUSHOUT_DOING);
+#endif
 
         bool hitCtrlNow = Input.GetKeyDown(KeyCode.LeftControl) || Input.GetKeyDown(KeyCode.RightControl);
         bool hitCtrl = Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
@@ -340,7 +364,7 @@ public class DesktopManager : UdonSharpBehaviour
         jumpIndicator.transform.localPosition = new Vector3(-Mathf.Cos(jumpAngle) * 1.1f, 0, Mathf.Sin(jumpAngle) * 1.1f);
     }
 
-#if EIJIS_CUEBALLSWAP
+#if EIJIS_CUEBALLSWAP || EIJIS_CALLSHOT
     private int nextBallOrder(bool asc)
     {
 #if EIJIS_DEBUG_BALLORDER
@@ -361,6 +385,7 @@ public class DesktopManager : UdonSharpBehaviour
 #endif
 
         uint ballsPocketed = table.ballsPocketedLocal;
+        int beforeId = id;
         float before_x = table.ballsP[id].x;
         float before_z = table.ballsP[id].z;
         float nearest_x = asc ? float.MaxValue : float.MinValue;
@@ -368,9 +393,13 @@ public class DesktopManager : UdonSharpBehaviour
         int farestId = 0;
         float farest_x = asc ? float.MaxValue : float.MinValue;
         float farest_z = asc ? float.MaxValue : float.MinValue;
+#if EIJIS_CALLSHOT
+        for (int i = (table.isPyramid ? 0 : 1); i <= table.ballsLengthByPocketGame; i++)
+#else
         for (int i = 0; i < BilliardsModule.MAX_BALLS; i++)
+#endif
         {
-            if (i == id)
+            if (i == beforeId)
             {
                 continue;
             }
@@ -380,46 +409,70 @@ public class DesktopManager : UdonSharpBehaviour
                 continue;
             }
 
+#if EIJIS_DEBUG_BALLORDER
+            table._LogInfo($"  current checking ball id = {i}");
+#endif
             float current_x = table.ballsP[i].x;
             float current_z = table.ballsP[i].z;
 #if EIJIS_DEBUG_BALLORDER
-            // table._LogInfo($"  before_x = {before_x}, current_x = {current_x}");
+            table._LogInfo($"  before_x = {before_x}, current_x = {current_x}");
 #endif
-            if ((asc && before_x < current_x) || (!asc && before_x > current_x))
+            if (before_x == current_x)
             {
-                if ((asc && current_x < nearest_x) || (!asc && current_x > nearest_x))
-                {
-                    nearest_x = current_x;
-                    id = i;
 #if EIJIS_DEBUG_BALLORDER
-                    // table._LogInfo($"  found ball by x id = {id}");
+                // table._LogInfo($"  nearest_z = {nearest_z}, before_z = {before_z}, current_z = {current_z} *");
 #endif
-                }
-                else if (current_x == nearest_x)
+                if ((asc && current_z < before_z) || (!asc && current_z > before_z))
                 {
-#if EIJIS_DEBUG_BALLORDER
-                    // table._LogInfo($"  before_z = {before_z}, current_z = {current_z}");
-#endif
-                    if ((asc && before_z < current_z) || (!asc && before_z > current_z))
+                    if ((asc && (current_x < nearest_x || (nearest_x == current_x && nearest_z < current_z))) || (!asc && (current_x > nearest_x || (nearest_x == current_x && nearest_z > current_z))))
                     {
-                        if ((asc && current_z < nearest_z) || (!asc && current_z > nearest_z))
+                        nearest_x = current_x;
+                        nearest_z = current_z;
+                        id = i;
+#if EIJIS_DEBUG_BALLORDER
+                        // table._LogInfo($"  found ball by z id = {id} *");
+#endif
+                    }
+                }
+            }
+            else
+            {
+                if ((asc && before_x < current_x) || (!asc && before_x > current_x))
+                {
+                    if ((asc && current_x < nearest_x) || (!asc && current_x > nearest_x))
+                    {
+                        nearest_x = current_x;
+                        nearest_z = current_z;
+                        id = i;
+#if EIJIS_DEBUG_BALLORDER
+                        // table._LogInfo($"  found ball by x id = {id}");
+#endif
+                    }
+                    else if (current_x == nearest_x)
+                    {
+#if EIJIS_DEBUG_BALLORDER
+                        // table._LogInfo($"  nearest_z = {nearest_z}, before_z = {before_z}, current_z = {current_z} **");
+#endif
+                        if ((asc && nearest_z < current_z) || (!asc && nearest_z > current_z))
                         {
+                            nearest_x = current_x;
                             nearest_z = current_z;
                             id = i;
 #if EIJIS_DEBUG_BALLORDER
-                            // table._LogInfo($"  found ball by z id = {id}");
+                            // table._LogInfo($"  found ball by z id = {id} **");
 #endif
                         }
                     }
                 }
             }
-            
+
 #if EIJIS_DEBUG_BALLORDER
             table._LogInfo($"  farest_x = {farest_x}, current_x = {current_x}");
 #endif
             if ((!asc && farest_x < current_x) || (asc && farest_x > current_x))
             {
                 farest_x = current_x;
+                farest_z = current_z;
                 farestId = i;
 #if EIJIS_DEBUG_BALLORDER
                 table._LogInfo($"  found ball by x farestId = {farestId}");
@@ -430,7 +483,7 @@ public class DesktopManager : UdonSharpBehaviour
 #if EIJIS_DEBUG_BALLORDER
                 table._LogInfo($"  farest_z = {farest_z}, current_z = {current_z}");
 #endif
-                if ((!asc && farest_z < current_z) || (asc && farest_z > current_z))
+                if ((!asc && current_z < farest_z) || (asc && current_z > farest_z))
                 {
                     farest_z = current_z;
                     farestId = i;
@@ -442,7 +495,7 @@ public class DesktopManager : UdonSharpBehaviour
         }
 
 #if EIJIS_DEBUG_BALLORDER
-        table._LogInfo($"  nearest_x = {nearest_x}");
+        // table._LogInfo($"  nearest_x = {nearest_x}");
         table._LogInfo($"  reverse side farestId = {farestId}");
 #endif
         if (nearest_x == float.MaxValue || nearest_x == float.MinValue)
@@ -453,15 +506,86 @@ public class DesktopManager : UdonSharpBehaviour
         return id;
     }
     
+#endif
+#if EIJIS_CALLSHOT
+    private int[] pocketOrder = new[] { 0, 1, 5, 3, 2, 4 };
+
+    private int nextPocketOrder(bool asc)
+    {
+        uint pockets = table.pointPocketsLocal;
+        int pocketCount = table.pocketLocations.Length;
+        int id = (asc ? 0 : pocketOrder[pocketOrder.Length - 1]);
+        for (int i = 0; i < pocketCount; i++)
+        {
+            if (((pockets >> i) & 0x1u) != 0)
+            {
+                int current = Array.IndexOf(pocketOrder, i);
+                int next = current + (asc ? 1 : -1);
+                if (next < 0 || pocketCount <= next)
+                {
+                    id = i;
+                    break;
+                }
+
+                id = pocketOrder[next];
+                break;
+            }
+        }
+
+        return id;
+    }
+
+#endif
+#if EIJIS_CUEBALLSWAP || EIJIS_CALLSHOT
     private void updateCallShotIndicator()
     {
+#if EIJIS_CALLSHOT
+#if EIJIS_10BALL
+        if ((!table.isPyramid && (!table.requireCallShotLocal || (!table.is8Ball && !table.is9Ball && !table.is10Ball))) || (!callCueBall.activeSelf && !callShot.activeSelf && !pushOut.activeSelf)) return;
+#else
+        if ((!table.isPyramid && (!table.requireCallShotLocal || (!table.is8Ball && !table.is9Ball))) || (!callCueBall.activeSelf && !callShot.activeSelf && !pushOut.activeSelf)) return;
+#endif
+#else
+#if EIJIS_PUSHOUT
+        if (!table.isPyramid || !callCueBall.activeSelf) return;
+#else
+        if (!table.isPyramid) return;
+#endif
+#endif
+        
         if (Input.GetKeyDown(KeyCode.B) )
         {
             int id = nextBallOrder(!(Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)));
             table._TriggerOtherBallHit(id, true);
         }
+#if EIJIS_CALLSHOT
+
+        if (table.isPyramid) return;
+        
+        if (Input.GetKeyDown(KeyCode.P))
+        { 
+            int id = nextPocketOrder(!(Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)));
+            table._TriggerPocketHit(id, true);
+        }
+#endif
     }
 
+#endif
+#if EIJIS_PUSHOUT
+    private void updatePushOutIndicator()
+    {
+#if EIJIS_10BALL
+        if ((!table.is8Ball && !table.is9Ball && !table.is10Ball) || !pushOut.activeSelf) return;
+#else
+        if ((!table.is8Ball && !table.is9Ball) || !pushOut.activeSelf) return;
+#endif
+        
+        if (Input.GetKeyDown(KeyCode.O))
+        { 
+            table._PushOut();
+        }
+    }
+    
 #endif
     private void renderCuePosition(Vector3 dir)
     {
@@ -571,4 +695,25 @@ public class DesktopManager : UdonSharpBehaviour
     {
         return canShoot;
     }
+#if EIJIS_PUSHOUT
+#if EIJIS_CUEBALLSWAP
+    
+    public void _CallCueBallSetActive(bool show)
+    {
+        callCueBall.SetActive(show);
+    }
+#endif
+    
+    public void _PushOutSetActive(bool show)
+    {
+        pushOut.SetActive(show);
+    }
+#endif
+#if EIJIS_CALLSHOT
+    
+    public void _CallShotSetActive(bool show)
+    {
+        callShot.SetActive(show);
+    }
+#endif
 }

@@ -1,6 +1,11 @@
 ﻿#define EIJIS_SNOOKER15REDS
 #define EIJIS_PYRAMID
 #define EIJIS_CAROM
+#define EIJIS_GUIDELINE2TOGGLE
+#define EIJIS_PUSHOUT
+#define EIJIS_CALLSHOT
+#define EIJIS_SEMIAUTOCALL
+#define EIJIS_10BALL
 
 using System;
 using UdonSharp;
@@ -22,6 +27,16 @@ public class MenuManager : UdonSharpBehaviour
     [SerializeField] private GameObject menuUndo;
     [SerializeField] private GameObject buttonSkipTurn;
     [SerializeField] private GameObject buttonSnookerUndo;
+#if EIJIS_PUSHOUT
+    [SerializeField] private GameObject buttonPushOut;
+    [SerializeField] private Color buttonPushOutOnColor;
+    private Color buttonPushOutOffColor;
+#endif
+#if EIJIS_CALLSHOT
+    [SerializeField] private GameObject buttonCallLock;
+    [SerializeField] private Color buttonCallLockOnColor;
+    private Color buttonCallLockOffColor;
+#endif
     [SerializeField] private TextMeshProUGUI[] lobbyNames;
 
     [SerializeField] private TextMeshProUGUI gameModeDisplay;
@@ -57,6 +72,12 @@ public class MenuManager : UdonSharpBehaviour
 #if EIJIS_CAROM
             selectedTable = (uint)table.tableModelLocal;
 #endif
+#if EIJIS_PUSHOUT
+            buttonPushOutOffColor = buttonPushOut.GetComponent<Image>().color;
+#endif
+#if EIJIS_CALLSHOT
+            buttonCallLockOffColor = buttonCallLock.GetComponent<Image>().color;
+#endif
         }
 
         _RefreshTimer();
@@ -71,6 +92,12 @@ public class MenuManager : UdonSharpBehaviour
         _DisableLoadMenu();
         _DisableSnookerUndoMenu();
         _DisableUndoMenu();
+#if EIJIS_PUSHOUT
+        _DisablePushOutMenu();
+#endif
+#if EIJIS_CALLSHOT
+        _DisableCallLockMenu();
+#endif
         _EnableStartMenu();
 
         cueSizeText.text = (cueSizeSlider.value / 10f).ToString("F1");
@@ -204,6 +231,14 @@ public class MenuManager : UdonSharpBehaviour
                 table.setTransform(selectionPoint, selection, true);
                 break;
 #endif
+#if EIJIS_10BALL
+            case BilliardsModule.GAMEMODE_10BALL:
+                modeName = table._translations.Get("10 Ball");
+                //modeName = "10 Ball";
+                selectionPoint = table.transform.Find("intl.menu/MenuAnchor/LobbyMenu/GameMode/SelectionPoints/10ball");
+                table.setTransform(selectionPoint, selection, true);
+                break;
+#endif
         }
         gameModeDisplay.text = modeName;
     }
@@ -221,7 +256,18 @@ public class MenuManager : UdonSharpBehaviour
     {
         TeamsToggle_button.SetIsOnWithoutNotify(table.teamsLocal);
         GuidelineToggle_button.SetIsOnWithoutNotify(!table.noGuidelineLocal);
+#if EIJIS_GUIDELINE2TOGGLE
+        Guideline2Toggle_button.gameObject.SetActive(!table.noGuidelineLocal);
+        Guideline2Toggle_button.SetIsOnWithoutNotify(!table.noGuideline2Local);
+#endif
         LockingToggle_button.SetIsOnWithoutNotify(!table.noLockingLocal);
+#if EIJIS_CALLSHOT
+        RequireCallShotToggle_button.SetIsOnWithoutNotify(table.requireCallShotLocal);
+#if EIJIS_SEMIAUTOCALL
+        SemiAutoCallToggle_button.gameObject.SetActive(table.requireCallShotLocal);
+        SemiAutoCallToggle_button.SetIsOnWithoutNotify(table.semiAutoCallLocal);
+#endif
+#endif
     }
 
     public void _RefreshLobby()
@@ -358,6 +404,12 @@ public class MenuManager : UdonSharpBehaviour
     {
         table._TriggerGameModeChanged(1);
     }
+#if EIJIS_10BALL
+    public void Mode10Ball()
+    {
+        table._TriggerGameModeChanged(BilliardsModule.GAMEMODE_10BALL);
+    }
+#endif
     public void Mode4Ball()
     {
         table._TriggerGameModeChanged(2);
@@ -404,11 +456,32 @@ public class MenuManager : UdonSharpBehaviour
     {
         table._TriggerNoGuidelineChanged(!GuidelineToggle_button.isOn);
     }
+#if EIJIS_GUIDELINE2TOGGLE
+    [SerializeField] private Toggle Guideline2Toggle_button;
+    public void Guideline2Toggle()
+    {
+        table._TriggerNoGuideline2Changed(!Guideline2Toggle_button.isOn);
+    }
+#endif
     [SerializeField] private Toggle LockingToggle_button;
     public void LockingToggle()
     {
         table._TriggerNoLockingChanged(!LockingToggle_button.isOn);
     }
+#if EIJIS_CALLSHOT
+    [SerializeField] private Toggle RequireCallShotToggle_button;
+    public void RequireCallShotToggle()
+    {
+        table._TriggerRequireCallShotChanged(RequireCallShotToggle_button.isOn);
+    }
+#if EIJIS_SEMIAUTOCALL
+    [SerializeField] private Toggle SemiAutoCallToggle_button;
+    public void SemiAutoCallToggle()
+    {
+        table._TriggerSemiAutoCallChanged(SemiAutoCallToggle_button.isOn);
+    }
+#endif
+#endif
     public void TimeRight()
     {
         if (selectedTimer > 0)
@@ -518,6 +591,12 @@ public class MenuManager : UdonSharpBehaviour
             {
                 table._TriggerGameModeChanged(1);
             }
+#if EIJIS_10BALL
+            else if (button.name == "10Ball")
+            {
+                table._TriggerGameModeChanged(BilliardsModule.GAMEMODE_10BALL);
+            }
+#endif
             else if (button.name == "4Ball" || button.name == "4BallJP")
             {
                 table._TriggerGameModeChanged(2);
@@ -562,10 +641,28 @@ public class MenuManager : UdonSharpBehaviour
             {
                 table._TriggerNoGuidelineChanged(!button.toggleState);
             }
+#if EIJIS_GUIDELINE2TOGGLE
+            else if (button.name == "Guideline2Toggle")
+            {
+                table._TriggerNoGuideline2Changed(!button.toggleState);
+            }
+#endif
             else if (button.name == "LockingToggle")
             {
                 table._TriggerNoLockingChanged(!button.toggleState);
             }
+#if EIJIS_CALLSHOT
+            else if (button.name == "RequireCallShotToggle")
+            {
+                table._TriggerRequireCallShotChanged(button.toggleState);
+            }
+#if EIJIS_SEMIAUTOCALL
+            else if (button.name == "SemiAutoCallToggle")
+            {
+                table._TriggerSemiAutoCallChanged(button.toggleState);
+            }
+#endif
+#endif
             else if (button.name == "TimeRight")
             {
                 if (selectedTimer > 0)
@@ -713,4 +810,38 @@ public class MenuManager : UdonSharpBehaviour
     {
         menuJoinLeave.SetActive(false);
     }
+#if EIJIS_PUSHOUT
+    
+    public void _EnablePushOutMenu()
+    {
+        buttonPushOut.SetActive(true);
+    }
+
+    public void _DisablePushOutMenu()
+    {
+        buttonPushOut.SetActive(false);
+    }
+    
+    public void _StateChangePushOutMenu(bool state)
+    {
+        buttonPushOut.GetComponent<Image>().color = state ? buttonPushOutOnColor : buttonPushOutOffColor;
+    }
+#endif
+#if EIJIS_CALLSHOT
+    
+    public void _EnableCallLockMenu()
+    {
+        buttonCallLock.SetActive(true);
+    }
+
+    public void _DisableCallLockMenu()
+    {
+        buttonCallLock.SetActive(false);
+    }
+
+    public void _StateChangeCallLockMenu(bool state)
+    {
+        buttonCallLock.GetComponent<Image>().color = state ? buttonCallLockOnColor : buttonCallLockOffColor;
+    }
+#endif
 }
