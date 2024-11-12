@@ -859,6 +859,10 @@ public class NetworkingManager : UdonSharpBehaviour
         Array.Copy(newBallsP, ballsPSynced, MAX_BALLS);
 #endif
         ballsPocketedSynced = ballsPocketed;
+#if EIJIS_CALLSHOT
+        targetPocketedSynced = 0;
+        otherPocketedSynced = 0;
+#endif
         Array.Copy(newScores, fourBallScoresSynced, 2);
         gameModeSynced = (byte)gameMode;
         teamIdSynced = (byte)teamId;
@@ -1128,6 +1132,10 @@ public class NetworkingManager : UdonSharpBehaviour
             ballsPocketedSynced = spec;
 #endif 
         }
+#if EIJIS_CALLSHOT
+        targetPocketedSynced = 0;
+        otherPocketedSynced = 0;
+#endif
 
         bufferMessages(true);
     }
@@ -1153,6 +1161,10 @@ public class NetworkingManager : UdonSharpBehaviour
 #else
         ballsPocketedSynced = decodeU16(gameState, 0x6C);
 #endif 
+#if EIJIS_CALLSHOT
+        targetPocketedSynced = 0;
+        otherPocketedSynced = 0;
+#endif
         teamIdSynced = gameState[0x6E];
         foulStateSynced = gameState[0x6F];
         isTableOpenSynced = gameState[0x70] != 0;
@@ -1215,6 +1227,10 @@ public class NetworkingManager : UdonSharpBehaviour
         ballsPocketedSynced = decode32(gameState, encodePos);
         encodePos += 4;
  #endif 
+#if EIJIS_CALLSHOT
+        targetPocketedSynced = 0;
+        otherPocketedSynced = 0;
+#endif
         teamIdSynced = gameState[encodePos];
         encodePos += 1;
         foulStateSynced = gameState[encodePos];
@@ -1266,6 +1282,10 @@ public class NetworkingManager : UdonSharpBehaviour
 
         ballsPocketedSynced = decode32(gameState, encodePos);
         encodePos += 4;
+#if EIJIS_CALLSHOT
+        targetPocketedSynced = 0;
+        otherPocketedSynced = 0;
+#endif
         teamIdSynced = gameState[encodePos];
         encodePos += 1;
         foulStateSynced = gameState[encodePos];
