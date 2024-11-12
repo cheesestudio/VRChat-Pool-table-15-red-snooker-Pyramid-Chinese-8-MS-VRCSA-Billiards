@@ -75,6 +75,8 @@ game reset       _GameReset
     [HideInInspector][UdonSynced] public byte State;
     [HideInInspector][UdonSynced] public bool MessagesState = false;
 
+    [HideInInspector][UdonSynced] public string Date = "";
+
     // 游戏开始时玩家ID(废弃)
     //[HideInInspector][UdonSynced] public string PlayerAStart;
     //[HideInInspector][UdonSynced] public string PlayerBStart;

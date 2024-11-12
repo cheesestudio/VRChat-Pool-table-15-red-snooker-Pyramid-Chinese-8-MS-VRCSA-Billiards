@@ -40,7 +40,7 @@ public class RankingSystem : UdonSharpBehaviour
 	[HideInInspector] public string scoreDebugB = "";
 	public void DebugUpload()
     {
-        UpdateCopyData("testa", "testb", scoreDebugA, scoreDebugB,0);
+        UpdateCopyData("testa", "testb", scoreDebugA, scoreDebugB,0, DateTime.UtcNow.ToString("yyyy/MM/dd HH:mm:ss"));
 	}
 #endif
 
@@ -49,7 +49,13 @@ public class RankingSystem : UdonSharpBehaviour
         _scoreManager = scoreManager;
     }
 
-    public void UpdateCopyData(string player1, string player2,string score1,string score2,uint ballMode)
+    public void ClearURL()
+    {
+		copyField.text = "null";
+		errorText.text = "";
+	}
+
+    public void UpdateCopyData(string player1, string player2,string score1,string score2,uint ballMode, string Date)
     {
         Player1 = player1;
         Player2 = player2;
@@ -66,8 +72,8 @@ public class RankingSystem : UdonSharpBehaviour
         {
             var modeString = mapModeName(ballMode);
 			// 新API
-			string hash = UdonHashLib.MD5_UTF8(player1 + player2 + score1 + score2 + modeString + WorldGUID + DateTime.UtcNow.ToString("yyyy/MM/dd HH:mm:ss") + hashKey);
-			copyField.text = $"{ScoreUploadBaseURL}?Player1={player1}&Player2={player2}&PlayerScore1={score1}&PlayerScore2={score2}&mode={modeString}&WorldGUID={WorldGUID}&time={DateTime.UtcNow.ToString()}&MD5={hash}";
+			string hash = UdonHashLib.MD5_UTF8(player1 + player2 + score1 + score2 + modeString + WorldGUID + Date + hashKey);
+			copyField.text = $"{ScoreUploadBaseURL}?Player1={player1}&Player2={player2}&PlayerScore1={score1}&PlayerScore2={score2}&mode={modeString}&WorldGUID={WorldGUID}&time={Date}&MD5={hash}";
 		}
         else
         {
@@ -102,6 +108,7 @@ public class RankingSystem : UdonSharpBehaviour
         copyField.text = "Starting";
         errorText.text = "loading";
     }
+
     public override void OnStringLoadSuccess(IVRCStringDownload result)
     {
         copyField.text = "Finished";
@@ -126,7 +133,6 @@ public class RankingSystem : UdonSharpBehaviour
         }
     }
 
-
     public override void OnDeserialization()
     {
         errorText.text = errorString;
@@ -134,8 +140,7 @@ public class RankingSystem : UdonSharpBehaviour
 
     void Start()
     {
-        //UpdateCopyData("测试3", "urara․", "0", "720");
-        //TryToUploadNote();
+
     }
 
     // 找台球名称（如果有的话）

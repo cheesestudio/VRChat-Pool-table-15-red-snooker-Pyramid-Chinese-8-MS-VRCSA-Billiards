@@ -92,10 +92,11 @@ namespace DrBlackRat
             DataList scores = _eloDownload._eloData.GetValues();
             for (int i = 0; i < _eloDownload._eloData.Count; i++)
             {
-                // 转码，去除小数点，格式化，替换空格 \u0020 到 \u00A0 
-                leaderBoardString += 
+                var nameTmp = names[i].ToString().Replace(" ", " ");
+				// 转码，去除小数点，格式化，替换空格 \u0020 到 \u00A0 ,裁剪长度
+				leaderBoardString += 
                     (i+1).ToString()+"."
-                    + names[i].ToString().Replace(" ", " ")
+                    + (nameTmp.Length > 10 ? nameTmp.Substring(0, 10) : nameTmp)
                     + " "
                     + ((int)float.Parse(scores[i].ToString())).ToString() 
                     + "\n";
