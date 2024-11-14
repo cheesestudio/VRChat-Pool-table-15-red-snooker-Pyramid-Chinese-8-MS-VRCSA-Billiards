@@ -702,7 +702,7 @@ MonoBehaviour:
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_wordSpacing: 0
-  m_lineSpacing: 15.42
+  m_lineSpacing: 14.79
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
@@ -3161,7 +3161,7 @@ PrefabInstance:
     - target: {fileID: 6455522278218920963, guid: f3e952e801ce63d4fba5cf2b4b4a5688,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 400
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6455522278218920963, guid: f3e952e801ce63d4fba5cf2b4b4a5688,
         type: 3}
