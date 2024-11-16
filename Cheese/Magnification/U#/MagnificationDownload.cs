@@ -55,12 +55,12 @@ public class MagnificationDownload : UdonSharpBehaviour
 				_Magnification = json1.DataDictionary;
 			}
 		}
-		SendCustomEventDelayedSeconds("_AutoReload", 60);
 	}
 
 	//字符串下载失败回调
 	public override void OnStringLoadError(IVRCStringDownload result)
 	{
+		isLoading = false;
 		SendCustomEventDelayedSeconds("_AutoReload", 60);
 	}
 
