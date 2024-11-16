@@ -21,6 +21,7 @@
 // #define EIJIS_DEBUG_AFTERBREAK
 // #define EIJIS_DEBUG_CALLSHOT_BALL
 #define EIJIS_DEBUG_BREAKINGFOUL
+//#define EIJIS_DEBUG_SNOOKER_COLOR_POINT
 
 #if UNITY_ANDROID
 #define HT_QUEST
@@ -3121,6 +3122,29 @@ public class BilliardsModule : UdonSharpBehaviour
                 if (foulCondition)//points given to other team if foul
                 {
                     int foulscore = Mathf.Max(highestPocketedBallScore, foulFirstHitScore);
+#if EIJIS_DEBUG_SNOOKER_COLOR_POINT
+                    _LogInfo($"  foulscore = {foulscore}, highestPocketedBallScore = {highestPocketedBallScore}, foulFirstHitScore = {foulFirstHitScore}");
+#endif
+                    if (firstHit == 0)
+                    {
+#if EIJIS_DEBUG_SNOOKER_COLOR_POINT
+                        _LogInfo($"  ballsPocketedLocal = {ballsPocketedLocal:x8}");
+#endif
+                        int lowestScoringBall = 7;
+                        for (int i = 1; i < sixredsnooker_ballpoints.Length; i++)
+                        {
+                            if ((0x1U << i & ballsPocketedLocal) != 0U) { continue; }
+                            lowestScoringBall = Mathf.Min(lowestScoringBall, sixredsnooker_ballpoints[i]);
+#if EIJIS_DEBUG_SNOOKER_COLOR_POINT
+                            _LogInfo($"  lowestScoringBall = {lowestScoringBall}");
+#endif
+                        }
+
+                        foulscore = lowestScoringBall;
+#if EIJIS_DEBUG_SNOOKER_COLOR_POINT
+                        _LogInfo($"  foulscore = {foulscore}, lowestScoringBall = {lowestScoringBall}");
+#endif
+                    }
                     fbScoresLocal[1 - teamIdLocal] = (byte)Mathf.Min(fbScoresLocal[1 - teamIdLocal] + Mathf.Max(foulscore, 4), byte.MaxValue);
                     _LogInfo("6RED: Team " + (1 - teamIdLocal) + " awarded for foul " + Mathf.Max(foulscore, 4) + " points");
                 }
