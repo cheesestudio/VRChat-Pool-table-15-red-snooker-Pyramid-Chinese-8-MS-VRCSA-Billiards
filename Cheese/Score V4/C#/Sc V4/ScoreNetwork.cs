@@ -15,71 +15,23 @@ using VRC.Udon;
 public class ScoreNetwork : UdonSharpBehaviour
 {
     //Sync Value
+    // 玩家名
     [HideInInspector][UdonSynced] public string PlayerA;
     [HideInInspector][UdonSynced] public string PlayerB;
 
+    // 分数
     [HideInInspector][UdonSynced] public int PlayerAScore;
     [HideInInspector][UdonSynced] public int PlayerBScore;
 
+    // 游戏模式
     [HideInInspector][UdonSynced] public uint Mode;
 
-    #region Info
-    /*
-api 
-lobby start        _LobbyOpen +  string[] name
-Game start       _GameStarted + string[] name
-Playr chenge     _PlayerChanged   + string[] name
-game ended     _GameEnd    + INT playerID
-game reset       _GameReset
-
-
-0 ide
-
-1 join
-
-2 start
-
-3 ended
-
-  Lobby open
-0    ------>  1 (Reset Score,Name)
-
-  on player join (Playr chenge)
-1 -------------> 1 (Reset Score,Name)
-
-  all player leave (Playr chenge)
-1 ----------> 0 (Reset Score,Name)
-
-  on game start (_GameStarted)
-1 ----------->  2  
-
-  on game chenge palyer (Playr chenge) 
-2 -----------------------> 1 (Reset Score,Name) (Error Messge)
-
-  on game ended (_GameEnd)
-1 -----------------> 0 (Reset Score,Name)(Clear Error Messge)
-
-  on game ended 
-2 -----------------> 3 (_GameEnd)
-
-  on player chenge in 3 (Playr chenge)   和 on player join (Playr chenge) 合并
-3 -----------------------> 1 (Reset Score,Name)
-
-  on game start  (_GameStarted)
-3 ----------------> 2 
-
-  on game reset 
-* ------------------> 0  (Reset Score,Name)
-*/
-    #endregion
+    // 状态量
     [HideInInspector][UdonSynced] public byte State;
     [HideInInspector][UdonSynced] public bool MessagesState = false;
 
+    // 上传时同步日期
     [HideInInspector][UdonSynced] public string Date = "";
-
-    // 游戏开始时玩家ID(废弃)
-    //[HideInInspector][UdonSynced] public string PlayerAStart;
-    //[HideInInspector][UdonSynced] public string PlayerBStart;
 
     // 反转状态
     [HideInInspector][UdonSynced] public bool isInvert = false;
