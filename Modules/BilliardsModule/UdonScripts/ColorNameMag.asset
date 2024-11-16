@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: ColorNameMag
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 04169505cb1b4aa4d9e788fc3589f655,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: ccdacacb8286f284789c0974c32374e3,
     type: 2}
   udonAssembly: 
   assemblyError: 

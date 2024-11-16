@@ -23,10 +23,10 @@ namespace DrBlackRat
         [Tooltip("Automatically reload String after a certain amount of time (Load On Start should be enabled for this)")]
         [SerializeField] bool autoReload = false;
         [Tooltip("Time in second after which the String should be downloaded again")]
-        [SerializeField] [Range(1, 60)] int autoReloadTime = 10;
+        [SerializeField] [Range(1, 60)] int autoReloadTime = 20;
 
         [Header("EloPlug")]
-        [Tooltip("Plug EloDonwload")]
+        [Tooltip("Plug EloDownlead")]
         [SerializeField] public EloDownload _eloDownload = null;
 
         [Header("Text Components")]
@@ -37,7 +37,11 @@ namespace DrBlackRat
         [Tooltip("Text Mesh Pro UGUI component the string should be applied to, if left empty it tires to use the one it's attached to")]
         [SerializeField] private TextMeshProUGUI textMeshProUGUI;
 
-        [Header("Loading & Error String")]
+		[Header("Text Setting")]
+		[Tooltip("ELO Text Len")]
+		[SerializeField] private int stringLen = 10;
+
+		[Header("Loading & Error String")]
         [Tooltip("Use the Loading String while it waits for the String to Load")]
         [SerializeField] private bool useLoadingString = true;
         [Tooltip("Skips the Loading String when reloading the String (e.g. Auto Reload or Manually Loading it again)")]
@@ -96,7 +100,7 @@ namespace DrBlackRat
 				// 转码，去除小数点，格式化，替换空格 \u0020 到 \u00A0 ,裁剪长度
 				leaderBoardString += 
                     (i+1).ToString()+"."
-                    + (nameTmp.Length > 10 ? nameTmp.Substring(0, 10) : nameTmp)
+                    + (nameTmp.Length > stringLen ? nameTmp.Substring(0, stringLen) : nameTmp)
                     + " "
                     + ((int)float.Parse(scores[i].ToString())).ToString() 
                     + "\n";

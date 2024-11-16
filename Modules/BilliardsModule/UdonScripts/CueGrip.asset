@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: CueGrip
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 01224d1b90386ca4fb7856ce6eee26fa,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 18c398d8c51bfdd41a9019c76d88b02f,
     type: 2}
   udonAssembly: 
   assemblyError: 
