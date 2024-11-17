@@ -110,6 +110,9 @@ public class NetworkingManager : UdonSharpBehaviour
     // whether or not the cue can be locked
     [UdonSynced][NonSerialized] public bool noLockingSynced;
 
+#if EIJIS_10BALL
+    [UdonSynced][NonSerialized] public bool wpa10BallRuleSynced;
+#endif
 #if EIJIS_CALLSHOT
     [UdonSynced] [NonSerialized] public bool requireCallShotSynced;
 #if EIJIS_SEMIAUTOCALL
@@ -738,6 +741,15 @@ public class NetworkingManager : UdonSharpBehaviour
         bufferMessages(false);
     }
 
+#if EIJIS_10BALL
+    public void _OnWpa10BallRuleChanged(bool wpa10BallRuleEnabled)
+    {
+        wpa10BallRuleSynced = wpa10BallRuleEnabled;
+
+        bufferMessages(false);
+    }
+    
+#endif
 #if EIJIS_CALLSHOT
     public void _OnRequireCallShotChanged(bool callShotEnabled)
     {

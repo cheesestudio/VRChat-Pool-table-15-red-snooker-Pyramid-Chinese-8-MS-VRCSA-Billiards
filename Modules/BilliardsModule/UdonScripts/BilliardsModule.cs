@@ -22,6 +22,7 @@
 // #define EIJIS_DEBUG_CALLSHOT_BALL
 #define EIJIS_DEBUG_BREAKINGFOUL
 //#define EIJIS_DEBUG_SNOOKER_COLOR_POINT
+// #define EIJIS_DEBUG_10BALL_WPA_RULE
 
 #if UNITY_ANDROID
 #define HT_QUEST
@@ -348,6 +349,9 @@ public class BilliardsModule : UdonSharpBehaviour
     [NonSerialized] public bool noGuideline2Local;
 #endif
     [NonSerialized] public bool noLockingLocal;
+#if EIJIS_10BALL
+    [NonSerialized] public bool wpa10BallRuleLocal;
+#endif
 #if EIJIS_CALLSHOT
     [NonSerialized] public bool requireCallShotLocal;
 #if EIJIS_SEMIAUTOCALL
@@ -791,6 +795,13 @@ public class BilliardsModule : UdonSharpBehaviour
         networkingManager._OnNoLockingChanged(noLockingEnabled);
     }
 
+#if EIJIS_10BALL
+    public void _TriggerWpa10BallRuleChanged(bool wpa10BallRuleEnabled)
+    {
+        networkingManager._OnWpa10BallRuleChanged(wpa10BallRuleEnabled);
+    }
+    
+#endif
 #if EIJIS_CALLSHOT
     public void _TriggerRequireCallShotChanged(bool callShotEnabled)
     {
@@ -1387,6 +1398,9 @@ public class BilliardsModule : UdonSharpBehaviour
             networkingManager.noGuideline2Synced,
 #endif
             networkingManager.noLockingSynced
+#if EIJIS_10BALL
+            , networkingManager.wpa10BallRuleSynced
+#endif
 #if EIJIS_CALLSHOT
             , networkingManager.requireCallShotSynced
 #if EIJIS_SEMIAUTOCALL
@@ -1465,6 +1479,9 @@ public class BilliardsModule : UdonSharpBehaviour
         , bool noGuideline2Synced
 #endif
         , bool noLockingSynced
+#if EIJIS_10BALL
+        , bool wpa10BallRuleSynced
+#endif
 #if EIJIS_CALLSHOT
         , bool requireCallShotSynced
 #if EIJIS_SEMIAUTOCALL
@@ -1485,6 +1502,9 @@ public class BilliardsModule : UdonSharpBehaviour
             noGuideline2Local == noGuideline2Synced &&
 #endif
             noLockingLocal == noLockingSynced
+#if EIJIS_10BALL
+            && wpa10BallRuleLocal == wpa10BallRuleSynced
+#endif
 #if EIJIS_CALLSHOT
             && requireCallShotLocal == requireCallShotSynced
 #if EIJIS_SEMIAUTOCALL
@@ -1496,8 +1516,8 @@ public class BilliardsModule : UdonSharpBehaviour
             return;
         }
 
-#if EIJIS_GUIDELINE2TOGGLE && EIJIS_CALLSHOT && EIJIS_SEMIAUTOCALL
-        _LogInfo($"onRemoteGameSettingsUpdated gameMode={gameModeSynced} timer={timerSynced} teams={teamsSynced} guideline={!noGuidelineSynced} guideline2={!noGuideline2Synced} locking={!noLockingSynced} callShot={requireCallShotSynced} semiAutCcall={semiAutoCallSynced}");
+#if EIJIS_GUIDELINE2TOGGLE && EIJIS_CALLSHOT && EIJIS_SEMIAUTOCALL && EIJIS_10BALL
+        _LogInfo($"onRemoteGameSettingsUpdated gameMode={gameModeSynced} timer={timerSynced} teams={teamsSynced} guideline={!noGuidelineSynced} guideline2={!noGuideline2Synced} locking={!noLockingSynced} wpa10BallRule={wpa10BallRuleSynced} callShot={requireCallShotSynced} semiAutCcall={semiAutoCallSynced}");
 #else
         _LogInfo($"onRemoteGameSettingsUpdated gameMode={gameModeSynced} timer={timerSynced} teams={teamsSynced} guideline={!noGuidelineSynced} locking={!noLockingSynced}");
 #endif
@@ -1579,6 +1599,14 @@ public class BilliardsModule : UdonSharpBehaviour
             refreshToggles = true;
         }
 
+#if EIJIS_10BALL
+        if (wpa10BallRuleLocal != wpa10BallRuleSynced)
+        {
+            wpa10BallRuleLocal = wpa10BallRuleSynced;
+            refreshToggles = true;
+        }
+        
+#endif
 #if EIJIS_CALLSHOT
         if (requireCallShotLocal != requireCallShotSynced)
         {
@@ -2728,7 +2756,7 @@ public class BilliardsModule : UdonSharpBehaviour
 
                 foulCondition = isScratch || isWrongHit || fallOffFoul || ((!isObjectiveSink && !isOpponentSink) && (!ballBounced || (colorTurnLocal && numBallsHitCushion < 4)));
 #if EIJIS_DEBUG_BREAKINGFOUL
-                if (colorTurnLocal && numBallsHitCushion < 4)
+                if ((!isObjectiveSink && !isOpponentSink) && colorTurnLocal && numBallsHitCushion < 4)
                 {
                     _LogInfo($"  BREAKING FOUL numBallsHitCushion = {numBallsHitCushion}");
                 }
@@ -2885,9 +2913,9 @@ public class BilliardsModule : UdonSharpBehaviour
 #endif
                 deferLossCondition = false;
 
-                foulCondition = isWrongHit || isScratch || fallOffFoul || (!isObjectiveSink && (!ballBounced || (colorTurnLocal && numBallsHitCushion < 4)));
+                foulCondition = isWrongHit || isScratch || fallOffFoul || (!isAnyPocketSink && (!ballBounced || (colorTurnLocal && numBallsHitCushion < 4)));
 #if EIJIS_DEBUG_BREAKINGFOUL
-                if (colorTurnLocal && numBallsHitCushion < 4)
+                if (!isAnyPocketSink && colorTurnLocal && numBallsHitCushion < 4)
                 {
                     _LogInfo($"  BREAKING FOUL numBallsHitCushion = {numBallsHitCushion}");
                 }
@@ -2896,15 +2924,34 @@ public class BilliardsModule : UdonSharpBehaviour
                 colorTurnLocal = false;// colorTurnLocal tracks if it's the break,
 
 #if EIJIS_10BALL
+
+#if EIJIS_DEBUG_10BALL_WPA_RULE
+                if (is10Ball)
+                {
+                    _LogInfo($"  isOnBreakShot = {isOnBreakShot}, wpa10BallRuleLocal(mustPocket10BallLast) = {wpa10BallRuleLocal}, isObjectiveSink = {isObjectiveSink}");
+                    _LogInfo($"  (ballsPocketedLocal & pocketMask) = {(ballsPocketedLocal & pocketMask):x8}, pocketMask = {pocketMask:x8}");
+                }
+#endif
                 // Win condition: Pocket game ball ( and do not foul )
 #if EIJIS_CALLSHOT
-                winCondition = ((targetPocketedLocal & gameBallMask) == gameBallMask) && !foulCondition
+                winCondition = ((targetPocketedLocal & gameBallMask) == gameBallMask) && !foulCondition;
 #else
-                winCondition = ((ballsPocketedLocal & gameBallMask) == gameBallMask) && !foulCondition
+                winCondition = ((ballsPocketedLocal & gameBallMask) == gameBallMask) && !foulCondition;
 #endif
-                    && !(is10Ball && isOnBreakShot);
 
                 bool isGameBallSink = (ballsPocketedLocal & gameBallMask) == gameBallMask;
+
+                if (is9Ball)
+                {
+                    winCondition |= isOnBreakShot && isGameBallSink && !foulCondition;
+                }
+                else if (is10Ball)
+                {
+                    winCondition &= !(
+                        (isOnBreakShot && isGameBallSink) || 
+                        (wpa10BallRuleLocal && (ballsPocketedLocal & pocketMask) != pocketMask)
+                        );
+                }
 
 #if EIJIS_PUSHOUT
                 if (isGameBallSink /* && isPracticeMode */ && (!winCondition || pushOut))
@@ -2912,7 +2959,6 @@ public class BilliardsModule : UdonSharpBehaviour
                 if (isGameBallSink /* && isPracticeMode */ && !winCondition)
 #endif
                 {
-                    isGameBallSink = false;
                     ballsPocketedLocal = ballsPocketedLocal & ~(gameBallMask);
 #if EIJIS_CALLSHOT
                     targetPocketedLocal = targetPocketedLocal & ~(gameBallMask);
