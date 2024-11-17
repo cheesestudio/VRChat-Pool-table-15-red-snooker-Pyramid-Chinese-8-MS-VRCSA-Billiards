@@ -398,7 +398,7 @@ public class ScoreManagerV4 : UdonSharpBehaviour
 					Network.PlayerBScore++;
 			}
 
-			Network.Date = DateTime.UtcNow.ToString("yyyy/MM/dd HH:mm:ss");
+			Network.Date = DateTime.UtcNow.ToString("o");
 			Network.Mode = _billiardsModule.gameModeLocal;
 			Network.State = 3;
 		}

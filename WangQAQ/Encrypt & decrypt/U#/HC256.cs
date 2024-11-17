@@ -69,8 +69,6 @@ namespace WangQAQ.ED
 		{
 			init(k, iv);
 
-			Debug.Log(input.Length);
-
 			byte[] output = new byte[input.Length];
 			for (int i = 0; i < input.Length; i += 4)
 			{

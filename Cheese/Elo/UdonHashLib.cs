@@ -99,6 +99,20 @@ public class UdonHashLib : UdonSharpBehaviour
 		return output;
 	}
 
+	public static byte[] HexStringToByteArray(string hex)
+	{
+		// 创建一个长度为 hex.Length / 2 的字节数组
+		byte[] bytes = new byte[hex.Length / 2];
+
+		// 循环遍历每两个字符并转换为一个字节
+		for (int i = 0; i < hex.Length; i += 2)
+		{
+			// 取两个字符并将其转换为一个字节
+			bytes[i / 2] = Convert.ToByte(hex.Substring(i, 2), 16);
+		}
+
+		return bytes;
+	}
 
 	private static string MD5_Core(byte[] payload_bytes, ulong[] init, ulong[] constants, int[] shifts, ulong size_mask, int word_size, int chunk_modulo, int appended_length, int round_count, string output_format, int output_segments)
 	{

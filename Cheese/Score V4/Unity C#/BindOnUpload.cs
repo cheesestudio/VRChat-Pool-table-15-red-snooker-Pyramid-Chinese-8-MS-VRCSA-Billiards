@@ -17,7 +17,7 @@ using VRC.SDKBase;
 
 public class BindOnUpload : MonoBehaviour , IEditorOnly
 {
-	public const string UrlAPI = "https://www.wangqaq.com/AspAPI/table/UploadScore";
+	public const string UrlAPI = "https://www.wangqaq.com/AspAPI/table/UploadScore/v2";
 
 	[InitializeOnLoadMethod]
 	public static void RegisterSDKCallback()
@@ -77,8 +77,7 @@ public class BindOnUpload : MonoBehaviour , IEditorOnly
 
 			foreach (var obj in uploadOBJ)
 			{
-				obj.useV2API = true;
-				obj.hashKey = tmpKey;
+				obj.Key = tmpKey;
 				obj.ScoreUploadBaseURL = UrlAPI;
 				obj.WorldGUID = tmpGuid;
 			}

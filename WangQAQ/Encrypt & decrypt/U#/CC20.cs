@@ -16,11 +16,14 @@ namespace WangQAQ.ED
 	public class CC20 : UdonSharpBehaviour
 	{
 		private const int BlockSize = 64;
-		private uint[] state = new uint[16];
+		private uint[] state;
 		private int index;
 
 		public bool _Init(byte[] key, byte[] nonce, uint counter = 0)
 		{
+			state = new uint[16];
+			Debug.Log(key.Length + ":" + nonce.Length);
+
 			if (key.Length != 32)
 				return false;
 			if (nonce.Length != 12)
@@ -86,6 +89,7 @@ namespace WangQAQ.ED
 					state[12]++; // Increment the counter
 				}
 			}
+
 			return output;
 		}
 	}
