@@ -3746,6 +3746,26 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 780370558718336034, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
         type: 3}
+    - target: {fileID: 825562948945190384, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
+        type: 3}
+      propertyPath: m_BoxSize.x
+      value: 3.5596893
+      objectReference: {fileID: 0}
+    - target: {fileID: 825562948945190384, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
+        type: 3}
+      propertyPath: m_BoxSize.z
+      value: 1.7670531
+      objectReference: {fileID: 0}
+    - target: {fileID: 825562948945190384, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
+        type: 3}
+      propertyPath: m_BoxOffset.x
+      value: 0.052996993
+      objectReference: {fileID: 0}
+    - target: {fileID: 825562948945190384, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
+        type: 3}
+      propertyPath: m_BoxOffset.z
+      value: -0.008993864
+      objectReference: {fileID: 0}
     - target: {fileID: 883866445934999316, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
         type: 3}
       propertyPath: m_IsActive
@@ -5906,7 +5926,7 @@ PrefabInstance:
       propertyPath: m_text
       value: 'MS-VRCSA-CBC
 
-        TABLE  v1.1387'
+        TABLE  v1.1388'
       objectReference: {fileID: 0}
     - target: {fileID: 7928216506143082734, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
         type: 3}

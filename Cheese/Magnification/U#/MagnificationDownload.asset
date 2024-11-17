@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: MagnificationDownload
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: f92541d1b58b76b40911e25a0a8afe5d,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 283981f223d778848aa0e97bead772eb,
     type: 2}
   udonAssembly: 
   assemblyError: 
