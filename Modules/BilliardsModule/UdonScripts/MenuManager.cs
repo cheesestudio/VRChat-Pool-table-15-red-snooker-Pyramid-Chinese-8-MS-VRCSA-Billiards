@@ -261,6 +261,9 @@ public class MenuManager : UdonSharpBehaviour
         Guideline2Toggle_button.SetIsOnWithoutNotify(!table.noGuideline2Local);
 #endif
         LockingToggle_button.SetIsOnWithoutNotify(!table.noLockingLocal);
+#if EIJIS_10BALL
+        Wpa10BallRuleToggle_button.SetIsOnWithoutNotify(table.wpa10BallRuleLocal);
+#endif
 #if EIJIS_CALLSHOT
         RequireCallShotToggle_button.SetIsOnWithoutNotify(table.requireCallShotLocal);
 #if EIJIS_SEMIAUTOCALL
@@ -468,6 +471,13 @@ public class MenuManager : UdonSharpBehaviour
     {
         table._TriggerNoLockingChanged(!LockingToggle_button.isOn);
     }
+#if EIJIS_10BALL
+    [SerializeField] private Toggle Wpa10BallRuleToggle_button;
+    public void Wpa10BallRuleToggle()
+    {
+        table._TriggerWpa10BallRuleChanged(Wpa10BallRuleToggle_button.isOn);
+    }
+#endif
 #if EIJIS_CALLSHOT
     [SerializeField] private Toggle RequireCallShotToggle_button;
     public void RequireCallShotToggle()
@@ -651,6 +661,12 @@ public class MenuManager : UdonSharpBehaviour
             {
                 table._TriggerNoLockingChanged(!button.toggleState);
             }
+#if EIJIS_10BALL
+            else if (button.name == "Wpa10BallRuleToggle")
+            {
+                table._TriggerWpa10BallRuleChanged(button.toggleState);
+            }
+#endif
 #if EIJIS_CALLSHOT
             else if (button.name == "RequireCallShotToggle")
             {
