@@ -3,18 +3,20 @@ using System;
 using System.Text;
 using TMPro;
 using UdonSharp;
+using Unity.Burst.Intrinsics;
 using UnityEngine;
 using UnityEngine.UI;
 using VRC.SDK3.Components;
+using VRC.SDK3.Data;
 using VRC.SDK3.StringLoading;
 using VRC.SDKBase;
 using VRC.Udon;
 using VRC.Udon.Common.Interfaces;
+using WangQAQ.ED;
 
 [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
 public class RankingSystem : UdonSharpBehaviour
 {
-    public bool useV2API = false;
     [Header("References")]
     public InputField copyField;
     public VRCUrlInputField pasteField;
@@ -25,11 +27,13 @@ public class RankingSystem : UdonSharpBehaviour
     public string[] TableName = null;
 
     public string WorldGUID = null;
-	public string hashKey = "CheeseIsTheHashKeyForNoReason";
-	public string ScoreUploadBaseURL = "https://wangqaq.com/api/eol/upload_score.php";
+	public string Key = "CheeseIsTheHashKeyForNoReason";
+	public string ScoreUploadBaseURL = "https://www.wangqaq.com/AspAPI/table/UploadScore/v2";
 
 	private string Player1 = "";
 	private string Player2 = "";
+
+	private CC20 _cc20;
 
 	// Ioc 
 	[HideInInspector] public ScoreManagerV4 _scoreManager;
@@ -40,7 +44,7 @@ public class RankingSystem : UdonSharpBehaviour
 	[HideInInspector] public string scoreDebugB = "";
 	public void DebugUpload()
     {
-        UpdateCopyData("testa", "testb", scoreDebugA, scoreDebugB,0, DateTime.UtcNow.ToString("yyyy/MM/dd HH:mm:ss"));
+        UpdateCopyData("testa", "testb", scoreDebugA, scoreDebugB,0, DateTime.UtcNow.ToString("o"));
 	}
 #endif
 
@@ -49,105 +53,160 @@ public class RankingSystem : UdonSharpBehaviour
         _scoreManager = scoreManager;
     }
 
-    public void ClearURL()
-    {
-		copyField.text = "null";
-		errorText.text = "";
-	}
-
-    public void UpdateCopyData(string player1, string player2,string score1,string score2,uint ballMode, string Date)
-    {
-        Player1 = player1;
-        Player2 = player2;
-        if (score1 == score2                || 
-            string.IsNullOrEmpty(player1)   ||
-            string.IsNullOrEmpty(player2))
-        {
-            copyField.text = "null";
-            errorText.text = "";
-            return;
-        }
-
-		if (useV2API)
-        {
-            var modeString = mapModeName(ballMode);
-			// 新API
-			string hash = UdonHashLib.MD5_UTF8(player1 + player2 + score1 + score2 + modeString + WorldGUID + Date + hashKey);
-			copyField.text = $"{ScoreUploadBaseURL}?Player1={player1}&Player2={player2}&PlayerScore1={score1}&PlayerScore2={score2}&mode={modeString}&WorldGUID={WorldGUID}&time={Date}&MD5={hash}";
-		}
-        else
-        {
-			// 老API
-			string hash = UdonHashLib.MD5_UTF8(player1 + player2 + score1 + score2 + hashKey);
-			copyField.text = $"{ScoreUploadBaseURL}?player1={player1}&player2={player2}&score1={score1}&score2={score2}&hash={hash}";
-		}
-
-        //Debug.Log($"copyField =  {copyField.text}");
-    }
-    public void TryToUploadNote()
-    {
-        VRCUrl url = pasteField.GetUrl();
-
-        pasteField.SetUrl(VRCUrl.Empty);
-        if (url.ToString() != copyField.text)
-        {
-            errorText.text = ("not equal to copy text! ! !");
-            return;
-        }
-        string localPlayer =Networking.LocalPlayer.displayName;
-        if (localPlayer != Player1 && localPlayer != Player2)
-        {
-            errorText.text = ("不是你的比赛你上传???Don't upload others score");
-            return;
-        }
-
-       // noteDownloader.newNoteButton.interactable = false;
-        VRCStringDownloader.LoadUrl(url, (IUdonEventReceiver)this);
-
-        _scoreManager.gameResetLocal();
-        copyField.text = "Starting";
-        errorText.text = "loading";
-    }
-
-    public override void OnStringLoadSuccess(IVRCStringDownload result)
-    {
-        copyField.text = "Finished";
-        if (!Networking.IsOwner(gameObject))
-            Networking.SetOwner(Networking.LocalPlayer, gameObject);
-        errorString = "connected  " + result.Result;
-        errorText.text = errorString;
-        RequestSerialization();
-    }
-
-    public override void OnStringLoadError(IVRCStringDownload result)
-    {
-        //ActivateNoteUploadAnimation(false);
-        copyField.text = "failed";
-        Debug.LogError($"Error loading string: {result.ErrorCode} - {result.Error}");
-        errorText.text = $"{result.ErrorCode} - {result.Error}";
-
-        if (result.ErrorCode == 401)
-        {
-            errorText.text += "Please allow untrusted rul";
-            //unauthorizedErrorInfo.SetActive(true);
-        }
-    }
-
-    public override void OnDeserialization()
-    {
-        errorText.text = errorString;
-    }
-
     void Start()
     {
-
+		_cc20 = GameObject.Find("CC20").GetComponent<CC20>();
     }
 
-    // 找台球名称（如果有的话）
-    private string mapModeName(uint mode)
+	public byte[] testA;
+
+	#region upload
+	public void UpdateCopyData(string player1, string player2, string score1, string score2, uint ballMode, string Date)
+	{
+		Player1 = player1;
+		Player2 = player2;
+		if (score1 == score2 ||
+			string.IsNullOrEmpty(player1) ||
+			string.IsNullOrEmpty(player2))
+		{
+			copyField.text = "null";
+			errorText.text = "";
+			return;
+		}
+
+		if (string.IsNullOrEmpty(WorldGUID) || string.IsNullOrEmpty(Key))
+		{
+			return;
+		}
+
+		byte[] iv32 = UdonRng.GetRngSha256();   // 假设已有 32 字节的数组
+		byte[] iv12 = new byte[12];             // 假设已有 32 字节的数组
+
+		Array.Copy(iv32, iv12, 12);
+
+		_cc20._Init(UdonHashLib.HexStringToByteArray(UdonHashLib.SHA256_UTF8(Key)), iv12);
+
+		var modeString = mapModeName(ballMode);
+		// 新API
+		DataDictionary data = new DataDictionary();
+		data.Add("Player1", player1);
+		data.Add("Player2", player2);
+		data.Add("PlayerScore1", score1);
+		data.Add("PlayerScore2", score2);
+		data.Add("mode", modeString);
+		data.Add("date", Date);
+		string eData;
+		string base64Guid = ToUrl(Convert.ToBase64String(Guid.Parse(WorldGUID).ToByteArray()));
+		string base64IV = ToUrl(Convert.ToBase64String(iv12));
+		testA = iv12;
+		if (VRCJson.TrySerializeToJson(data, JsonExportType.Minify, out DataToken json))
+		{
+			eData = ToUrl(Convert.ToBase64String(_cc20.Process(Encoding.UTF8.GetBytes(json.String))));
+		}
+		else
+		{
+			return;
+		}
+
+		copyField.text = $"{ScoreUploadBaseURL}/{base64Guid}.{base64IV}.{eData}";
+
+	}
+	public void TryToUploadNote()
+	{
+		VRCUrl url = pasteField.GetUrl();
+
+		pasteField.SetUrl(VRCUrl.Empty);
+		if (url.ToString() != copyField.text)
+		{
+			errorText.text = ("not equal to copy text! ! !");
+			return;
+		}
+
+#if !DEBUG
+		string localPlayer = Networking.LocalPlayer.displayName;
+		if (localPlayer != Player1 && localPlayer != Player2)
+		{
+			errorText.text = ("不是你的比赛你上传???Don't upload others score");
+			return;
+		}
+#endif
+
+		// noteDownloader.newNoteButton.interactable = false;
+		VRCStringDownloader.LoadUrl(url, (IUdonEventReceiver)this);
+
+		_scoreManager.gameResetLocal();
+		copyField.text = "Starting";
+		errorText.text = "loading";
+	}
+
+	public override void OnStringLoadSuccess(IVRCStringDownload result)
+	{
+		string context = string.Empty;
+
+		if(VRCJson.TryDeserializeFromJson(result.Result,out var json))
+		{
+			var data = json.DataDictionary["data"].DataDictionary;
+			if(data["stateCode"] == 0)
+			{
+				context =  "<color=green>上传成功</color> \n";
+				context += "<color=red> 玩家1历史分数" + data["p1Last"] + "</color> ";
+				context += "<color=blue> 玩家2历史分数" + data["p2Last"] + "</color> \n";
+				context += "<color=red> 玩家1当前分数" + data["p1Now"] + "</color> ";
+				context += "<color=blue> 玩家2当前分数" + data["p2Now"] + "</color> \n";
+				context += "<color=yellow> 倍率" + data["magnification"] + "</color> ";
+			}
+			else if(data["stateCode"] == 1)
+			{
+				context = "<color=yellow>平局</color>";
+			}
+		}
+		copyField.text = "Finished";
+		if (!Networking.IsOwner(gameObject))
+			Networking.SetOwner(Networking.LocalPlayer, gameObject);
+		errorString = "connected  " + context;
+		errorText.text = errorString;
+		RequestSerialization();
+	}
+
+	public override void OnStringLoadError(IVRCStringDownload result)
+	{
+		//ActivateNoteUploadAnimation(false);
+		copyField.text = "failed";
+		Debug.LogError($"Error loading string: {result.ErrorCode} - {result.Error}");
+		errorText.text = $"{result.ErrorCode} - {result.Error}";
+
+		if (result.ErrorCode == 401)
+		{
+			errorText.text += "Please allow untrusted rul";
+			//unauthorizedErrorInfo.SetActive(true);
+		}
+	}
+#endregion
+
+	#region Func
+	// 找台球名称（如果有的话）
+	private string mapModeName(uint mode)
     {
         if (!string.IsNullOrEmpty(TableName[mode]))
             return TableName[mode];
         return "NotFind";
 	}
+
+	private string ToUrl(string base64)
+	{
+		return base64.Replace("+", "-").Replace("/", "_").Replace("=", "~");
+	}
+
+	public void ClearURL()
+	{
+		copyField.text = "null";
+		errorText.text = "";
+	}
+	#endregion
+
+	public override void OnDeserialization()
+	{
+		errorText.text = errorString;
+	}
+
 }

@@ -65,8 +65,7 @@ public class UploadMapKey : EditorWindow
 
 			foreach (var obj in uploadOBJ)
 			{
-				obj.useV2API = true;
-				obj.hashKey = Key;
+				obj.Key = Key;
 				obj.ScoreUploadBaseURL = UrlAPI;
 				obj.WorldGUID = WorldGuid.ToString();
 			}
@@ -91,8 +90,7 @@ public class UploadMapKey : EditorWindow
 
 				foreach (var obj in uploadOBJ)
 				{
-					obj.useV2API = true;
-					obj.hashKey = tmpKey;
+					obj.Key = tmpKey;
 					obj.ScoreUploadBaseURL = UrlAPI;
 					obj.WorldGUID = tmpGuid;
 				}
