@@ -5718,7 +5718,7 @@ public class BilliardsModule : UdonSharpBehaviour
     }
     public void _LogWarn(string msg)
     {
-        //_log(LOG_WARN + msg + LOG_END);
+        _log(LOG_WARN + msg + LOG_END);
     }
     public void _LogError(string msg)
     {
@@ -5726,7 +5726,7 @@ public class BilliardsModule : UdonSharpBehaviour
     }
     public void _LogInfo(string msg)
     {
-        //_log(LOG_LOW + msg + LOG_END);
+        _log(LOG_LOW + msg + LOG_END);
     }
     public void _RedrawDebugger()
     {
