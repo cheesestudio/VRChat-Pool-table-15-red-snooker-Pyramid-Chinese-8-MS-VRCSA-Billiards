@@ -91,8 +91,9 @@ public class ColorDownload : UdonSharpBehaviour
         else
         {
             //如果到最后一个URL，则从第一个URL开始加载
-            SendCustomEventDelayedSeconds("_AutoReloadColor", 10);
             reloadStep = 0;
+            SendCustomEventDelayedSeconds("_AutoReloadColor", 10);
+
         }
     }
 

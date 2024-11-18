@@ -2658,6 +2658,39 @@ public class AdvancedPhysicsManager : UdonSharpBehaviour
 #endif
     }
 
+    /// <summary>
+    /// Cheese support for DG_LAB
+    /// </summary>
+    /// <param name="id">balls' id</param>
+    void DG_LAB(int id)
+    {
+        if (!table.DG_LAB) return;
+
+        bool color = (table.teamIdLocal ^ table.teamColorLocal) == 0; //1 single ,0 double
+        table._LogYes("id:" + id + "队伍" + table.teamIdLocal + "颜色" + color);
+        if (id == 0 && table.isMyTurn())
+        {
+            table.DG_LAB.SendCustomEvent("JustShock");
+            table._LogYes("进母球要电");
+        }
+        else if (table.isTableOpenLocal)
+        {
+            if (!table.isMyTurn())
+            {
+                table.DG_LAB.SendCustomEvent("JustShock");
+                table._LogYes("开局进球要电");
+            }
+        }
+        else
+        {
+            if (!table.isMyTurn())
+            {
+                table.DG_LAB.SendCustomEvent("JustShock");
+                table._LogYes("不是你的回合进球要电");
+            }
+        }
+
+    }
     // Check pocket condition
     bool _phy_ball_pockets(int id, Vector3[] balls_P, bool is4ball, ref bool inPocketBounds)
     {
@@ -2678,6 +2711,9 @@ public class AdvancedPhysicsManager : UdonSharpBehaviour
                     table._TriggerPocketBall(id, false);
 #endif
                     pocketedTime = Time.time;
+
+                    DG_LAB(id);
+                    
                     return true;
                 }
                 else if (A.y < 0.001f)
@@ -2708,6 +2744,9 @@ public class AdvancedPhysicsManager : UdonSharpBehaviour
                     table._TriggerPocketBall(id, false);
 #endif
                     pocketedTime = Time.time;
+
+                    DG_LAB(id);
+
                     return true;
                 }
                 else if (A.y < 0.001f)

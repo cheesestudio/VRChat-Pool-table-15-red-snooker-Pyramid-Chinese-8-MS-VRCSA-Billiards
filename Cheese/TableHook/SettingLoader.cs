@@ -65,8 +65,8 @@ public class SettingLoader : UdonSharpBehaviour
         }
         else
         {
-            SendCustomEventDelayedSeconds("_AutoReloadColor", 10);
             reloadStep = 0;
+            SendCustomEventDelayedSeconds("_AutoReloadColor", 10);
         }
     }
 

@@ -128,7 +128,10 @@ public class BilliardsModule : UdonSharpBehaviour
 
     // hooks
     [NonSerialized] public UdonBehaviour tableSkinHook;//no need to use
+
+    [Header("CBC_Plug")]
     [SerializeField] public TableHook tableHook;
+    [Space(3)]
     [SerializeField] public UdonBehaviour nameColorHook;
 
     // globals
@@ -151,13 +154,13 @@ public class BilliardsModule : UdonSharpBehaviour
     private UCS.UdonChips udonChips = null;
 #endif
 
-    //up24/6/14   Scoremanager
-
-    [Header("Plug")]
     public Translations _translations;
 
     //2024/9/29 预留api，用于以后修改
     [SerializeField] public UdonBehaviour ScoreManagerHook = null;
+
+    //芝士郊狼联动
+    public UdonBehaviour DG_LAB;
 
     #region BallModeSetting
 
@@ -5715,7 +5718,7 @@ public class BilliardsModule : UdonSharpBehaviour
     }
     public void _LogWarn(string msg)
     {
-        _log(LOG_WARN + msg + LOG_END);
+        //_log(LOG_WARN + msg + LOG_END);
     }
     public void _LogError(string msg)
     {
@@ -5723,7 +5726,7 @@ public class BilliardsModule : UdonSharpBehaviour
     }
     public void _LogInfo(string msg)
     {
-        _log(LOG_LOW + msg + LOG_END);
+        //_log(LOG_LOW + msg + LOG_END);
     }
     public void _RedrawDebugger()
     {
