@@ -1,9 +1,7 @@
-﻿using BestHTTP.Extensions;
-using System;
+﻿using System;
 using System.Text;
 using TMPro;
 using UdonSharp;
-using Unity.Burst.Intrinsics;
 using UnityEngine;
 using UnityEngine.UI;
 using VRC.SDK3.Components;
@@ -13,22 +11,23 @@ using VRC.SDKBase;
 using VRC.Udon;
 using VRC.Udon.Common.Interfaces;
 using WangQAQ.ED;
+using static System.Net.Mime.MediaTypeNames;
 
 [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
 public class RankingSystem : UdonSharpBehaviour
 {
-    [Header("References")]
-    public InputField copyField;
-    public VRCUrlInputField pasteField;
-    [UdonSynced] private string errorString;
-    public TextMeshProUGUI errorText;
+	[Header("References")]
+	public InputField copyField;
+	public VRCUrlInputField pasteField;
+	[UdonSynced] private string errorString;
+	public TextMeshProUGUI errorText;
 
-    // 台球名称
-    public string[] TableName = null;
+	// 台球名称
+	public string[] TableName = null;
 
-    public string WorldGUID = null;
+	public string WorldGUID = null;
 	public string Key = "CheeseIsTheHashKeyForNoReason";
-	public string ScoreUploadBaseURL = "https://www.wangqaq.com/AspAPI/table/UploadScore/v2";
+	public string ScoreUploadBaseURL = "https://www.wangqaq.com/AspAPI/table/UploadScore/v2.1";
 
 	private string Player1 = "";
 	private string Player2 = "";
@@ -43,22 +42,20 @@ public class RankingSystem : UdonSharpBehaviour
 	[HideInInspector] public string scoreDebugA = "";
 	[HideInInspector] public string scoreDebugB = "";
 	public void DebugUpload()
-    {
-        UpdateCopyData("testa", "testb", scoreDebugA, scoreDebugB,0, DateTime.UtcNow.ToString("o"));
+	{
+		UpdateCopyData("testa", "testb", scoreDebugA, scoreDebugB, 0, DateTime.UtcNow.ToString("o"));
 	}
 #endif
 
-    public void _Init(ScoreManagerV4 scoreManager)
-    {
-        _scoreManager = scoreManager;
-    }
+	public void _Init(ScoreManagerV4 scoreManager)
+	{
+		_scoreManager = scoreManager;
+	}
 
-    void Start()
-    {
+	void Start()
+	{
 		_cc20 = GameObject.Find("CC20").GetComponent<CC20>();
-    }
-
-	public byte[] testA;
+	}
 
 	#region upload
 	public void UpdateCopyData(string player1, string player2, string score1, string score2, uint ballMode, string Date)
@@ -79,12 +76,13 @@ public class RankingSystem : UdonSharpBehaviour
 			return;
 		}
 
-		byte[] iv32 = UdonRng.GetRngSha256();   // 假设已有 32 字节的数组
+		byte[] key = BLAKE2b.BLAKE2b_256(Encoding.UTF8.GetBytes(Key));
+		byte[] iv32 = UdonRng.GetRngBLAKE2b256();   // 假设已有 32 字节的数组
 		byte[] iv12 = new byte[12];             // 假设已有 32 字节的数组
 
 		Array.Copy(iv32, iv12, 12);
 
-		_cc20._Init(UdonHashLib.HexStringToByteArray(UdonHashLib.SHA256_UTF8(Key)), iv12);
+		_cc20._Init(key, iv12);
 
 		var modeString = mapModeName(ballMode);
 		// 新API
@@ -98,17 +96,20 @@ public class RankingSystem : UdonSharpBehaviour
 		string eData;
 		string base64Guid = ToUrl(Convert.ToBase64String(Guid.Parse(WorldGUID).ToByteArray()));
 		string base64IV = ToUrl(Convert.ToBase64String(iv12));
-		testA = iv12;
+		string base64ID = string.Empty;
+		string base64HMAC = string.Empty;
 		if (VRCJson.TrySerializeToJson(data, JsonExportType.Minify, out DataToken json))
 		{
 			eData = ToUrl(Convert.ToBase64String(_cc20.Process(Encoding.UTF8.GetBytes(json.String))));
+			base64ID = ToUrl(Convert.ToBase64String(BLAKE2b.BLAKE2b_128(Encoding.UTF8.GetBytes(json.String))));
 		}
 		else
 		{
 			return;
 		}
-
-		copyField.text = $"{ScoreUploadBaseURL}/{base64Guid}.{base64IV}.{eData}";
+		var context = $"{base64Guid}.{base64IV}.{eData}.{base64ID}";
+		base64HMAC = ToUrl(Convert.ToBase64String(BLAKE2b.HMAC_BLAKE2b_256(key, Encoding.UTF8.GetBytes(context))));
+		copyField.text = $"{ScoreUploadBaseURL}/{context}.{base64HMAC}";
 
 	}
 	public void TryToUploadNote()
@@ -143,19 +144,19 @@ public class RankingSystem : UdonSharpBehaviour
 	{
 		string context = string.Empty;
 
-		if(VRCJson.TryDeserializeFromJson(result.Result,out var json))
+		if (VRCJson.TryDeserializeFromJson(result.Result, out var json))
 		{
 			var data = json.DataDictionary["data"].DataDictionary;
-			if(data["stateCode"] == 0)
+			if (data["stateCode"] == 0)
 			{
-				context =  "<color=green>上传成功</color> \n";
+				context = "<color=green>上传成功</color>" + $"{data["msg"]}";
 				context += "<color=red> 玩家1历史分数" + data["p1Last"] + "</color> ";
 				context += "<color=blue> 玩家2历史分数" + data["p2Last"] + "</color> \n";
 				context += "<color=red> 玩家1当前分数" + data["p1Now"] + "</color> ";
 				context += "<color=blue> 玩家2当前分数" + data["p2Now"] + "</color> \n";
 				context += "<color=yellow> 倍率" + data["magnification"] + "</color> ";
 			}
-			else if(data["stateCode"] == 1)
+			else if (data["stateCode"] == 1)
 			{
 				context = "<color=yellow>平局</color>";
 			}
@@ -181,18 +182,18 @@ public class RankingSystem : UdonSharpBehaviour
 			//unauthorizedErrorInfo.SetActive(true);
 		}
 	}
-#endregion
+	#endregion
 
 	#region Func
 	// 找台球名称（如果有的话）
 	private string mapModeName(uint mode)
-    {
-        if (!string.IsNullOrEmpty(TableName[mode]))
-            return TableName[mode];
-        return "NotFind";
+	{
+		if (!string.IsNullOrEmpty(TableName[mode]))
+			return TableName[mode];
+		return "NotFind";
 	}
 
-	private string ToUrl(string base64)
+	private static string ToUrl(string base64)
 	{
 		return base64.Replace("+", "-").Replace("/", "_").Replace("=", "~");
 	}
