@@ -2664,7 +2664,9 @@ public class AdvancedPhysicsManager : UdonSharpBehaviour
     /// <param name="id">balls' id</param>
     void DG_LAB(int id)
     {
+        
         if (!table.DG_LAB) return;
+        if (!table.isPlayer) return;
 
         bool color = (table.teamIdLocal ^ table.teamColorLocal) == 0; //1 single ,0 double
         table._LogYes("id:" + id + "队伍" + table.teamIdLocal + "颜色" + color);
