@@ -15,6 +15,7 @@ QQ群:780855553
 - 专属名字颜色功能
 - 全自动翻译系统(检测VRChat本地语言自动设置),中日英三种,中文规则版翻译补充
 - 全自动排行榜功能
+- 郊狼联动支持
 > 原项目:[MS-VRCSA-Billiards](https://github.com/Sacchan-VRC/MS-VRCSA-Billiards)
 ### 设置 Set up
 用的时候记得把billiardModule设置为22层，并把这层单独物理设置成只与自己交互（上面MS那个按钮可以自动设置）  
