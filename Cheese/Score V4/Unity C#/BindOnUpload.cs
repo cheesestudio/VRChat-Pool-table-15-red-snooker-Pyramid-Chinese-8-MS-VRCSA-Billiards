@@ -17,7 +17,7 @@ using VRC.SDKBase;
 
 public class BindOnUpload : MonoBehaviour , IEditorOnly
 {
-	public const string UrlAPI = "https://www.wangqaq.com/AspAPI/table/UploadScore/v2";
+	public const string UrlAPI = "https://www.wangqaq.com/AspAPI/table/UploadScore/v2.1";
 
 	[InitializeOnLoadMethod]
 	public static void RegisterSDKCallback()
