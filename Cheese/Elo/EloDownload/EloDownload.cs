@@ -29,6 +29,8 @@ public class EloDownload : UdonSharpBehaviour
     [Header("URL")]
     [SerializeField] public VRCUrl url;
 
+    [HideInInspector] public int ReloadSecond = 60;
+
     // Elo字典对象
     [HideInInspector][SerializeField] public DataDictionary _eloData = null;
 
@@ -45,13 +47,13 @@ public class EloDownload : UdonSharpBehaviour
         {
             _eloData = json.DataDictionary["scores"].DataDictionary;
         }
-        SendCustomEventDelayedSeconds("_AutoReload", 60);
+        SendCustomEventDelayedSeconds("_AutoReload", ReloadSecond);
     }
 
     //字符串下载失败回调
     public override void OnStringLoadError(IVRCStringDownload result)
     {
-        SendCustomEventDelayedSeconds("_AutoReload", 60);
+        SendCustomEventDelayedSeconds("_AutoReload", ReloadSecond);
     }
 
     //重新加载字符串函数
