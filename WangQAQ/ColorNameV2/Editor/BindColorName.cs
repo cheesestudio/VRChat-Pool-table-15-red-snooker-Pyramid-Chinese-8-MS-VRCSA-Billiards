@@ -12,7 +12,7 @@ using WangQAQ.UdonPlug;
 [InitializeOnLoad]
 public class BindColorName : MonoBehaviour
 {
-	private static string baseUrl = "https://www.wangqaq.com/AspAPI/table/GetColorName/GetColorName/";
+	private static string baseUrl = "https://www.wangqaq.com/AspAPI/table/GetColorName/";
 	static BindColorName()
 	{
 		// 初始化对象
