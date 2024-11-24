@@ -256,7 +256,7 @@ public class ScoreManagerV4 : UdonSharpBehaviour
 		lobbyPlayerList = null;
 
 		// 跟新状态
-		if (Network.funcStackTop < 8)
+		if (Network.funcStackTop < 4)
 		{
 			Network.funcStack[Network.funcStackTop] = 0;
 			Network.funcStackTop++;
@@ -331,7 +331,7 @@ public class ScoreManagerV4 : UdonSharpBehaviour
 		// 释放数组
 		nowPlayerList = null;
 
-		if (Network.funcStackTop < 8)
+		if (Network.funcStackTop < 4)
 		{
 			Network.funcStack[Network.funcStackTop] = 1;
 			Network.funcStackTop++;
@@ -362,7 +362,7 @@ public class ScoreManagerV4 : UdonSharpBehaviour
 		}
 
 		startPlayerList = null;
-		if (Network.funcStackTop < 8)
+		if (Network.funcStackTop < 4)
 		{
 			Network.funcStack[Network.funcStackTop] = 2;
 			Network.funcStackTop++;
@@ -403,7 +403,7 @@ public class ScoreManagerV4 : UdonSharpBehaviour
 			Network.State = 3;
 		}
 
-		if (Network.funcStackTop < 8)
+		if (Network.funcStackTop < 4)
 		{
 			Network.funcStack[Network.funcStackTop] = 3;
 			Network.funcStackTop++;
@@ -418,7 +418,7 @@ public class ScoreManagerV4 : UdonSharpBehaviour
 	{
 		Debug.Log("[SCM] ResetSC");
 
-		if (Network.funcStackTop < 8)
+		if (Network.funcStackTop < 4)
 		{
 			Network.funcStack[Network.funcStackTop] = 4;
 			Network.funcStackTop++;

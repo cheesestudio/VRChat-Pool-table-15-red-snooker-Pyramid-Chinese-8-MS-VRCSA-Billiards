@@ -49,7 +49,6 @@ public class MagnificationDownload : UdonSharpBehaviour
 			var context = data["context"].ToString();
 			var decodeContext = _hc256.Process(Convert.FromBase64String(context), key, Convert.FromBase64String(i));
 			var stringContext = Encoding.UTF8.GetString(decodeContext);
-			Debug.Log(stringContext);
 			if (VRCJson.TryDeserializeFromJson(stringContext, out var json1))
 			{
 				_Magnification = json1.DataDictionary;

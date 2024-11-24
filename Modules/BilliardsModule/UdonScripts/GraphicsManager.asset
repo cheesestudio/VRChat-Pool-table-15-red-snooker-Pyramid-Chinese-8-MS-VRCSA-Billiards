@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: GraphicsManager
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: c2ce926de295e20478001fc1b837f066,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: a5cd29e3a803e254499a220941580d90,
     type: 2}
   udonAssembly: 
   assemblyError: 
