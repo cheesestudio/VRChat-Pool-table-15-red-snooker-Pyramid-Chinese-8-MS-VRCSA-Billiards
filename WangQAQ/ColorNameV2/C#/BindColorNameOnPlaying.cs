@@ -14,7 +14,7 @@ using WangQAQ.UdonPlug;
 
 public class BindColorNameOnPlaying : MonoBehaviour, IEditorOnly
 {
-	private static string baseUrl = "http://localhost:5240/table/GetColorName/";
+	private static string baseUrl = "https://www.wangqaq.com/AspAPI/table/GetColorName/";
 	[InitializeOnLoadMethod]
 	public static void RegisterSDKCallback()
 	{
