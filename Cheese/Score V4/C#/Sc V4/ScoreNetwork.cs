@@ -44,12 +44,8 @@ public class ScoreNetwork : UdonSharpBehaviour
     [HideInInspector][UdonSynced] public byte funcStack1;
     [HideInInspector][UdonSynced] public byte funcStack2;
     [HideInInspector][UdonSynced] public byte funcStack3;
-    [HideInInspector][UdonSynced] public byte funcStack4;
-    [HideInInspector][UdonSynced] public byte funcStack5;
-    [HideInInspector][UdonSynced] public byte funcStack6;
-    [HideInInspector][UdonSynced] public byte funcStack7;
     #endregion
-    [HideInInspector] public byte[] funcStack = new byte[8];
+    [HideInInspector] public byte[] funcStack = new byte[4];
 
     [HideInInspector][UdonSynced] public int funcStackTop = 0;              //栈顶
 
@@ -113,10 +109,6 @@ public class ScoreNetwork : UdonSharpBehaviour
         funcStack1 = funcStack[1];
         funcStack2 = funcStack[2];
         funcStack3 = funcStack[3];
-        funcStack4 = funcStack[4];
-        funcStack5 = funcStack[5];
-        funcStack6 = funcStack[6];
-        funcStack7 = funcStack[7];
     }
 
     void BytesToArry()
@@ -125,9 +117,5 @@ public class ScoreNetwork : UdonSharpBehaviour
         funcStack[1] = funcStack1;
         funcStack[2] = funcStack2;
         funcStack[3] = funcStack3;
-        funcStack[4] = funcStack4;
-        funcStack[5] = funcStack5;
-        funcStack[6] = funcStack6;
-        funcStack[7] = funcStack7;
     }
 }

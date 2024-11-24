@@ -149,7 +149,7 @@ public class RankingSystem : UdonSharpBehaviour
 			var data = json.DataDictionary["data"].DataDictionary;
 			if (data["stateCode"] == 0)
 			{
-				context = "<color=green>上传成功</color>" + $"{data["msg"]}";
+				context = "<color=green>上传成功</color>" + $"{data["msg"]} \n";
 				context += "<color=red> 玩家1历史分数" + data["p1Last"] + "</color> ";
 				context += "<color=blue> 玩家2历史分数" + data["p2Last"] + "</color> \n";
 				context += "<color=red> 玩家1当前分数" + data["p1Now"] + "</color> ";
