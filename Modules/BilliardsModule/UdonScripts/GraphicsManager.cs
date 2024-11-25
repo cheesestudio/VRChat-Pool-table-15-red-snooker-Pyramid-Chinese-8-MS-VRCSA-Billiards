@@ -744,10 +744,6 @@ public class GraphicsManager : UdonSharpBehaviour
 		var colorList = input.Split("|", StringSplitOptions.RemoveEmptyEntries);
 		var ret = new string[colorList.Length][];
 
-#if DEBUG
-		Debug.Log(colorList.Length);
-#endif
-
 		for (var i = 0; i < colorList.Length; i++)
 		{
 			var colorObj = colorList[i].Split(":");
