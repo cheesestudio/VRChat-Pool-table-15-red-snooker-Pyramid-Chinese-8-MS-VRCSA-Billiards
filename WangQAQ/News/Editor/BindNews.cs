@@ -11,10 +11,10 @@ using VRC.SDKBase;
 using WangQAQ.UdonPlug;
 
 [InitializeOnLoad]
-public class BinNews : MonoBehaviour
+public class BindNews : MonoBehaviour
 {
 	private static string baseUrl = "https://www.wangqaq.com/AspAPI/table/GetNews/";
-	static BinNews()
+	static BindNews()
 	{
 		// 初始化对象
 		var pipelineOBJ = FindObjectsOfType<PipelineManager>().SingleOrDefault();
