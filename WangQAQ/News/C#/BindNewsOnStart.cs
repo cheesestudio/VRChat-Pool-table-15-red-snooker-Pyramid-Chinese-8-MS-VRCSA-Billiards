@@ -60,8 +60,8 @@ public class BindNewsOnStart : MonoBehaviour, IEditorOnly
 		string path = "Assets/" + GUID + "VRChatPoolMapKey.txt";
 		if (File.Exists(path))
 		{
-			var uploadOBJ = Resources.FindObjectsOfTypeAll<GetNewsList>().ToList();
-			var uploadOBJ1 = Resources.FindObjectsOfTypeAll<GetMainContext>().ToList();
+			var uploadOBJ = FindObjectsOfType<GetNewsList>().ToList();
+			var uploadOBJ1 = FindObjectsOfType<GetMainContext>().ToList();
 			var tmp = File.ReadAllText(path).Split("||");
 
 			if (tmp.Length != 2)

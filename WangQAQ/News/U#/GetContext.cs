@@ -5,33 +5,36 @@ using UnityEngine;
 using UnityEngine.UI;
 using VRC.SDKBase;
 using VRC.Udon;
+using WangQAQ.UdonPlug;
 
-namespace WangQAQ.UdonPlug
+public class GetContext : UdonSharpBehaviour
 {
-	public class GetContext : UdonSharpBehaviour
+	[HideInInspector] public string Title;
+	[HideInInspector] public string Description;
+
+	[HideInInspector] public int UrlID;
+
+	private GetMainContext _ContextDownloader;
+
+	[SerializeField] public TextMeshProUGUI _titleTMP;
+	[SerializeField] public TextMeshProUGUI _contextTMP;
+
+	public void _Init()
 	{
-		[HideInInspector] public string Title;
-		[HideInInspector] public string Description;
+		_ContextDownloader = transform.Find("../../../../../../ContextDownloader").GetComponent<GetMainContext>();
+		_titleTMP = transform.Find("frame/Title/Text").GetComponent<TextMeshProUGUI>();
+		_contextTMP = transform.Find("frame/Context/Text").GetComponent<TextMeshProUGUI>();
 
-		[HideInInspector] public int UrlID;
+		_titleTMP.text = Title;
+		_contextTMP.text = Description;
+	}
 
-		public UdonBehaviour _ContextDownloader;
-
-		[SerializeField] private TextMeshProUGUI _titleTMP;
-		[SerializeField] private TextMeshProUGUI _contextTMP;
-
-		public void _Init()
+	public void OnChick()
+	{
+		if (_ContextDownloader != null)
 		{
-			_titleTMP.text = Title;
-			_contextTMP.text = Description;
-
-			_ContextDownloader = transform.Find("../../../../../../ContextDownloader").GetComponent<UdonBehaviour>();
-		}
-
-		public void OnChick()
-		{
-			_ContextDownloader.SetProgramVariable("_UrlID",(uint)UrlID);
-			_ContextDownloader.SendCustomEvent("GetContext");
+			_ContextDownloader._UrlID = (uint)UrlID;
+			_ContextDownloader.GetContext();
 		}
 	}
 }
