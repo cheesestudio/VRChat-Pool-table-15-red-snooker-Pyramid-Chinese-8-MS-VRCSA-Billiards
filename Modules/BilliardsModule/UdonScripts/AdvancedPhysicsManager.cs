@@ -2669,7 +2669,8 @@ public class AdvancedPhysicsManager : UdonSharpBehaviour
         if (!table.isPlayer) return;
 
         bool color = (table.teamIdLocal ^ table.teamColorLocal) == 0; //1 single ,0 double
-        table._LogYes("id:" + id + "队伍" + table.teamIdLocal + "颜色" + color);
+        table._LogYes("id : " + id + "队伍 : " + table.teamIdLocal + "foulStateLocal : " + table.foulStateLocal);//+ "颜色" + color);
+
         if (id == 0)
         {
             if (table.isMyTurn())
@@ -2677,6 +2678,25 @@ public class AdvancedPhysicsManager : UdonSharpBehaviour
                 table.DG_LAB.SendCustomEvent("JustShock");
                 table._LogYes("进母球要电");
             }
+        }
+        else if(table.is8Ball && id == 1)
+        {
+            if (table.isMyTurn())
+            {
+                if (table.foulStateLocal != 0)
+                {
+                    table.DG_LAB.SendCustomEvent("JustShock");
+                    table._LogYes("犯规进黑球要电");
+                }
+            }
+            else
+            {
+                if (table.foulStateLocal == 0)
+                {
+                    table.DG_LAB.SendCustomEvent("JustShock");
+                    table._LogYes("对手没犯规进黑球要电");
+                }
+            } 
         }
         else if (table.isTableOpenLocal)
         {
@@ -2688,7 +2708,7 @@ public class AdvancedPhysicsManager : UdonSharpBehaviour
         }
         else
         {
-            if (!table.isMyTurn() & table.foulStateLocal != 0)
+            if (!table.isMyTurn() && table.foulStateLocal != 0)
             {
                 table.DG_LAB.SendCustomEvent("JustShock");
                 table._LogYes("不是你的回合进球要电");

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: AdvancedPhysicsManager
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 11149b84a10526f438451415d9ddca6b,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: d75a4827452a12443b8bec2e69a0a8b3,
     type: 2}
   udonAssembly: 
   assemblyError: 
