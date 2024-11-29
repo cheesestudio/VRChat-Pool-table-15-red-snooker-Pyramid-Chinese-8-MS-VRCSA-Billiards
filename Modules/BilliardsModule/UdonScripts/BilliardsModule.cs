@@ -3306,6 +3306,12 @@ public class BilliardsModule : UdonSharpBehaviour
                 {
                     // Loss
                     onLocalTeamWin(teamIdLocal ^ 0x1U);
+
+                    if(DG_LAB != null)
+                    {
+                        DG_LAB.SendCustomEvent("JustShock");
+                        _LogYes("输了要电"); 
+                    }
                 }
                 else
                 {
@@ -3317,11 +3323,18 @@ public class BilliardsModule : UdonSharpBehaviour
             {
                 // Loss
                 onLocalTeamWin(teamIdLocal ^ 0x1U);
+
             }
             else if (foulCondition)
             {
                 // Foul
                 onLocalTurnFoul(isScratch, nextTurnBlocked);
+
+                if (DG_LAB != null)
+                {
+                    DG_LAB.SendCustomEvent("JustShock");
+                    _LogYes("犯规了要电");
+                }
             }
             else if (snookerDraw)
             {
