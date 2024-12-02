@@ -118,4 +118,6 @@ public class ScoreNetwork : UdonSharpBehaviour
         funcStack[2] = funcStack2;
         funcStack[3] = funcStack3;
     }
+
+
 }

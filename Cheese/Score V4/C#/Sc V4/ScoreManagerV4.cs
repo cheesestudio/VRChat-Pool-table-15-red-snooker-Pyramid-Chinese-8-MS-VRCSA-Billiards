@@ -11,6 +11,8 @@ using System;
 using TMPro;
 using UdonSharp;
 using UnityEngine;
+using VRC.SDKBase;
+using static UnityEditor.Experimental.GraphView.GraphView;
 
 [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
 public class ScoreManagerV4 : UdonSharpBehaviour
@@ -463,6 +465,13 @@ public class ScoreManagerV4 : UdonSharpBehaviour
 		gameResetLocal();
 	}
 
-	#endregion
-
+    #endregion
+    public override void OnPlayerLeft(VRCPlayerApi player)
+    {
+        string leftPlayerName = player.displayName;
+        if (leftPlayerName == Network.PlayerA || leftPlayerName == Network.PlayerB)
+        {
+			_GameReset();
+        }
+    }
 }
