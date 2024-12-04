@@ -20,7 +20,7 @@ namespace WangQAQ.UdonPlug
 	{
 		[SerializeField] private TextMeshProUGUI MainContext;
 
-		[HideInInspector] public VRCUrl[] urls;
+		[SerializeField] public VRCUrl[] urls;
 		[HideInInspector] public byte[] key = null;
 		[HideInInspector] public HC256 _hc256;
 
@@ -28,7 +28,7 @@ namespace WangQAQ.UdonPlug
 
 		private bool isLoad = false;
 
-		void Start()
+		public void Start()
 		{
 			if (urls == null ||
 				key == null)

@@ -20,7 +20,8 @@ namespace WangQAQ.UdonPlug
 		[SerializeField] private GameObject _Prefab;
 		[SerializeField] private Transform ObjParent;
 
-		[HideInInspector] public VRCUrl url;
+		[SerializeField] public VRCUrl url;
+
 		[HideInInspector] public byte[] key = null;
 
 		[HideInInspector] public HC256 _hc256;
@@ -29,7 +30,7 @@ namespace WangQAQ.UdonPlug
 
 		private bool isLoading = false;
 
-		void Start()
+		public void Start()
 		{
 			if (url == null ||
 				key == null)
