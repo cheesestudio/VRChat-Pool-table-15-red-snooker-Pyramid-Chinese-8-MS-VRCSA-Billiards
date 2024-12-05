@@ -12,7 +12,6 @@ using TMPro;
 using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
-using static UnityEditor.Experimental.GraphView.GraphView;
 
 [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
 public class ScoreManagerV4 : UdonSharpBehaviour
