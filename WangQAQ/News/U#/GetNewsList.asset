@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: GetNewsList
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: c4fa2608b8a2c46439c0ed24c48c6c5a,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: b5ef9e2b2e6c03f408e4e92a58b1a4bb,
     type: 2}
   udonAssembly: 
   assemblyError: 
@@ -209,7 +209,7 @@ MonoBehaviour:
       Data: 1
     - Name: 
       Entry: 7
-      Data: 13|UnityEngine.HideInInspector, UnityEngine.CoreModule
+      Data: 13|UnityEngine.SerializeField, UnityEngine.CoreModule
     - Name: 
       Entry: 8
       Data: 
