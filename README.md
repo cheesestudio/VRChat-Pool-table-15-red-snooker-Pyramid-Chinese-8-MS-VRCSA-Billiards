@@ -43,6 +43,8 @@ Roka:俄式球桌和中式球桌是我按照Sacc台球桌的10ft桌和12ft斯诺
 最终解释权归中文台球俱乐部所有
 ![image](https://github.com/user-attachments/assets/362abbc4-c159-4617-a6a2-23b64765709a)
 
+### 借物表
+#### `LookatPlayer.cs` 来自https://www.bilibili.com/video/BV1bg1oYaEQk
 
 ![image](https://github.com/user-attachments/assets/8da69556-b526-488a-8127-5fc319de84a9)
 
