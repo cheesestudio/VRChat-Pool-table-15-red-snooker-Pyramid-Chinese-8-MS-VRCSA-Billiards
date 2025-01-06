@@ -159,8 +159,6 @@ public class BilliardsModule : UdonSharpBehaviour
     //2024/9/29 预留api，用于以后修改
     [SerializeField] public UdonBehaviour ScoreManagerHook = null;
 
-	[SerializeField] public UdonBehaviour ColorNameV2 = null;
-
 	//芝士郊狼联动
 	public UdonBehaviour DG_LAB;
 

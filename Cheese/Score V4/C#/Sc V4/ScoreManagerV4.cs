@@ -64,16 +64,16 @@ public class ScoreManagerV4 : UdonSharpBehaviour
 			return;
 		}
 
-		// 尝试寻找控件
-		if (EloAPI == null)
-		{
-			EloAPI = GameObject.Find("EloDownload").GetComponent<EloDownload>();
-			if (EloAPI == null)
-			{
-				this.enabled = false;
-				return;
-			}
-		}
+		//// 尝试寻找控件
+		//if (EloAPI == null)
+		//{
+		//	EloAPI = GameObject.Find("EloDownload").GetComponent<EloDownload>();
+		//	if (EloAPI == null)
+		//	{
+		//		this.enabled = false;
+		//		return;
+		//	}
+		//}
 
 		//Init
 		Network._Init(this);
@@ -121,8 +121,8 @@ public class ScoreManagerV4 : UdonSharpBehaviour
 
 	private void _ReflashEloScore()
 	{
-		Elo1.text = EloAPI.GetElo(Network.PlayerA).ToString();
-		Elo2.text = EloAPI.GetElo(Network.PlayerB).ToString();
+		//Elo1.text = EloAPI.GetElo(Network.PlayerA).ToString();
+		//Elo2.text = EloAPI.GetElo(Network.PlayerB).ToString();
 	}
 
 	#endregion

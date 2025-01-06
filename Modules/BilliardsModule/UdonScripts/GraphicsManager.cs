@@ -438,68 +438,29 @@ public class GraphicsManager : UdonSharpBehaviour
 	public string _FormatName(VRCPlayerApi player)
 	{
 		if (player == null) { return "No one"; }
-		if (table.ColorNameV2 == null) return player.displayName;
+		if (table.nameColorHook == null) return player.displayName;
 		if (player.displayName == null) return string.Empty;
 
-		table.ColorNameV2.SetProgramVariable("inOwner", player.displayName);
-		table.ColorNameV2.SendCustomEvent("_GetNameColor");
+		table.nameColorHook.SetProgramVariable("inOwner", player.displayName);
+		table.nameColorHook.SendCustomEvent("_GetNameColor");
 
-		string color = (string)table.ColorNameV2.GetProgramVariable("outColor");
+		string color = (string)table.nameColorHook.GetProgramVariable("outColor");
 
-		if(string.IsNullOrWhiteSpace(color))
-			return player.displayName;
+		if (color == "dark") return darkColors(player.displayName);
+		if (color == "rainbow") return rainbow(player.displayName);
+		if (color == "golden") return goldenColors(player.displayName);
+		if (color == "greenL") return greenColors(player.displayName);
+		if (color == "skyBlueL") return blueSkyColors(player.displayName);
+		if (color == "redWhite") return redWhiteColors(player.displayName);
 
-		var colors = ColorDto(color);
-		string ret = null;
 
-		switch (colors.Length)
-		{
-			case 1:
-				ret = Serialization1F(player.displayName,
-					colors[0][0], Convert.ToInt32(colors[0][1]));
-				break;
-			case 2:
-				ret = Serialization2F(player.displayName,
-					colors[0][0], Convert.ToInt32(colors[0][1]),
-					colors[1][0], Convert.ToInt32(colors[1][1]));
-				break;
-			case 3:
-				ret = Serialization3F(player.displayName,
-					colors[0][0], Convert.ToInt32(colors[0][1]),
-					colors[1][0], Convert.ToInt32(colors[1][1]),
-					colors[2][0], Convert.ToInt32(colors[2][1]));
-				break;
-			case 4:
-				ret = Serialization4F(player.displayName,
-					colors[0][0], Convert.ToInt32(colors[0][1]),
-					colors[1][0], Convert.ToInt32(colors[1][1]),
-					colors[2][0], Convert.ToInt32(colors[2][1]),
-					colors[3][0], Convert.ToInt32(colors[3][1]));
-			break;
-		}
-
-		if(ret == null)
-			return player.displayName;
-
-		return ret;
+		return $"<color=#{color}>{player.displayName}</color>";
 	}
 
-	#region ColorV2
-	private static string Serialization1F(string name, string color1, int p1 = 100)
+	#region Colors
+	private string rainbow(string name)
 	{
-		// 特殊情况，直接输出
-		return $"<color={color1}>{name}</color>";
-	}
-
-	private static string Serialization2F(
-		string name,
-		string color1, int p1,
-		string color2, int p2)
-	{
-		string[] colors = Serialization2F(name.Length, color1, p1, color2, p2);
-		if (colors == null)
-			return $"<color=#ffffff>{name}</color>";
-
+		string[] colors = generateRainbow(name.Length);
 		for (int i = 0; i < name.Length; i++)
 		{
 			colors[i] = $"<color=#{colors[i]}>{name[i]}</color>";
@@ -507,57 +468,50 @@ public class GraphicsManager : UdonSharpBehaviour
 		return string.Join("", colors);
 	}
 
-	private static string[] Serialization2F(
-		int numColors,
-		string color1, int p1,
-		string color2, int p2)
+	private string[] generateRainbow(int numColors)
 	{
 		string[] colors = new string[numColors];
 
-		int first = (int)((float)numColors * ((float)p1 / 100));
-		int ended = (int)(numColors - 1);
-
-		byte[] colorFirst = HexToRgb(color1);
-		byte[] colorEnded = HexToRgb(color2);
-		if (colorFirst == null || colorEnded == null)
-			return null;
-
-		byte[] colorMiddle = CalculateMiddleColor(colorFirst, colorEnded);
-		if (colorMiddle == null)
-			return null;
-
+		float n = (float)numColors;
 		for (int i = 0; i < numColors; i++)
 		{
-			byte[] colorTmp = new Byte[3];
-
-			if (i <= first)
+			int red = 255;
+			int green = 0;
+			int blue = 0;
+			//red: (first quarter)
+			if (i <= n / 4)
 			{
-				colorTmp[0] = (byte)Mathf.Lerp(colorFirst[0], colorMiddle[0], remap(i, 0, first, 0, 1));
-				colorTmp[1] = (byte)Mathf.Lerp(colorFirst[1], colorMiddle[1], remap(i, 0, first, 0, 1));
-				colorTmp[2] = (byte)Mathf.Lerp(colorFirst[2], colorMiddle[2], remap(i, 0, first, 0, 1));
+				red = 255;
+				green = (int)(255 / (n / 4) * i);
+				blue = 0;
 			}
-			else
+			else if (i <= n / 2)  //2nd quarter
 			{
-				colorTmp[0] = (byte)Mathf.Lerp(colorMiddle[0], colorEnded[0], remap(i, first, ended, 0, 1));
-				colorTmp[1] = (byte)Mathf.Lerp(colorMiddle[1], colorEnded[1], remap(i, first, ended, 0, 1));
-				colorTmp[2] = (byte)Mathf.Lerp(colorMiddle[2], colorEnded[2], remap(i, first, ended, 0, 1));
+				red = (int)((-255) / (n / 4) * i + 255 * 2);
+				green = 255;
+				blue = 0;
+			}
+			else if (i <= (.75) * n)
+			{ // 3rd quarter
+				red = 0;
+				green = 255;
+				blue = (int)(255 / (n / 4) * i + (-255 * 2));
+			}
+			else if (i > (.75) * n)
+			{
+				red = 0;
+				green = (int)(-255 * i / (n / 4) + (255 * 4));
+				blue = 255;
 			}
 
-			// 转换为十六进制字符串  
-			colors[i] = $"{colorTmp[0].ToString("X2")}{colorTmp[1].ToString("X2")}{colorTmp[2].ToString("X2")}";
+			colors[i] = $"{red.ToString("X2")}{green.ToString("X2")}{blue.ToString("X2")}";
 		}
 		return colors;
 	}
 
-	private static string Serialization3F(string name,
-		string color1, int p1,
-		string color2, int p2,
-		string color3, int p3)
+	private string darkColors(string name)
 	{
-		string[] colors = Serialization3F(name.Length, color1, p1, color2, p2, color3, p3);
-		if (colors == null)
-			return $"<color=#ffffff>{name}</color>";
-
+		string[] colors = generateDarkColors(name.Length);
 		for (int i = 0; i < name.Length; i++)
 		{
 			colors[i] = $"<color=#{colors[i]}>{name[i]}</color>";
@@ -565,68 +519,54 @@ public class GraphicsManager : UdonSharpBehaviour
 		return string.Join("", colors);
 	}
 
-	private static string[] Serialization3F(
-		int numColors,
-		string color1, int p1,
-		string color2, int p2,
-		string color3, int p3)
+	private string[] generateDarkColors(int numColors)
 	{
 		string[] colors = new string[numColors];
 
-		int first  = (int)((float)numColors * ((float)p1 / 100));
-		int middle = (int)(first + (float)numColors * ((float)p2 / 100));
-		int ended  = numColors - 1;
-
-		byte[] colorFirst = HexToRgb(color1);
-		byte[] colorMiddle = HexToRgb(color2);
-		byte[] colorEnded = HexToRgb(color3);
-		if (colorFirst == null || colorEnded == null || colorMiddle == null)
-			return null;
-
-		byte[] colorMiddleFirst = CalculateMiddleColor(colorFirst, colorMiddle);
-		byte[] colorMiddleEnded = CalculateMiddleColor(colorMiddle, colorEnded);
-		if (colorMiddleFirst == null || colorMiddleEnded == null)
-			return null;
+		float n = (float)numColors;
+		int baseBrightness = 128; // 设置一个基础亮度值  
 
 		for (int i = 0; i < numColors; i++)
 		{
-			byte[] colorTmp = new Byte[3];
+			int red = 0;
+			int green = 0;
+			int blue = 0;
 
-			if (i <= first)
+			// 深蓝色到深紫色  
+			if (i <= n / 4)
 			{
-				colorTmp[0] = (byte)Mathf.Lerp(colorFirst[0], colorMiddleFirst[0], remap(i, 0, first, 0, 1));
-				colorTmp[1] = (byte)Mathf.Lerp(colorFirst[1], colorMiddleFirst[1], remap(i, 0, first, 0, 1));
-				colorTmp[2] = (byte)Mathf.Lerp(colorFirst[2], colorMiddleFirst[2], remap(i, 0, first, 0, 1));
+				blue = baseBrightness + (int)(64 / (n / 4) * (n / 4 - i)); // 蓝色逐渐减少，但保持较高亮度  
+				red = baseBrightness + (int)(32 / (n / 4) * i);           // 红色逐渐增加  
+				green = 0;
 			}
-			else if (i <= middle)
+			else if (i <= n / 2) // 深紫色到深红色  
 			{
-				colorTmp[0] = (byte)Mathf.Lerp(colorMiddleFirst[0], colorMiddleEnded[0], remap(i, first, middle, 0, 1));
-				colorTmp[1] = (byte)Mathf.Lerp(colorMiddleFirst[1], colorMiddleEnded[1], remap(i, first, middle, 0, 1));
-				colorTmp[2] = (byte)Mathf.Lerp(colorMiddleFirst[2], colorMiddleEnded[2], remap(i, first, middle, 0, 1));
+				blue = 0;
+				red = baseBrightness + (int)(64 / (n / 4) * (i - (n / 4))); // 红色继续增加  
+				green = 0;
 			}
-			else
+			else if (i <= (.75) * n) // 深红色到暗黄绿色（增加绿色以提高亮度）  
 			{
-				colorTmp[0] = (byte)Mathf.Lerp(colorMiddleEnded[0], colorEnded[0], remap(i, middle, ended, 0, 1));
-				colorTmp[1] = (byte)Mathf.Lerp(colorMiddleEnded[1], colorEnded[1], remap(i, middle, ended, 0, 1));
-				colorTmp[2] = (byte)Mathf.Lerp(colorMiddleEnded[2], colorEnded[2], remap(i, middle, ended, 0, 1));
+				red = baseBrightness + 32; // 保持一定的红色  
+				green = baseBrightness + (int)(64 / (n / 4) * (i - (n / 2))); // 绿色逐渐增加  
+				blue = baseBrightness; // 保持一定的蓝色  
+			}
+			else // 暗黄绿色到深青色（保持亮度并增加蓝色）  
+			{
+				red = baseBrightness; // 保持红色不变  
+				green = baseBrightness + 64; // 绿色达到最高  
+				blue = baseBrightness + (int)(32 / (n / 4) * (i - (.75 * n))); // 蓝色逐渐增加  
 			}
 
 			// 转换为十六进制字符串  
-			colors[i] = $"{colorTmp[0].ToString("X2")}{colorTmp[1].ToString("X2")}{colorTmp[2].ToString("X2")}";
+			colors[i] = $"{red.ToString("X2")}{green.ToString("X2")}{blue.ToString("X2")}";
 		}
 		return colors;
 	}
 
-	private static string Serialization4F(string name,
-		string color1, int p1,
-		string color2, int p2,
-		string color3, int p3,
-		string color4, int p4)
+	private string goldenColors(string name)
 	{
-		string[] colors = Serialization4F(name.Length, color1, p1, color2, p2, color3, p3, color4, p4);
-		if (colors == null)
-			return $"<color=#ffffff>{name}</color>";
-
+		string[] colors = goldenColors(name.Length);
 		for (int i = 0; i < name.Length; i++)
 		{
 			colors[i] = $"<color=#{colors[i]}>{name[i]}</color>";
@@ -634,127 +574,123 @@ public class GraphicsManager : UdonSharpBehaviour
 		return string.Join("", colors);
 	}
 
-	private static string[] Serialization4F(
-		int numColors,
-		string color1, int p1,
-		string color2, int p2,
-		string color3, int p3,
-		string color4, int p4)
+	private string[] goldenColors(int numColors)
 	{
 		string[] colors = new string[numColors];
 
-		int first = (int)((float)numColors * ((float)p1 / 100));
-		int middleFirst = first + (int)((float)numColors * ((float)p2 / 100));
-		int middleEnded = middleFirst + (int)((float)numColors * ((float)p3 / 100));
-		int ended = numColors - 1;
-
-		byte[] colorFirst = HexToRgb(color1);
-		byte[] colorMiddleFirst = HexToRgb(color2);
-		byte[] colorMiddleEnded = HexToRgb(color3);
-		byte[] colorEnded = HexToRgb(color4);
-		if (colorFirst == null ||
-			colorEnded == null ||
-			colorMiddleFirst == null ||
-			colorMiddleEnded == null ||
-			colorEnded == null)
-			return null;
-
-		byte[] colorMixFirst = CalculateMiddleColor(colorFirst, colorMiddleFirst);
-		byte[] colorMixMiddle = CalculateMiddleColor(colorMiddleFirst, colorMiddleEnded);
-		byte[] colorMixEnded = CalculateMiddleColor(colorMiddleEnded, colorEnded);
-		if (colorMiddleFirst == null || colorMiddleEnded == null)
-			return null;
+		float n = (float)numColors;
 
 		for (int i = 0; i < numColors; i++)
 		{
-			byte[] colorTmp = new Byte[3];
+			int red = 0;
+			int green = 0;
+			int blue = 20;
 
-			if (i <= first)
+			if (i <= n / 2)
 			{
-				colorTmp[0] = (byte)Mathf.Lerp(colorFirst[0], colorMixFirst[0], remap(i, 0, first, 0, 1));
-				colorTmp[1] = (byte)Mathf.Lerp(colorFirst[1], colorMixFirst[1], remap(i, 0, first, 0, 1));
-				colorTmp[2] = (byte)Mathf.Lerp(colorFirst[2], colorMixFirst[2], remap(i, 0, first, 0, 1));
+				red = 255;
+				green = (int)Mathf.Lerp(80, 215, remap(i, 0, n / 2, 0, 1));
+				blue = 20;
+
+				Debug.Log(remap(i, 0, n / 2, 0, 1));
 			}
-			else if (i <= middleFirst)
+			else if (i > n / 2)
 			{
-				colorTmp[0] = (byte)Mathf.Lerp(colorMixFirst[0], colorMixMiddle[0], remap(i, first, middleFirst, 0, 1));
-				colorTmp[1] = (byte)Mathf.Lerp(colorMixFirst[1], colorMixMiddle[1], remap(i, first, middleFirst, 0, 1));
-				colorTmp[2] = (byte)Mathf.Lerp(colorMixFirst[2], colorMixMiddle[2], remap(i, first, middleFirst, 0, 1));
-			}
-			else if (i <= middleEnded)
-			{
-				colorTmp[0] = (byte)Mathf.Lerp(colorMixMiddle[0], colorMixEnded[0], remap(i, middleFirst, middleEnded, 0, 1));
-				colorTmp[1] = (byte)Mathf.Lerp(colorMixMiddle[1], colorMixEnded[1], remap(i, middleFirst, middleEnded, 0, 1));
-				colorTmp[2] = (byte)Mathf.Lerp(colorMixMiddle[2], colorMixEnded[2], remap(i, middleFirst, middleEnded, 0, 1));
-			}
-			else
-			{
-				colorTmp[0] = (byte)Mathf.Lerp(colorMixEnded[0], colorEnded[0], remap(i, middleEnded, ended, 0, 1));
-				colorTmp[1] = (byte)Mathf.Lerp(colorMixEnded[1], colorEnded[1], remap(i, middleEnded, ended, 0, 1));
-				colorTmp[2] = (byte)Mathf.Lerp(colorMixEnded[2], colorEnded[2], remap(i, middleEnded, ended, 0, 1));
+				red = (int)Mathf.Lerp(255, 200, remap(i, n / 2 + 1, n - 1, 0, 1));
+				green = (int)Mathf.Lerp(215, 180, remap(i, n / 2 + 1, n - 1, 0, 1));
+				blue = (int)Mathf.Lerp(20, 0, remap(i, n / 2 + 1, n - 1, 0, 1));
 			}
 
 			// 转换为十六进制字符串  
-			colors[i] = $"{colorTmp[0].ToString("X2")}{colorTmp[1].ToString("X2")}{colorTmp[2].ToString("X2")}";
+			colors[i] = $"{red.ToString("X2")}{green.ToString("X2")}{blue.ToString("X2")}";
 		}
 		return colors;
 	}
 
-	private static byte[] HexToRgb(string hexColor)
+	private string greenColors(string name)
 	{
-		if (string.IsNullOrWhiteSpace(hexColor) ||
-			(hexColor.Length != 7 && hexColor.Length != 4) ||
-			hexColor[0] != '#')
+		string[] colors = greenColors(name.Length);
+		for (int i = 0; i < name.Length; i++)
 		{
-			return null;
+			colors[i] = $"<color=#{colors[i]}>{name[i]}</color>";
 		}
-
-		if (hexColor.Length == 4)
-		{
-			hexColor = $"#{hexColor[1]}{hexColor[1]}{hexColor[2]}{hexColor[2]}{hexColor[3]}{hexColor[3]}";
-		}
-
-		string rHex = hexColor.Substring(1, 2);
-		string gHex = hexColor.Substring(3, 2);
-		string bHex = hexColor.Substring(5, 2);
-
-		byte r = Convert.ToByte(rHex, 16);
-		byte g = Convert.ToByte(gHex, 16);
-		byte b = Convert.ToByte(bHex, 16);
-
-		return new byte[] { r, g, b };
+		return string.Join("", colors);
 	}
 
-	private static byte[] CalculateMiddleColor(byte[] color1, byte[] color2)
+	private string[] greenColors(int numColors)
 	{
-		if (color1 == null || color2 == null || color1.Length != 3 || color2.Length != 3)
+		string[] colors = new string[numColors];
+
+		float n = (float)numColors;
+
+		for (int i = 0; i < numColors; i++)
 		{
-			return null;
+			int red = (int)Mathf.Lerp(175, 80, remap(i, 0, n, 0, 1));
+			int green = 215;
+			int blue = (int)Mathf.Lerp(130, 0, remap(i, 0, n, 0, 1));
+
+			// 转换为十六进制字符串  
+			colors[i] = $"{red.ToString("X2")}{green.ToString("X2")}{blue.ToString("X2")}";
 		}
-
-		byte r = (byte)((color1[0] + color2[0]) / 2);
-		byte g = (byte)((color1[1] + color2[1]) / 2);
-		byte b = (byte)((color1[2] + color2[2]) / 2);
-
-		return new byte[] { r, g, b };
+		return colors;
 	}
 
-	private static string[][] ColorDto(string input)
+	private string blueSkyColors(string name)
 	{
-		var colorList = input.Split("|", StringSplitOptions.RemoveEmptyEntries);
-		var ret = new string[colorList.Length][];
-
-		for (var i = 0; i < colorList.Length; i++)
+		string[] colors = blueSkyColors(name.Length);
+		for (int i = 0; i < name.Length; i++)
 		{
-			var colorObj = colorList[i].Split(":");
-			if (colorObj.Length == 2)
-			{
-				ret[i] = colorObj;
-			}
+			colors[i] = $"<color=#{colors[i]}>{name[i]}</color>";
 		}
-
-		return ret;
+		return string.Join("", colors);
 	}
+
+	private string[] blueSkyColors(int numColors)
+	{
+		string[] colors = new string[numColors];
+
+		float n = (float)numColors;
+
+		for (int i = 0; i < numColors; i++)
+		{
+			int red = (int)Mathf.Lerp(0, 150, remap(i, 0, n, 0, 1));
+			int green = (int)Mathf.Lerp(130, 200, remap(i, 0, n, 0, 1));
+			int blue = 225;
+
+			// 转换为十六进制字符串  
+			colors[i] = $"{red.ToString("X2")}{green.ToString("X2")}{blue.ToString("X2")}";
+		}
+		return colors;
+	}
+
+	private string redWhiteColors(string name)
+	{
+		string[] colors = redWhiteColors(name.Length);
+		for (int i = 0; i < name.Length; i++)
+		{
+			colors[i] = $"<color=#{colors[i]}>{name[i]}</color>";
+		}
+		return string.Join("", colors);
+	}
+
+	private string[] redWhiteColors(int numColors)
+	{
+		string[] colors = new string[numColors];
+
+		float n = (float)numColors;
+
+		for (int i = 0; i < numColors; i++)
+		{
+			int red = 225;
+			int green = (int)Mathf.Lerp(120, 255, remap(i, 0, n, 0, 1));
+			int blue = (int)Mathf.Lerp(120, 255, remap(i, 0, n, 0, 1));
+
+			// 转换为十六进制字符串  
+			colors[i] = $"{red.ToString("X2")}{green.ToString("X2")}{blue.ToString("X2")}";
+		}
+		return colors;
+	}
+
 
 	private static float remap(float value, float from1, float to1, float from2, float to2)
 	{
