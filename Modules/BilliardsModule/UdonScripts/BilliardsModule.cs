@@ -3296,7 +3296,7 @@ public class BilliardsModule : UdonSharpBehaviour
                 //Debug.Log("进球:" + count);
                 personalData.pocketCount += count;
 
-                personalData.inningCount++:
+                personalData.inningCount++;
 
                 if (foulCondition) personalData.foulCount++;
 
