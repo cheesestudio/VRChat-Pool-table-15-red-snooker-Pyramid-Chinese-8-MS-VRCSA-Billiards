@@ -1,5 +1,6 @@
 ﻿#define EIJIS_SNOOKER15REDS
 
+using BestHTTP.SecureProtocol.Org.BouncyCastle.Asn1.X509.SigI;
 using System;
 using UdonSharp;
 
