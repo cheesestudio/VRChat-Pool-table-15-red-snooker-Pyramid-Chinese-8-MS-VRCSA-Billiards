@@ -2453,8 +2453,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2043818841243529134}
-  - component: {fileID: 3738582344751625104}
-  - component: {fileID: 6488968448878758364}
+  - component: {fileID: 2916382610514352600}
+  - component: {fileID: 5417866036091650868}
   - component: {fileID: 4108807855593596282}
   - component: {fileID: 1968702349051587268}
   - component: {fileID: 392543697543310280}
@@ -2500,7 +2500,7 @@ RectTransform:
   m_AnchoredPosition: {x: -2.42, y: 1.409}
   m_SizeDelta: {x: 1000, y: 600}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &3738582344751625104
+--- !u!114 &2916382610514352600
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2509,7 +2509,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3155118309230535064}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: efd922ea31236dc41b96dc9719b01ad2, type: 3}
+  m_Script: {fileID: 11500000, guid: dbb9d43d9f3f4db4686ff7b219a4d9f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   serializationData:
@@ -2521,23 +2521,13 @@ MonoBehaviour:
     PrefabModificationsReferencedUnityObjects: []
     PrefabModifications: []
     SerializationNodes: []
-  _udonSharpBackingUdonBehaviour: {fileID: 6488968448878758364}
+  _udonSharpBackingUdonBehaviour: {fileID: 5417866036091650868}
+  RankingSystem: {fileID: 5098371406618670518}
   RedNameTMP: {fileID: 6682270112925136850}
   BlueNameTMP: {fileID: 5119088067071361023}
   RedScoreTMP: {fileID: 3696964176292860385}
   BlueScoreTMP: {fileID: 4518561459906563027}
-  Elo1: {fileID: 164382568456864947}
-  Elo2: {fileID: 4101475462012707661}
-  Messages: {fileID: 1321242258280984881}
-  Network: {fileID: 3784405097204600489}
-  RankingSystem: {fileID: 5098371406618670518}
-  EloAPI: {fileID: 0}
-  _billiardsModule: {fileID: 0}
-  lobbyPlayerList: []
-  nowPlayerList: []
-  startPlayerList: []
-  winningTeamLocal: 4294967295
---- !u!114 &6488968448878758364
+--- !u!114 &5417866036091650868
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2556,10 +2546,10 @@ MonoBehaviour:
   SynchronizePosition: 0
   AllowCollisionOwnershipTransfer: 0
   Reliable: 0
-  _syncMethod: 1
-  serializedProgramAsset: {fileID: 11400000, guid: 354265418ab07e24abbe03f5ed0f9040,
+  _syncMethod: 3
+  serializedProgramAsset: {fileID: 11400000, guid: 1ba897451ef19ba44ba0bd51b494f8c6,
     type: 2}
-  programSource: {fileID: 11400000, guid: 97db69178122e1943bebb556faaaa75e, type: 2}
+  programSource: {fileID: 11400000, guid: d40dafd8f6c53494ba3068fd95a6dc32, type: 2}
   serializedPublicVariablesBytesString: Ai8AAAAAATIAAABWAFIAQwAuAFUAZABvAG4ALgBDAG8AbQBtAG8AbgAuAFUAZABvAG4AVgBhAHIAaQBhAGIAbABlAFQAYQBiAGwAZQAsACAAVgBSAEMALgBVAGQAbwBuAC4AQwBvAG0AbQBvAG4AAAAAAAYBAAAAAAAAACcBBAAAAHQAeQBwAGUAAWgAAABTAHkAcwB0AGUAbQAuAEMAbwBsAGwAZQBjAHQAaQBvAG4AcwAuAEcAZQBuAGUAcgBpAGMALgBMAGkAcwB0AGAAMQBbAFsAVgBSAEMALgBVAGQAbwBuAC4AQwBvAG0AbQBvAG4ALgBJAG4AdABlAHIAZgBhAGMAZQBzAC4ASQBVAGQAbwBuAFYAYQByAGkAYQBiAGwAZQAsACAAVgBSAEMALgBVAGQAbwBuAC4AQwBvAG0AbQBvAG4AXQBdACwAIABtAHMAYwBvAHIAbABpAGIAAQEJAAAAVgBhAHIAaQBhAGIAbABlAHMALwEAAAABaAAAAFMAeQBzAHQAZQBtAC4AQwBvAGwAbABlAGMAdABpAG8AbgBzAC4ARwBlAG4AZQByAGkAYwAuAEwAaQBzAHQAYAAxAFsAWwBWAFIAQwAuAFUAZABvAG4ALgBDAG8AbQBtAG8AbgAuAEkAbgB0AGUAcgBmAGEAYwBlAHMALgBJAFUAZABvAG4AVgBhAHIAaQBhAGIAbABlACwAIABWAFIAQwAuAFUAZABvAG4ALgBDAG8AbQBtAG8AbgBdAF0ALAAgAG0AcwBjAG8AcgBsAGkAYgABAAAABgEAAAAAAAAAAi8CAAAAAUkAAABWAFIAQwAuAFUAZABvAG4ALgBDAG8AbQBtAG8AbgAuAFUAZABvAG4AVgBhAHIAaQBhAGIAbABlAGAAMQBbAFsAUwB5AHMAdABlAG0ALgBJAG4AdAAzADIALAAgAG0AcwBjAG8AcgBsAGkAYgBdAF0ALAAgAFYAUgBDAC4AVQBkAG8AbgAuAEMAbwBtAG0AbwBuAAIAAAAGAgAAAAAAAAAnAQQAAAB0AHkAcABlAAEXAAAAUwB5AHMAdABlAG0ALgBTAHQAcgBpAG4AZwAsACAAbQBzAGMAbwByAGwAaQBiACcBCgAAAFMAeQBtAGIAbwBsAE4AYQBtAGUAAR8AAABfAF8AXwBVAGQAbwBuAFMAaABhAHIAcABCAGUAaABhAHYAaQBvAHUAcgBWAGUAcgBzAGkAbwBuAF8AXwBfACcBBAAAAHQAeQBwAGUAARYAAABTAHkAcwB0AGUAbQAuAEkAbgB0ADMAMgAsACAAbQBzAGMAbwByAGwAaQBiABcBBQAAAFYAYQBsAHUAZQACAAAABwUHBQcF
   publicVariablesUnityEngineObjects: []
   publicVariablesSerializationDataFormat: 0
@@ -2752,7 +2742,7 @@ MonoBehaviour:
   SynchronizePosition: 0
   AllowCollisionOwnershipTransfer: 1
   Reliable: 0
-  _syncMethod: 2
+  _syncMethod: 3
   serializedProgramAsset: {fileID: 11400000, guid: 47d3e0584fc5f504eaa520bd0663fbbd,
     type: 2}
   programSource: {fileID: 11400000, guid: 279f86ee8fa4a4a46a51fe39596d93a7, type: 2}

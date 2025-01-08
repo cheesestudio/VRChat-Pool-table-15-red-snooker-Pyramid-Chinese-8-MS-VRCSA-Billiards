@@ -154,8 +154,6 @@ public class BilliardsModule : UdonSharpBehaviour
     private UCS.UdonChips udonChips = null;
 #endif
 
-    //up24/6/14   Scoremanager
-    [SerializeField] public ScoreManagerV2 ScoreManager;
     public Translations _translations;
 
     //2024/9/29 预留api，用于以后修改
@@ -1893,11 +1891,11 @@ public class BilliardsModule : UdonSharpBehaviour
         }
 
         //UP24/6/15  重构by cheese  24/9/26 难以想象居然撑了三个月
-        if (ScoreManager != null && !isPracticeMode)
-        {
-            if (!BreakFinish)  //斯诺克有可能出问题,因为Breakfinish是由复用的参数计算的
-                ScoreManager.AddScore(playerIDsCached[0], playerIDsCached[1], playerIDsCached[winningTeamLocal], isSnooker15Red  && (string)tableModels[tableModelLocal].GetProgramVariable("TABLENAME") ==  "Snooker 12ft" );
-        }
+        //if (isScoreManagerEnable && !isPracticeMode)
+        //{
+        //    if (!BreakFinish)  //斯诺克有可能出问题,因为Breakfinish是由复用的参数计算的
+        //        ScoreManager.AddScore(playerIDsCached[0], playerIDsCached[1], playerIDsCached[winningTeamLocal], isSnooker15Red && (string)tableModels[tableModelLocal].GetProgramVariable("TABLENAME") == "Snooker 12ft");
+        //}
         //这段代码必须在resetCachedData前面,不然gamemode被重置了,不过用snooker简化就没事,放这里以防万一
 
         gameLive = false;
