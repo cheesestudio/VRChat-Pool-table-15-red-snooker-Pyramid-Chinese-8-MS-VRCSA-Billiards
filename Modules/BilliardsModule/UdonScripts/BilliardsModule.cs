@@ -11,7 +11,7 @@
 #define EIJIS_CALLSHOT
 #define EIJIS_SEMIAUTOCALL
 #define EIJIS_10BALL
-
+#define CHEESE_ISSUE_FIX
 
 // #define EIJIS_DEBUG_INITIALIZERACK
 // #define EIJIS_DEBUG_BALLCHOICE
@@ -133,16 +133,10 @@ public class BilliardsModule : UdonSharpBehaviour
     [SerializeField] public TableHook tableHook;
     [Space(3)]
     [SerializeField] public UdonBehaviour nameColorHook;
-
-    //up24/6/14   Scoremanager
     [SerializeField] public ScoreManagerV2 ScoreManager;
-
     [SerializeField] public Translations _translations;
-
     [SerializeField] public PersonalDataCounter personalData;
-
-    //芝士郊狼联动
-    public UdonBehaviour DG_LAB;
+    [SerializeField] public UdonBehaviour DG_LAB;    //芝士郊狼联动
 
     // globals
     [NonSerialized] public AudioSource aud_main;
@@ -1836,7 +1830,8 @@ public class BilliardsModule : UdonSharpBehaviour
                 udonChips.money -= loser_lose;
             }
 #endif
-            if (personalData != null && !isPracticeMode)
+            _LogYes("shotcounts"+ShotCounts);
+            if (personalData != null && !isPracticeMode && ShotCounts != 0)
             {
                 VRCPlayerApi localPlayer = Networking.LocalPlayer;
                 if (localPlayer == winner1 || localPlayer == winner2 )
@@ -2054,8 +2049,12 @@ public class BilliardsModule : UdonSharpBehaviour
                     repoMaxX = -(k_TABLE_WIDTH - k_CUSHION_RADIUS) / 2;
                     break;
                 case 2://anywhere
-                    //Vector3 k_pR = (Vector3)currentPhysicsManager.GetProgramVariable("k_pR");
-                    repoMaxX = k_TABLE_WIDTH - k_BALL_RADIUS;//k_pR.x;
+#if CHEESE_ISSUE_FIX
+                    repoMaxX = k_TABLE_WIDTH - k_BALL_RADIUS;
+#else
+                    Vector3 k_pR = (Vector3)currentPhysicsManager.GetProgramVariable("k_pR");
+                    repoMaxX = k_pR.x;
+#endif
                     break;
                 case 3://snooker D
                     repoMaxX = K_BAULK_LINE;
@@ -2261,7 +2260,7 @@ public class BilliardsModule : UdonSharpBehaviour
         }
     }
 #endif
-    #endregion
+#endregion
 
     #region PhysicsEngineCallbacks
 #if EIJIS_CUSHION_EFFECT
@@ -2420,16 +2419,6 @@ public class BilliardsModule : UdonSharpBehaviour
         // place ball on the rack
         if (isChinese8Ball)
         {
-            //// 计算当0前球所在的行数和列数
-            //int i = 0; // 初始化为第一行
-            //int count =1; // 第一行球数为1
-            //while (total > count)
-            //{
-            //    i++;
-            //    count += i;
-            //}
-            ////// 计算列数偏移
-            //float j = (float)total - (float)(count - i); // 当前球在该行的第几列
             int i = 0, j = 0;
             int count = 0;
             bool breaktime = false;
@@ -2710,10 +2699,17 @@ public class BilliardsModule : UdonSharpBehaviour
 
                 winCondition = (isSetComplete || colorTurnLocal) && is8Sink;
 
-                //黄金开球
-                if (personalData != null && colorTurnLocal && is8Sink)
+
+                if (personalData != null && !isPracticeMode)
                 {
-                    personalData.goldenBreak++;
+                    if (colorTurnLocal && is8Sink)                //黄金开球
+                    {
+                        personalData.goldenBreak++;
+                        personalData.breakClearance--;
+                        personalData.clearance--;
+                    }
+                    if(isScratch)
+                        personalData.scratchCount++;
                     personalData.SaveData();
                 }
 
@@ -2809,8 +2805,8 @@ public class BilliardsModule : UdonSharpBehaviour
                 }
 
 #endif
-                if (personalData != null && !isPracticeMode)
-                    if (foulCondition && colorTurnLocal) personalData.breakFoul++;
+                if (personalData != null && foulCondition && colorTurnLocal && !isPracticeMode)
+                    personalData.breakFoul++;
                 // try and close the table if possible
                 if (!foulCondition && isTableOpenLocal)
                 {
@@ -3281,31 +3277,6 @@ public class BilliardsModule : UdonSharpBehaviour
 #else
             networkingManager._OnSimulationEnded(ballsP, ballsPocketedLocal, fbScoresLocal, colorTurnLocal);
 #endif
-            //Save personal datas
-            if (personalData != null&& !isPracticeMode)
-            {
-                uint bpl = ballsPocketedLocal & ~(0x1U);
-                uint opl = ballsPocketedOrig & ~(0x1U);
-                uint number = bpl ^ opl;
-                int count = 0;
-                while (number != 0)
-                {
-                    number &= (number - 1);  // 去掉最右边的 1
-                    count++;
-                }
-                //Debug.Log("进球:" + count);
-                personalData.pocketCount += count;
-
-                personalData.inningCount++;
-
-                if (foulCondition) personalData.foulCount++;
-
-                if (winCondition && ShotCounts == 0) { personalData.breakClearance++; personalData.clearance++; } //炸清
-                if (winCondition && ShotCounts == 1) personalData.clearance++;
-
-                personalData.SaveData();
-                
-            }
             if (winCondition)
             {
                 if (foulCondition)
@@ -3313,6 +3284,12 @@ public class BilliardsModule : UdonSharpBehaviour
                     // Loss
                     onLocalTeamWin(teamIdLocal ^ 0x1U);
 
+                    if(personalData!= null && !isPracticeMode)
+                    {
+                        ShotCounts++;
+                        personalData.shotCount++;
+                        personalData.foulEnd++;
+                    }
                     if (DG_LAB != null)
                     {
                         DG_LAB.SendCustomEvent("JustShock");
@@ -3323,6 +3300,11 @@ public class BilliardsModule : UdonSharpBehaviour
                 {
                     // Win
                     onLocalTeamWin(teamIdLocal);
+                    if (personalData != null && !isPracticeMode)
+                    {
+                        ShotCounts++;
+                        personalData.shotCount++;
+                    }
                 }
             }
             else if (deferLossCondition)
@@ -3330,6 +3312,11 @@ public class BilliardsModule : UdonSharpBehaviour
                 // Loss
                 onLocalTeamWin(teamIdLocal ^ 0x1U);
 
+                if (personalData != null && !isPracticeMode)
+                {
+                    ShotCounts++;
+                    personalData.shotCount++;
+                }
                 if (DG_LAB != null)
                 {
                     DG_LAB.SendCustomEvent("JustShock");
@@ -3342,6 +3329,11 @@ public class BilliardsModule : UdonSharpBehaviour
                 // Foul
                 onLocalTurnFoul(isScratch, nextTurnBlocked);
 
+                if (personalData != null && !isPracticeMode)
+                {
+                    ShotCounts++;
+                    personalData.shotCount++;
+                }
                 if (DG_LAB != null)
                 {
                     DG_LAB.SendCustomEvent("JustShock");
@@ -3362,6 +3354,43 @@ public class BilliardsModule : UdonSharpBehaviour
             {
                 // Pass
                 onLocalTurnPass();
+                if (personalData != null && !isPracticeMode)
+                {
+                    ShotCounts++;
+                    personalData.shotCount++;
+                }
+            }
+
+            //Save personal datas
+            if (personalData != null && !isPracticeMode)
+            {
+                uint bpl = ballsPocketedLocal & ~(0x1U);
+                uint opl = ballsPocketedOrig & ~(0x1U);
+                uint number = bpl ^ opl;
+                int count = 0;
+                while (number != 0)
+                {
+                    number &= (number - 1);  // 去掉最右边的 1
+                    count++;
+                }
+                //Debug.Log("进球:" + count);
+                personalData.pocketCount += count;
+
+                personalData.inningCount++;
+
+                if (foulCondition) personalData.foulCount++;
+
+                uint localTeam = 0;
+                if (Networking.LocalPlayer.playerId == playerIDsLocal[0])
+                    localTeam = 1;
+                else if (Networking.LocalPlayer.playerId == playerIDsLocal[1])
+                    localTeam = 2;
+
+                if (winCondition && ShotCounts == 1 && localTeam == 1) { personalData.breakClearance++; personalData.clearance++; } //炸清
+                if (winCondition && ShotCounts == 1 && localTeam == 2) personalData.clearance++;
+
+                personalData.SaveData();
+
             }
         }
 #if EIJIS_PUSHOUT || EIJIS_CALLSHOT
@@ -4110,7 +4139,7 @@ public class BilliardsModule : UdonSharpBehaviour
             menuManager._DisablePushOutMenu();
         }
 #endif
-#if EIJIS_CALLSHOT 
+#if EIJIS_CALLSHOT
         markerCalledBall.SetActive(false);
 #if EIJIS_10BALL
         if (isOurTurnVar && (is8Ball || is9Ball || is10Ball))
@@ -5598,7 +5627,7 @@ public class BilliardsModule : UdonSharpBehaviour
         return value;
     }
 #endif
-    #endregion
+#endregion
 
     #region MiscFunction
 
