@@ -15338,15 +15338,6 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 454769885718525156, guid: 6ca5f19306d0fb34695c7ed6264ad545,
         type: 3}
-      propertyPath: DataTextFormat
-      value: "\u573A\u6B21:{0}\n\u80DC\u573A:{1} \n\u8D25\u573A:{2} \n\u8FDB\u7403\u6570:{3}
-        \n\u51FA\u6746\u6570:{4}\n\u56DE\u5408\u6570:{5}\n\u6BCD\u7403\u6454\u888B\u6570:{6}\n\u9ED1\u767D\u53CC\u4E0B:{7}
-        \n\u5F00\u7403\u72AF\u89C4:{8}\n\u72AF\u89C4\u6B21\u6570:{9} \n\u5F00\u7403\u5931\u673A\u6B21\u6570:{10}
-        \n\u9EC4\u91D1\u5F00\u7403:{11}\n\u4E00\u6746\u6E05\u53F0\u6B21\u6570:{12}
-        \n\u70B8\u6E05\u6B21\u6570:{13}"
-      objectReference: {fileID: 0}
-    - target: {fileID: 454769885718525156, guid: 6ca5f19306d0fb34695c7ed6264ad545,
-        type: 3}
       propertyPath: serializationData.Prefab
       value: 
       objectReference: {fileID: 454769885718525156, guid: 6ca5f19306d0fb34695c7ed6264ad545,
@@ -15406,15 +15397,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: PersonalDataCounter
       objectReference: {fileID: 0}
-    - target: {fileID: 8735657773389663764, guid: 6ca5f19306d0fb34695c7ed6264ad545,
-        type: 3}
-      propertyPath: m_text
-      value: "\u573A\u6B21:{0}\n\u80DC\u573A:{1} \n\u8D25\u573A:{2} \n\u8FDB\u7403\u6570:{3}
-        \n\u51FA\u6746\u6570:{4}\n\u56DE\u5408\u6570:{5}\n\u6BCD\u7403\u6454\u888B\u6570:{6}\n\u9ED1\u767D\u53CC\u4E0B:{7}
-        \n\u5F00\u7403\u72AF\u89C4:{8}\n\u72AF\u89C4\u6B21\u6570:{9} \n\u5F00\u7403\u5931\u673A\u6B21\u6570:{10}
-        \n\u9EC4\u91D1\u5F00\u7403:{11}\n\u4E00\u6746\u6E05\u53F0\u6B21\u6570:{12}
-        \n\u70B8\u6E05\u6B21\u6570:{13}"
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -15469,31 +15451,31 @@ MonoBehaviour:
   - {fileID: 2100000, guid: 4448ce560d0fb75409d2a433d25fe54b, type: 2}
   - {fileID: 2100000, guid: 397c2fcfe58ef54439ec7bed699754a9, type: 2}
   - {fileID: 2100000, guid: 6a2dd6f6c7ee9fa4ea19fd3f7547cc3a, type: 2}
+  - {fileID: 2100000, guid: 365a58db1c3ef6d4abc89ecb3be0533e, type: 2}
   - {fileID: 2100000, guid: 94fbbeefaf88551488ba2e5efcd7f5db, type: 2}
   - {fileID: 2100000, guid: c124011a1754a804780db881a598a17e, type: 2}
   - {fileID: 2100000, guid: cc372933c8e860b428564bdaa864d185, type: 2}
-  - {fileID: 2100000, guid: 365a58db1c3ef6d4abc89ecb3be0533e, type: 2}
+  - {fileID: 2100000, guid: feb1219745a919e4f8b190c48a579b75, type: 2}
+  - {fileID: 2100000, guid: 6be31ec5303b1a44b92374eed50d4e48, type: 2}
+  - {fileID: 2100000, guid: 786128f13534cfe488a3ef6dce80e5ef, type: 2}
+  - {fileID: 2100000, guid: 08449cb337aa5154eb9776a96efd80e4, type: 2}
+  - {fileID: 2100000, guid: bf223c28f40d06c45abf56baaefaffa6, type: 2}
+  - {fileID: 2100000, guid: f1a07ab15fecaa84eab2e47b3bfaaff9, type: 2}
+  - {fileID: -3406411368475958213, guid: 21ac83a342a0b7144a87e1d2c869c740, type: 2}
+  - {fileID: 2100000, guid: 0315e1aea7e600647a806cd973220512, type: 2}
+  - {fileID: 2100000, guid: 9e35c73cf59a16b42bc4a6412e56f380, type: 2}
+  - {fileID: 2100000, guid: 310beb3eea8438245a9bf1a09de16ee2, type: 2}
   - {fileID: 2100000, guid: a6f828c93cc83274f99b7dfed5e5d3c3, type: 2}
+  - {fileID: 2100000, guid: dbc35f8c79bf7e94ca4d5437799260c2, type: 2}
+  - {fileID: 2100000, guid: bc7c1f0b92565044b9e8ca08d874c949, type: 2}
   - {fileID: 2100000, guid: 93585496ee025f34e922739ea2256bd5, type: 2}
   - {fileID: 2100000, guid: 832e3f1741802e14e8dcd2349153da85, type: 2}
   - {fileID: 2100000, guid: ee989dcb917e3e94c85a03b311e8889d, type: 2}
   - {fileID: 2100000, guid: 94053fded6c82a745b6df004522c5d1b, type: 2}
-  - {fileID: 2100000, guid: 310beb3eea8438245a9bf1a09de16ee2, type: 2}
-  - {fileID: 2100000, guid: 08449cb337aa5154eb9776a96efd80e4, type: 2}
-  - {fileID: 2100000, guid: feb1219745a919e4f8b190c48a579b75, type: 2}
-  - {fileID: 2100000, guid: 6be31ec5303b1a44b92374eed50d4e48, type: 2}
-  - {fileID: -3406411368475958213, guid: 21ac83a342a0b7144a87e1d2c869c740, type: 2}
-  - {fileID: 2100000, guid: dbc35f8c79bf7e94ca4d5437799260c2, type: 2}
-  - {fileID: 2100000, guid: bf223c28f40d06c45abf56baaefaffa6, type: 2}
-  - {fileID: 2100000, guid: 786128f13534cfe488a3ef6dce80e5ef, type: 2}
-  - {fileID: 2100000, guid: f1a07ab15fecaa84eab2e47b3bfaaff9, type: 2}
-  - {fileID: 2100000, guid: 0315e1aea7e600647a806cd973220512, type: 2}
-  - {fileID: 2100000, guid: 9e35c73cf59a16b42bc4a6412e56f380, type: 2}
-  - {fileID: 2100000, guid: bc7c1f0b92565044b9e8ca08d874c949, type: 2}
   - {fileID: 2100000, guid: 5a2173563b5fe0a47abee972205106d8, type: 2}
-  - {fileID: 2100000, guid: 918a9413f74f46f489d9b9c316541bd7, type: 2}
-  - {fileID: 2100000, guid: 3145a4864f9eafa488d55b4988f0156a, type: 2}
   - {fileID: 2100000, guid: 1cd57d0aa5d28c647b7fbdc1cae3a8e1, type: 2}
+  - {fileID: 2100000, guid: 3145a4864f9eafa488d55b4988f0156a, type: 2}
+  - {fileID: 2100000, guid: 918a9413f74f46f489d9b9c316541bd7, type: 2}
   - {fileID: 2100000, guid: 23ade139f73571e448351e38bb3152ac, type: 2}
   LightMapsNear: []
   LightMapsFar: []

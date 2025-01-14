@@ -386,8 +386,10 @@ public class BilliardsModule : UdonSharpBehaviour
     [NonSerialized] public int tableModelLocal;
     [NonSerialized] public bool colorTurnLocal;
 
+    //Cheese Addition
     [NonSerialized] public bool BreakFinish;
     [NonSerialized] public int ShotCounts;
+    [NonSerialized] public int HeightBreak;
 #if EIJIS_PYRAMID
     [NonSerialized] public const uint GAMEMODE_PYRAMID = 5u;
 #endif
@@ -1710,7 +1712,9 @@ public class BilliardsModule : UdonSharpBehaviour
 
         _LogInfo($"onRemoteGameStarted");
 
+        HeightBreak = 0;
         ShotCounts = 0;
+
         lobbyOpen = false;
         gameLive = true;
 
@@ -1830,13 +1834,14 @@ public class BilliardsModule : UdonSharpBehaviour
                 udonChips.money -= loser_lose;
             }
 #endif
-            _LogYes("shotcounts"+ShotCounts);
+            //_LogYes("shotcounts"+ShotCounts);
             if (personalData != null && !isPracticeMode && ShotCounts != 0)
             {
                 VRCPlayerApi localPlayer = Networking.LocalPlayer;
                 if (localPlayer == winner1 || localPlayer == winner2 )
                 {
-                    personalData.gameCount++;
+                    if (isSnooker) personalData.gameCountSnooker++;
+                    else personalData.gameCount++;
                     personalData.winCount++;
                 }
                 else
@@ -1846,7 +1851,8 @@ public class BilliardsModule : UdonSharpBehaviour
                     VRCPlayerApi loser2 = VRCPlayerApi.GetPlayerById(playerIDsCached[losingTeam + 2]);
                     if(localPlayer == loser1 || localPlayer== loser2 )
                     {
-                        personalData.gameCount++;
+                        if (isSnooker) personalData.gameCountSnooker++;
+                        else personalData.gameCount++;
                         personalData.loseCount++;
                     }
                 }
@@ -3180,6 +3186,11 @@ public class BilliardsModule : UdonSharpBehaviour
                 else
                 {
                     fbScoresLocal[teamIdLocal] = (byte)Mathf.Min(fbScoresLocal[teamIdLocal] + ballScore, byte.MaxValue);
+                    if(personalData != null)
+                    {
+                        HeightBreak += ballScore;
+                        if (ballScore > 1) personalData.pocketCountSnooker++;
+                    }
                     _LogInfo("6RED: Team " + (teamIdLocal) + " awarded " + ballScore + " points");
                 }
                 _LogInfo("6RED: TeamScore 0: " + fbScoresLocal[0]);
@@ -3286,8 +3297,7 @@ public class BilliardsModule : UdonSharpBehaviour
 
                     if(personalData!= null && !isPracticeMode)
                     {
-                        ShotCounts++;
-                        personalData.shotCount++;
+                        shotCountData();
                         personalData.foulEnd++;
                     }
                     if (DG_LAB != null)
@@ -3302,8 +3312,7 @@ public class BilliardsModule : UdonSharpBehaviour
                     onLocalTeamWin(teamIdLocal);
                     if (personalData != null && !isPracticeMode)
                     {
-                        ShotCounts++;
-                        personalData.shotCount++;
+                        shotCountData();
                     }
                 }
             }
@@ -3314,8 +3323,7 @@ public class BilliardsModule : UdonSharpBehaviour
 
                 if (personalData != null && !isPracticeMode)
                 {
-                    ShotCounts++;
-                    personalData.shotCount++;
+                    shotCountData();
                 }
                 if (DG_LAB != null)
                 {
@@ -3331,8 +3339,7 @@ public class BilliardsModule : UdonSharpBehaviour
 
                 if (personalData != null && !isPracticeMode)
                 {
-                    ShotCounts++;
-                    personalData.shotCount++;
+                    shotCountData();
                 }
                 if (DG_LAB != null)
                 {
@@ -3356,8 +3363,7 @@ public class BilliardsModule : UdonSharpBehaviour
                 onLocalTurnPass();
                 if (personalData != null && !isPracticeMode)
                 {
-                    ShotCounts++;
-                    personalData.shotCount++;
+                    shotCountData();
                 }
             }
 
@@ -3374,9 +3380,16 @@ public class BilliardsModule : UdonSharpBehaviour
                     count++;
                 }
                 //Debug.Log("进球:" + count);
-                personalData.pocketCount += count;
-
-                personalData.inningCount++;
+                if (isSnooker)
+                {
+                    personalData.pocketCountSnooker += count;
+                    personalData.inningCountSnooker++;
+                }
+                else
+                {
+                    personalData.pocketCount += count;
+                    personalData.inningCount++;
+                }
 
                 if (foulCondition) personalData.foulCount++;
 
@@ -3409,6 +3422,25 @@ public class BilliardsModule : UdonSharpBehaviour
 #endif
     }
     
+    /// <summary>
+    /// calculate personal date(tracking shot count and snooker height break
+    /// cheese
+    /// </summary>
+    private void shotCountData()
+    {
+        ShotCounts++;
+        if (isSnooker && (string)tableModels[tableModelLocal].GetProgramVariable("TABLENAME") == "Snooker 12ft")
+        {
+            personalData.shotCountSnooker++;
+            if(HeightBreak > personalData.heightBreak)
+            {
+                personalData.heightBreak = HeightBreak;
+            }
+        }
+        else
+            personalData.shotCount++;
+        personalData.SaveData();
+    }
     private void sixRedMoveBallUntilNotTouching(int Ball)
     {
         //replace colored ball on its own spot
