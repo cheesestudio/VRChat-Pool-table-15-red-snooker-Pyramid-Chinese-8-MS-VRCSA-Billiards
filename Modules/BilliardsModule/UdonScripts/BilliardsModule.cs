@@ -3436,9 +3436,11 @@ public class BilliardsModule : UdonSharpBehaviour
             {
                 personalData.heightBreak = HeightBreak;
             }
+            HeightBreak = 0;
         }
         else
             personalData.shotCount++;
+
         personalData.SaveData();
     }
     private void sixRedMoveBallUntilNotTouching(int Ball)
