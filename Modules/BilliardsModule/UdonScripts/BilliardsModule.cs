@@ -2705,20 +2705,6 @@ public class BilliardsModule : UdonSharpBehaviour
 
                 winCondition = (isSetComplete || colorTurnLocal) && is8Sink;
 
-
-                if (personalData != null && !isPracticeMode)
-                {
-                    if (colorTurnLocal && is8Sink)                //黄金开球
-                    {
-                        personalData.goldenBreak++;
-                        personalData.breakClearance--;
-                        personalData.clearance--;
-                    }
-                    if(isScratch)
-                        personalData.scratchCount++;
-                    personalData.SaveData();
-                }
-
 #if EIJIS_PUSHOUT
                 if (is8Sink && ((isPracticeMode && !winCondition) || pushOut))
 #else
@@ -2751,6 +2737,22 @@ public class BilliardsModule : UdonSharpBehaviour
                 }
 
                 deferLossCondition = is8Sink;
+
+                if (personalData != null && !isPracticeMode)
+                {
+                    if (colorTurnLocal && is8Sink)                //黄金开球
+                    {
+                        personalData.goldenBreak++;
+                        if (!foulCondition)
+                        {
+                            personalData.breakClearance--;
+                            personalData.clearance--;
+                        }
+                    }
+                        if (isScratch)
+                            personalData.scratchCount++;
+                    personalData.SaveData();
+                }
 
                 if (is8Sink && isChinese8Ball && colorTurnLocal)//中式开球复位
                 {
@@ -3399,9 +3401,16 @@ public class BilliardsModule : UdonSharpBehaviour
                 else if (Networking.LocalPlayer.playerId == playerIDsLocal[1])
                     localTeam = 2;
 
-                if (winCondition && ShotCounts == 1 && localTeam == 1) { personalData.breakClearance++; personalData.clearance++; } //炸清
-                if (winCondition && ShotCounts == 1 && localTeam == 2) personalData.clearance++;
-
+                if (winCondition && ShotCounts == 1 && localTeam == 1) //炸清
+                {
+                    personalData.breakClearance++; personalData.clearance++;
+                    personalData.syncData();
+                } 
+                if (winCondition && ShotCounts == 1 && localTeam == 2)
+                {
+                    personalData.clearance++;
+                    personalData.syncData();
+                }
                 personalData.SaveData();
 
             }

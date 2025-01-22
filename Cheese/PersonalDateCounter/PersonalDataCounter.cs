@@ -9,8 +9,9 @@ namespace Cheese
 {
     public class PersonalDataCounter : UdonSharpBehaviour
     {
-
-        //还有平均出杆时间等
+        [Header("Udon")]
+        public PersonalDataRanking personalDataRanking;
+        //todo 还有平均出杆时间等
         [Header("TMP")]
         public TextMeshProUGUI DataText;
         public TextMeshProUGUI CalculatedDataText;
@@ -18,6 +19,8 @@ namespace Cheese
         [TextArea] public string DataTextFormat = "";
         [TextArea] public string SecDataTextFormat = "";
         [TextArea] public string SnookerTextFormat = "";
+
+
         //Datas
         public int gameCount = 0;      //场次
         public int winCount = 0;       //胜场
@@ -83,8 +86,8 @@ namespace Cheese
             if (PlayerData.HasKey(player, FOUL_COUNT)) foulCount = PlayerData.GetInt(player, FOUL_COUNT);
             if (PlayerData.HasKey(player, LOSS_OF_CHANGE)) lossOfChange = PlayerData.GetInt(player, LOSS_OF_CHANGE);
             if (PlayerData.HasKey(player, GOLDEN_BREAK)) goldenBreak = PlayerData.GetInt(player, GOLDEN_BREAK);
-            if (PlayerData.HasKey(player, CLEARANCE)) clearance = PlayerData.GetInt(player, CLEARANCE);
-            if (PlayerData.HasKey(player, BREAK_CLEARANCE)) breakClearance = PlayerData.GetInt(player, BREAK_CLEARANCE);
+            if (PlayerData.HasKey(player, CLEARANCE)) clearance = PlayerData.GetInt(player, CLEARANCE) >= 0 ? PlayerData.GetInt(player, CLEARANCE) : 0;
+            if (PlayerData.HasKey(player, BREAK_CLEARANCE)) breakClearance = PlayerData.GetInt(player, BREAK_CLEARANCE) >= 0 ? PlayerData.GetInt(player, BREAK_CLEARANCE) : 0;
             //snooker
             if (PlayerData.HasKey(player, GAME_COUNT_SNOOKER)) gameCountSnooker = PlayerData.GetInt(player, GAME_COUNT_SNOOKER);
             if (PlayerData.HasKey(player, POCKET_COUNT_SNOOKER)) pocketCountSnooker = PlayerData.GetInt(player, POCKET_COUNT_SNOOKER);
@@ -92,9 +95,16 @@ namespace Cheese
             if (PlayerData.HasKey(player, INNNING_COUNT_SNOOKER)) inningCountSnooker = PlayerData.GetInt(player, INNNING_COUNT_SNOOKER);
             if (PlayerData.HasKey(player, HEIGHT_BREAK)) heightBreak = PlayerData.GetInt(player, HEIGHT_BREAK);
 
+            syncData();
+
             UpdateDataText();
         }
 
+        public void syncData()
+        {
+            float victoryRate = (gameCount != 0) ? (float)winCount / gameCount : 0;         //胜率
+            personalDataRanking.AddData(Networking.LocalPlayer.displayName, clearance.ToString(), victoryRate.ToString());
+        }
         // Method to save player data
         public void SaveData()
         {
@@ -116,7 +126,7 @@ namespace Cheese
             PlayerData.SetInt(GAME_COUNT_SNOOKER, gameCountSnooker);
             PlayerData.SetInt(POCKET_COUNT_SNOOKER, pocketCountSnooker);
             PlayerData.SetInt(SHOT_COUNT_SNOOKER, shotCountSnooker);
-            PlayerData.SetInt(INNNING_COUNT_SNOOKER,inningCountSnooker);
+            PlayerData.SetInt(INNNING_COUNT_SNOOKER, inningCountSnooker);
             PlayerData.SetInt(HEIGHT_BREAK, heightBreak);
 
             UpdateDataText();
@@ -134,8 +144,35 @@ namespace Cheese
 
             float shotAccuracySnooker = (inningCountSnooker != 0) ? (float)pocketCountSnooker / inningCountSnooker : 0;
 
-            SnookerText.text = string.Format(SnookerTextFormat, gameCountSnooker, pocketCountSnooker, shotCountSnooker, inningCountSnooker,shotAccuracySnooker * 100, heightBreak);
-            CalculatedDataText.text = string.Format(SecDataTextFormat, victoryRate * 100, shotAccuracy * 100, potSuccess, clearancePer * 100);
+            string Level = "D";  // 默认等级
+
+            // 基于 potSuccess 的值设定等级
+            if (potSuccess > 1.8f)
+            {
+                Level = "<color=#FFD700>A+</color>";  // 金色 A+
+                if (clearancePer > 0.08f)
+                    Level = "<color=#800080>SA</color>";  // 紫色 SA
+            }
+            else if (potSuccess >= 1.6f)
+                Level = "<color=#FF0000>A</color>";  // 红色 A
+            else if (potSuccess >= 1.5f)
+                Level = "<color=#FF0000>A-</color>";  // 红色 A-
+            else if (potSuccess >= 1.4f)
+                Level = "<color=#0000FF>B+</color>";  // 蓝色 B+
+            else if (potSuccess >= 1.2f)
+                Level = "<color=#0000FF>B</color>";  // 蓝色 B
+            else if (potSuccess >= 1f)
+                Level = "<color=#0000FF>B-</color>";  // 蓝色 B-
+            else if (potSuccess >= 0.66f)
+                Level = "<color=#FFFF00>C+</color>";  // 黄色 C+
+            else if (potSuccess >= 0.5f)
+                Level = "<color=#FFFF00>C</color>";  // 黄色 C
+            else if (potSuccess >= 0.33f)
+                Level = "<color=#FFFF00>C-</color>";  // 黄色 C-
+
+
+            SnookerText.text = string.Format(SnookerTextFormat, gameCountSnooker, pocketCountSnooker, shotCountSnooker, inningCountSnooker, shotAccuracySnooker * 100, heightBreak);
+            CalculatedDataText.text = string.Format(SecDataTextFormat, victoryRate * 100, shotAccuracy * 100, potSuccess, clearancePer * 100, Level);
         }
     }
 
