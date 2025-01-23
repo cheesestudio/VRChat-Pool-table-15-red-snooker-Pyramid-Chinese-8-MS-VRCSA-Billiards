@@ -2,6 +2,7 @@
 using TMPro;
 using UdonSharp;
 using UnityEngine;
+using UnityEngine.UI;
 using VRC.SDK3.Persistence;
 using VRC.SDKBase;
 
@@ -16,6 +17,7 @@ namespace Cheese
         public TextMeshProUGUI DataText;
         public TextMeshProUGUI CalculatedDataText;
         public TextMeshProUGUI SnookerText;
+        public Image image;
         [TextArea] public string DataTextFormat = "";
         [TextArea] public string SecDataTextFormat = "";
         [TextArea] public string SnookerTextFormat = "";
@@ -138,6 +140,8 @@ namespace Cheese
                 foulCount, lossOfChange, goldenBreak, clearance, breakClearance);
 
             float victoryRate = (gameCount != 0) ? (float)winCount / gameCount : 0;         //胜率
+            if(image)
+                image.fillAmount = victoryRate;
             float shotAccuracy = (inningCount != 0) ? (float)pocketCount / inningCount : 0; // 击球成功率，避免除数为零
             float potSuccess = (shotCount != 0) ? (float)pocketCount / shotCount : 0;         // 单杆进球率，避免除数为零
             float clearancePer = (gameCount != 0) ? (float)clearance / gameCount : 0;        // 一杆清台率，避免除数为零

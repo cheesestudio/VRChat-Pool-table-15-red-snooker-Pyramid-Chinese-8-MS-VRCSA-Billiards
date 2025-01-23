@@ -35,7 +35,9 @@ public class CueController : UdonSharpBehaviour
     [UdonSynced] private Vector3 secondaryLockPos;
 
     private float cueScaleMine = 1;
+    private float cueThicknessMine = 1;
     [UdonSynced] private float cueScale = 1;
+    [UdonSynced] private float cueThinkness = 1; 
     private float cueSmoothingLocal = 1;
     private float cueSmoothing = 30;
 
@@ -120,10 +122,7 @@ public class CueController : UdonSharpBehaviour
 
     private void refreshCueScale()
     {
-        //body.transform.localScale = new Vector3(1, 1, cueScale);
-
-        float factor = Mathf.Clamp(cueScale, 0.5f, 1.5f) - 0.5f;
-        body.transform.localScale = new Vector3(Mathf.Lerp(0.7f,1.3f,factor), Mathf.Lerp(0.7f, 1.3f, factor), cueScale);
+        body.transform.localScale = new Vector3(cueThinkness, cueThinkness, cueScale);
     }
 
     private void refreshCueSmoothing()
@@ -341,6 +340,7 @@ public class CueController : UdonSharpBehaviour
 
         //syncedCueSkin = table.activeCueSkin;
         cueScale = cueScaleMine;
+        cueThinkness = cueThicknessMine;
         RequestSerialization();
         OnDeserialization();
 
@@ -468,11 +468,13 @@ public class CueController : UdonSharpBehaviour
         refreshCueSmoothing();
     }
 
-    public void setScale(float scale)
+    public void setScale(float scale,float thickness)
     {
         cueScaleMine = scale;
+        cueThicknessMine = thickness;
         if (!Networking.IsOwner(gameObject)) return;
         cueScale = cueScaleMine;
+        cueThinkness = cueThicknessMine;
         RequestSerialization();
         OnDeserialization();
     }
@@ -482,6 +484,7 @@ public class CueController : UdonSharpBehaviour
         if (!Networking.IsOwner(gameObject)) return;
         if (cueScale == 1) return;
         cueScale = 1;
+        cueThinkness = 1;
         RequestSerialization();
         OnDeserialization();
     }

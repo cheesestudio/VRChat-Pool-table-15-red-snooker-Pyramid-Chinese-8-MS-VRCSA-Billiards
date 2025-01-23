@@ -562,8 +562,9 @@ public class MenuManager : UdonSharpBehaviour
     public void setCueSize()
     {
         float newScale = cueSizeSlider.value / 10f;
-        table.cueControllers[0].setScale(newScale);
-        table.cueControllers[1].setScale(newScale);
+        float newThickness = table.tableHook.cueThicknessSlider.value /10f;
+        table.cueControllers[0].setScale(newScale, newThickness);
+        table.cueControllers[1].setScale(newScale, newThickness);
         cueSizeText.text = newScale.ToString("F1");
     }
 
