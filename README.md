@@ -4,30 +4,31 @@
 这个项目是用于VRChat的台球桌预制键,你可以在VRChat地图 **[中文台球俱乐部 Chinese Billiiards Club
 ](https://vrchat.com/home/launch?worldId=wrld_0a35397b-2e7d-4f01-8552-034ab8e76e2e
 )**.游玩和测试这张桌子  
-非常感谢我朋友们的支持,没有他们做不出来这张桌子的:WangQAQ,RokaOvO,COCOA GAME,eijis-pan,Tempest,catte paling    
+非常感谢我朋友们的支持,没有他们做不出来这张桌子的:eijis-pan,RokaOvO,WangQAQ,COCOA GAME    
+球杆:Tempest,catte paling,tarsan,カボ    
 QQ群:780855553  
 
 ## 功能介绍 Features
 - 在原来的基础上加了:15球斯诺克,俄罗斯台球,中式八球（包括规则和集球器）,开仑台球,10球   
 - 桌子控件:自选球杆皮肤,球材质和桌子颜色(球杆同步，球和桌子本地),自动保存和加载设置,可以通过dc或者qq群上传设置
 - 继承原项目大部分更新，45秒计时器，库边颜色切换等
-- 计分板自动记录对局分数,支持擂台式计分
+- 计分板自动记录对局分数
 - 专属名字颜色功能
 - 全自动翻译系统(检测VRChat本地语言自动设置),中日英三种,中文规则版翻译补充
-- 全自动排行榜功能
+- 全自动排行榜功能(暂停使用,如果想要自己搭服务器可以问我)
+- 可持久化个人数据及排行榜  
 - 郊狼联动支持
 > 原项目:[MS-VRCSA-Billiards](https://github.com/Sacchan-VRC/MS-VRCSA-Billiards)
 ### 设置 Set up
 用的时候记得把billiardModule设置为22层，并把这层单独物理设置成只与自己交互（上面MS那个按钮可以自动设置）  
-<b>一定要设置table hook!!!</b>   
-排行榜[设置说明](./Leaderboard.md) 
+<b>一定要在场景内放一个table hook!!!</b>   
 ![image](https://github.com/user-attachments/assets/f453ae11-0735-4885-b700-87101d5971c7)
 
 ![Q84OOB{37Q{XY946MTR$E`F](https://github.com/user-attachments/assets/6bf18499-5926-4ca2-8a8c-8f8e33fd9faa)
 更多自定义功能:  
 -自定义球杆皮肤和球材质（下面视频，还要在tablehook里面加贴图现在）代码里面预留了几个空位  
 -有udonchips对应,在BilliardsModule里面点一下按钮
--用我发布的现成包就行，如果想克隆库，自己加一下vrcsdk和udonsharp  
+-用我发布的现成包就行，如果想克隆库，自己加一下vrcsdk(>=3.7.5)和udonsharp  
 > [设置自定义球杆 How to set custom cue](https://youtu.be/YnoQ9jsUg0k?si=EfdxX1FDMUZXM2RX)  
  
 ### 可能性功能(未来) Feature
