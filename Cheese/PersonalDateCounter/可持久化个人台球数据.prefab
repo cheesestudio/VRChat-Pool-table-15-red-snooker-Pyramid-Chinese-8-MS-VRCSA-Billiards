@@ -140,12 +140,12 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: '{0}                             {3}
+  m_text: '{0}                            {3}
 
-    {1}                            
+    {1}                           
     {4:F1}%
 
-    {2}                             {5}'
+    {2}                            {5}'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 21ac83a342a0b7144a87e1d2c869c740, type: 2}
   m_sharedMaterial: {fileID: -3406411368475958213, guid: 21ac83a342a0b7144a87e1d2c869c740,
@@ -189,7 +189,7 @@ MonoBehaviour:
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
-  m_enableWordWrapping: 1
+  m_enableWordWrapping: 0
   m_wordWrappingRatios: 0.4
   m_overflowMode: 0
   m_linkedTextComponent: {fileID: 0}
@@ -277,18 +277,30 @@ MonoBehaviour:
   CalculatedDataText: {fileID: 2704636591990667855}
   SnookerText: {fileID: 6954099419317630716}
   image: {fileID: 0}
-  DataTextFormat: "{0}                                                  {7} \n{1}                                                 
-    {8}\n{2}                                                  {9} \n{3}                                                 
-    {10} \n{4}                                                  {11}\n{5}                                                 
-    {12} \n{6}                                                  {13}"
-  SecDataTextFormat: "<size=200>{4}</size>\n  {0:F2}%                         {1:F2}%\n\n\n\n\n     
-    {2:F2}                       {3:F2}%"
-  SnookerTextFormat: '{0}                             {3}
+  DataTextFormat: '{0}                                             {7}
 
-    {1}                            
+    {1}                                            
+    {8}
+
+    {2}                                             {9}
+
+    {3}                                            
+    {10}
+
+    {4}                                             {11}
+
+    {5}                                            
+    {12}
+
+    {6}                                             {13}'
+  SecDataTextFormat: "<size=200><i>{4}</i></size>\n  {0:F2}%                        
+    {1:F2}%\n\n\n\n\n      {2:F2}                        {3:F2}%"
+  SnookerTextFormat: '{0}                            {3}
+
+    {1}                           
     {4:F1}%
 
-    {2}                             {5}'
+    {2}                            {5}'
   gameCount: 0
   winCount: 0
   loseCount: 0
@@ -400,7 +412,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_text: "<size=200><i>{4}</i></size>\n  {0:F2}%                         {1:F2}%\n\n\n\n\n     
-    {2:F2}                       {3:F2}%"
+    {2:F2}                        {3:F2}%"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 21ac83a342a0b7144a87e1d2c869c740, type: 2}
   m_sharedMaterial: {fileID: -3406411368475958213, guid: 21ac83a342a0b7144a87e1d2c869c740,
@@ -695,10 +707,22 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "{0}                                                  {7} \n{1}                                                 
-    {8}\n{2}                                                  {9} \n{3}                                                 
-    {10} \n{4}                                                  {11}\n{5}                                                 
-    {12} \n{6}                                                  {13}"
+  m_text: '{0}                                             {7}
+
+    {1}                                            
+    {8}
+
+    {2}                                             {9}
+
+    {3}                                            
+    {10}
+
+    {4}                                             {11}
+
+    {5}                                            
+    {12}
+
+    {6}                                             {13}'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 21ac83a342a0b7144a87e1d2c869c740, type: 2}
   m_sharedMaterial: {fileID: -3406411368475958213, guid: 21ac83a342a0b7144a87e1d2c869c740,
@@ -742,7 +766,7 @@ MonoBehaviour:
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
-  m_enableWordWrapping: 1
+  m_enableWordWrapping: 0
   m_wordWrappingRatios: 0.4
   m_overflowMode: 0
   m_linkedTextComponent: {fileID: 0}
@@ -762,7 +786,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: -142.56497, y: -222.1898, z: -204.1297, w: 7.42782}
+  m_margin: {x: -160.60956, y: -222.1898, z: -214.59247, w: 7.42782}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -978,7 +1002,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 
+  m_text: "0\n0\n0\n0\n0\n0\n0\n0\n0\n1\t1\n1\n1\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 21ac83a342a0b7144a87e1d2c869c740, type: 2}
   m_sharedMaterial: {fileID: -3406411368475958213, guid: 21ac83a342a0b7144a87e1d2c869c740,
@@ -1006,14 +1030,14 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 30
-  m_fontSizeBase: 30
+  m_fontSize: 26.96
+  m_fontSizeBase: 26.96
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 1
-  m_HorizontalAlignment: 1
+  m_HorizontalAlignment: 16
   m_VerticalAlignment: 256
   m_textAlignment: 65535
   m_characterSpacing: 0
@@ -1024,7 +1048,7 @@ MonoBehaviour:
   m_charWidthMaxAdj: 0
   m_enableWordWrapping: 1
   m_wordWrappingRatios: 0.4
-  m_overflowMode: 1
+  m_overflowMode: 3
   m_linkedTextComponent: {fileID: 0}
   parentLinkedComponent: {fileID: 0}
   m_enableKerning: 1
@@ -1042,7 +1066,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 522.88574, y: -115.38571, z: -64.32422, w: -786.39105}
+  m_margin: {x: 522.88574, y: -115.38571, z: -64.32422, w: -796.4068}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -1215,7 +1239,70 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 
+  m_text: '1
+
+    1
+
+    cheese 90%
+
+    cheese 90%
+
+    cheese 90%
+
+    cheese 90%
+
+    cheese
+    90%
+
+    cheese 90%
+
+    cheese 90%
+
+    cheese 90%
+
+    cheese 90%
+
+    cheese
+    90%
+
+    cheese 90%
+
+    cheese 90%
+
+    cheese 90%
+
+    cheese 90%
+
+    cheese
+    90%
+
+    cheese 90%
+
+    cheese 90%
+
+    cheese 90%
+
+    cheese 90%
+
+    cheese
+    90%
+
+    cheese 90%
+
+    cheese 90%
+
+    cheese 90%
+
+    cheese 90%
+
+    cheese
+    90%
+
+    cheese 90%
+
+    cheese 90%
+
+'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 21ac83a342a0b7144a87e1d2c869c740, type: 2}
   m_sharedMaterial: {fileID: -3406411368475958213, guid: 21ac83a342a0b7144a87e1d2c869c740,
@@ -1225,7 +1312,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4288059030
+    rgba: 4278190080
   m_fontColor: {r: 0, g: 0, b: 0, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -1243,8 +1330,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 30
-  m_fontSizeBase: 30
+  m_fontSize: 26.8
+  m_fontSizeBase: 26.8
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -1261,7 +1348,7 @@ MonoBehaviour:
   m_charWidthMaxAdj: 0
   m_enableWordWrapping: 1
   m_wordWrappingRatios: 0.4
-  m_overflowMode: 1
+  m_overflowMode: 3
   m_linkedTextComponent: {fileID: 0}
   parentLinkedComponent: {fileID: 0}
   m_enableKerning: 1
@@ -1279,7 +1366,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: -153.03117, y: 25.971134, z: 121.16703, w: -926.86005}
+  m_margin: {x: -151.5868, y: 25.971134, z: 125.53779, w: -921.4832}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0

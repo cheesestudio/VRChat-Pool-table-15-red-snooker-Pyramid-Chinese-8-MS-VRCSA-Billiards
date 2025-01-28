@@ -1835,7 +1835,7 @@ public class BilliardsModule : UdonSharpBehaviour
             }
 #endif
             //_LogYes("shotcounts"+ShotCounts);
-            if (personalData != null && !isPracticeMode && ShotCounts != 0 || DG_LAB != null)
+            if (personalData != null && !isPracticeMode && ShotCounts != 0)
             {
                 VRCPlayerApi localPlayer = Networking.LocalPlayer;
                 if (localPlayer == winner1 || localPlayer == winner2 )
@@ -1846,18 +1846,22 @@ public class BilliardsModule : UdonSharpBehaviour
                 }
                 else
                 {
-                    int losingTeam = (winningTeamLocal == 1) ? 0 : 1;
-                    VRCPlayerApi loser1 = VRCPlayerApi.GetPlayerById(playerIDsCached[losingTeam]);
-                    VRCPlayerApi loser2 = VRCPlayerApi.GetPlayerById(playerIDsCached[losingTeam + 2]);
-                    if(localPlayer == loser1 || localPlayer== loser2 )
+                    if(localPlayer != winner1 && localPlayer != winner2 )
                     {
                         if (isSnooker) personalData.gameCountSnooker++;
                         else personalData.gameCount++;
                         personalData.loseCount++;
-                        DG_LAB.SendCustomEvent("JustShock");
+                        
                     }
                 }
                 personalData.SaveData();
+            }
+            if(DG_LAB != null)
+            {
+                if(Networking.LocalPlayer != winner1 &&  Networking.LocalPlayer != winner2 )
+                {
+                    DG_LAB.SendCustomEvent("JustShock");
+                }
             }
         }
 
@@ -3391,7 +3395,8 @@ public class BilliardsModule : UdonSharpBehaviour
                 else
                 {
                     personalData.pocketCount += count;
-                    personalData.inningCount++;
+                    if(!is4Ball && !is1Cusion && !is2Cusion && !is3Cusion)
+                        personalData.inningCount++;
                 }
 
                 if (foulCondition) personalData.foulCount++;
@@ -3448,7 +3453,7 @@ public class BilliardsModule : UdonSharpBehaviour
             }
             HeightBreak = 0;
         }
-        else
+        else if(!is4Ball && !is1Cusion && !is2Cusion && !is3Cusion)
             personalData.shotCount++;
 
         personalData.SaveData();

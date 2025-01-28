@@ -25,7 +25,7 @@ namespace Cheese
                 Networking.SetOwner(Networking.LocalPlayer, gameObject);
 
             var index = playersName.IndexOf(name);
-            if (string.IsNullOrEmpty(syncData) && VRCPlayerApi.GetPlayerCount() == 1 || index == -1)
+            if (index == -1)
             {
                 playersName.Add(name);
                 playersData.Add(data);
@@ -76,6 +76,34 @@ namespace Cheese
 
                             swapped = true;  // 标记发生了交换
                         }
+                        // 如果前面的数据等于后面的数据，按 winrate 进行次级排序
+                        else if (currentData == nextData)
+                        {
+                            // 尝试将 winRate[j] 和 winRate[j + 1] 转换为 int
+                            if (int.TryParse((string)winRate[j], out int currentWinRate) && int.TryParse((string)winRate[j + 1], out int nextWinRate))
+                            {
+                                // 如果前面的 winrate 小于后面的 winrate，交换
+                                if (currentWinRate < nextWinRate)
+                                {
+                                    // 交换 winrate
+                                    string tempRate = (string)winRate[j];
+                                    winRate[j] = winRate[j + 1];
+                                    winRate[j + 1] = tempRate;
+
+                                    // 交换 playersData
+                                    string tempData = (string)playersData[j];
+                                    playersData[j] = playersData[j + 1];
+                                    playersData[j + 1] = tempData;
+
+                                    // 交换 playersName
+                                    string tempName = (string)playersName[j];
+                                    playersName[j] = playersName[j + 1];
+                                    playersName[j + 1] = tempName;
+
+                                    swapped = true;  // 标记发生了交换
+                                }
+                            }
+                        }
                     }
                     else
                     {
@@ -84,12 +112,13 @@ namespace Cheese
                     }
                 }
 
-                // 如果没有发生交换，提前退出循环
-                if (!swapped)
-                {
-                    break;
-                }
+                // 如果没有发生交换，提前退出排序
+                //if (!swapped)
+                //{
+                //    break;
+                //}
             }
+
 
 
 

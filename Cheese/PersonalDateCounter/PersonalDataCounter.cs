@@ -97,7 +97,7 @@ namespace Cheese
             if (PlayerData.HasKey(player, INNNING_COUNT_SNOOKER)) inningCountSnooker = PlayerData.GetInt(player, INNNING_COUNT_SNOOKER);
             if (PlayerData.HasKey(player, HEIGHT_BREAK)) heightBreak = PlayerData.GetInt(player, HEIGHT_BREAK);
 
-            syncData();
+            SendCustomEventDelayedSeconds("syncData", 5f);
 
             UpdateDataText();
         }
