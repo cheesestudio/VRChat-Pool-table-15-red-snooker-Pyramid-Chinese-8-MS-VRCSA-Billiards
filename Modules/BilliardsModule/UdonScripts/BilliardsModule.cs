@@ -3407,12 +3407,12 @@ public class BilliardsModule : UdonSharpBehaviour
                 else if (Networking.LocalPlayer.playerId == playerIDsLocal[1])
                     localTeam = 2;
 
-                if (winCondition && ShotCounts == 1 && localTeam == 1) //炸清
+                if (winCondition && ShotCounts == 1 && localTeam == 1 && !isPyramid) //炸清
                 {
                     personalData.breakClearance++; personalData.clearance++;
                     personalData.syncData();
                 } 
-                if (winCondition && ShotCounts == 1 && localTeam == 2)
+                if (winCondition && ShotCounts == 1 && localTeam == 2 && !isPyramid)
                 {
                     personalData.clearance++;
                     personalData.syncData();
