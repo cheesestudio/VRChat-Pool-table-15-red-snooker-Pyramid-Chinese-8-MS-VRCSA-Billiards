@@ -3750,9 +3750,9 @@ public class BilliardsModule : UdonSharpBehaviour
 #else
             initialBallsPocketed[6] = 0x9FFEu;
 #endif
-            initialPositions[6][0] = new Vector3(-k_SPOT_POSITION_X, 0.0f, -0.15f);
-            initialPositions[6][13] = new Vector3(-k_SPOT_POSITION_X, 0.0f, 0.0f);
-            initialPositions[6][14] = new Vector3(k_SPOT_POSITION_X, 0.0f, 0.0f);
+            initialPositions[6][0] = new Vector3(-quarterTable, 0.0f, -0.15f);
+            initialPositions[6][13] = new Vector3(-quarterTable, 0.0f, 0.0f);
+            initialPositions[6][14] = new Vector3(quarterTable, 0.0f, 0.0f);
         }
 
         for (int i = 7; i <= 9; i++)
