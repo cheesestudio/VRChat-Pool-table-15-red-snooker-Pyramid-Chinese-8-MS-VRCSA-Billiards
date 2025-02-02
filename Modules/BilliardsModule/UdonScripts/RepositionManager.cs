@@ -1,4 +1,5 @@
 ﻿#define EIJIS_SNOOKER15REDS
+#define EIJIS_CAROM
 
 using System;
 using UdonSharp;
@@ -109,6 +110,12 @@ public class RepositionManager : UdonSharpBehaviour
             {
                 boundedLocation = ConfineToD(boundedLocation, maxX);
             }
+#if EIJIS_CAROM
+            if (!table.isPracticeMode && (table.is0Cusion || table.is1Cusion || table.is2Cusion || table.is3Cusion) && i == 0)
+            {
+                boundedLocation = ConfineTo3c(boundedLocation);
+            }
+#endif
 
             bool collides = PreventCollision(tableSurface, boundedLocation, ball);
 
@@ -132,6 +139,17 @@ public class RepositionManager : UdonSharpBehaviour
         }
         return BallPos;
     }
+#if EIJIS_CAROM
+    public Vector3 ConfineTo3c(Vector3 BallPos)
+    {
+        float quarterTable = table.k_TABLE_WIDTH / 2;
+        if (0 < BallPos.z)
+        {
+            return new Vector3(-quarterTable, 0.0f, 0.15f);
+        }
+        return new Vector3(-quarterTable, 0.0f, -0.15f);;
+    }
+#endif
     public bool PreventCollision(Transform tableSurface, Vector3 ballPos, GameObject ball)
     {            // ensure no collisions
         bool collides = false;
