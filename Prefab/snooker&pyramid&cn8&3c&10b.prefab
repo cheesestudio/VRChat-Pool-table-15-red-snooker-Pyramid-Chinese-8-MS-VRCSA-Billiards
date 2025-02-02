@@ -4778,11 +4778,6 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: 8d1e832c178ef234194fa234f5cc5109, type: 2}
     - target: {fileID: 1801553818732004869, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
         type: 3}
-      propertyPath: textureSets.Array.size
-      value: 8
-      objectReference: {fileID: 0}
-    - target: {fileID: 1801553818732004869, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
-        type: 3}
       propertyPath: cueSkins.Array.data[15]
       value: 
       objectReference: {fileID: 2800000, guid: 4815fe086788373478013bdeddf33eb6, type: 3}
@@ -4837,11 +4832,6 @@ PrefabInstance:
       propertyPath: tableModels.Array.data[7]
       value: 
       objectReference: {fileID: 934467136872453216}
-    - target: {fileID: 1801553818732004869, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
-        type: 3}
-      propertyPath: textureSets.Array.data[7]
-      value: 
-      objectReference: {fileID: 2800000, guid: 7a551302410544d4cbbc6297f352698a, type: 3}
     - target: {fileID: 1822935779932151498, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
         type: 3}
       propertyPath: serializationData.Prefab
