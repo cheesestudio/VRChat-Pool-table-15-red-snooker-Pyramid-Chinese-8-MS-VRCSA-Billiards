@@ -2,6 +2,7 @@
 #define EIJIS_SNOOKER15REDS
 #define EIJIS_PYRAMID
 #define EIJIS_CAROM
+#define EIJIS_CAROM_SPIN_MARKER
 #define EIJIS_CUSHION_EFFECT
 #define EIJIS_PUSHOUT
 #define EIJIS_CALLSHOT
@@ -1116,7 +1117,11 @@ int uniform_cue_colour;
 
 		if (table.is4Ball)
 		{
+#if EIJIS_CAROM_SPIN_MARKER
+			balls[0].GetComponent<MeshFilter>().sharedMesh = meshOverrideRegular[0];
+#else
 			balls[0].GetComponent<MeshFilter>().sharedMesh = meshOverrideFourBall[0];
+#endif
 			balls[13].GetComponent<MeshFilter>().sharedMesh = meshOverrideFourBall[1];
 			balls[14].GetComponent<MeshFilter>().sharedMesh = meshOverrideFourBall[2];
 			balls[15].GetComponent<MeshFilter>().sharedMesh = meshOverrideFourBall[3];
@@ -1492,13 +1497,21 @@ int uniform_cue_colour;
 
 		if (fourBallCueBall == 0)
 		{
+#if EIJIS_CAROM_SPIN_MARKER
+			ballMaterial.SetTexture("_MainTex", table.textureSets[1]);
+#else
 			table.balls[0].GetComponent<MeshFilter>().sharedMesh = meshOverrideFourBall[0];
+#endif
 			table.balls[13].GetComponent<MeshFilter>().sharedMesh = meshOverrideFourBall[1];
 		}
 		else
 		{
 			table.balls[13].GetComponent<MeshFilter>().sharedMesh = meshOverrideFourBall[0];
+#if EIJIS_CAROM_SPIN_MARKER
+			ballMaterial.SetTexture("_MainTex", table.textureSets[7]);
+#else
 			table.balls[0].GetComponent<MeshFilter>().sharedMesh = meshOverrideFourBall[1];
+#endif
 		}
 	}
 
