@@ -9,7 +9,9 @@
 #define EIJIS_GUIDELINE2TOGGLE
 #define EIJIS_PUSHOUT
 #define EIJIS_CALLSHOT
+#define EIJIS_CALLSHOT_E
 #define EIJIS_SEMIAUTOCALL
+#define EIJIS_SEMIAUTOCALL_E
 #define EIJIS_10BALL
 #define CHEESE_ISSUE_FIX
 
@@ -20,9 +22,13 @@
 // #define EIJIS_DEBUG_PUSHOUT
 // #define EIJIS_DEBUG_AFTERBREAK
 // #define EIJIS_DEBUG_CALLSHOT_BALL
+// #define EIJIS_DEBUG_CALLSHOT_MARKER
 #define EIJIS_DEBUG_BREAKINGFOUL
 //#define EIJIS_DEBUG_SNOOKER_COLOR_POINT
 // #define EIJIS_DEBUG_10BALL_WPA_RULE
+// #define EIJIS_DEBUG_SEMIAUTO_CALL
+// #define EIJIS_DEBUG_SEMIAUTO_CALL_FINDLOGIC
+// #define EIJIS_DEBUG_SEMIAUTO_CALL_AFTER_REPOSITION
 
 #if UNITY_ANDROID
 #define HT_QUEST
@@ -108,9 +114,15 @@ public class BilliardsModule : UdonSharpBehaviour
 #if EIJIS_CALLSHOT
     [NonSerialized] public GameObject[] pointPocketMarkers;
     [NonSerialized] public GameObject[] pointPocketMarkerSphere;
+#if EIJIS_CALLSHOT_E
+    [NonSerialized] public GameObject[] pointPocketMarkerBlock;
+#endif
 #if EIJIS_SEMIAUTOCALL
     private float findNearestPocket_x;
     private float findNearestPocket_n;
+#endif
+#if EIJIS_SEMIAUTOCALL_E
+    private readonly float semiAutoCallDelay = 0.2f;
 #endif
 #endif
 
@@ -357,6 +369,11 @@ public class BilliardsModule : UdonSharpBehaviour
 #if EIJIS_SEMIAUTOCALL
     [NonSerialized] public bool semiAutoCallLocal;
 #endif
+#if EIJIS_CALLSHOT_E
+    private bool cueBallFixed;
+    private int cueBallRepositionCount = 0;
+    private int semiAutoCallDelayBase = 0;
+#endif
 #endif
     [NonSerialized] public uint ballsPocketedLocal;
 #if EIJIS_CALLSHOT
@@ -543,6 +560,9 @@ public class BilliardsModule : UdonSharpBehaviour
         new Vector3(60.0f, float.MaxValue, float.MaxValue),
         new Vector3(float.MaxValue, float.MaxValue, float.MaxValue)
     };
+#if EIJIS_DEBUG_SEMIAUTO_CALL_FINDLOGIC || EIJIS_DEBUG_SEMIAUTO_CALL_AFTER_REPOSITION
+    private bool debugLogFlg = false;
+#endif
 #endif
 #endif
 
@@ -643,11 +663,17 @@ public class BilliardsModule : UdonSharpBehaviour
 #if EIJIS_CALLSHOT
         pointPocketMarkers = new GameObject[6];
         pointPocketMarkerSphere = new GameObject[pointPocketMarkers.Length];
+#if EIJIS_CALLSHOT_E
+        pointPocketMarkerBlock = new GameObject[pointPocketMarkers.Length];
+#endif
         for (int i = 0; i < pointPocketMarkers.Length; i++)
         {
             Transform pointPocketMarker = tableSurface.Find($"PointPocketMarker_{i}");
             pointPocketMarkers[i] = pointPocketMarker.gameObject;
             pointPocketMarkerSphere[i] = pointPocketMarker.Find("Sphere").gameObject;
+#if EIJIS_CALLSHOT_E
+            pointPocketMarkerBlock[i] = pointPocketMarker.Find("Plane").gameObject;
+#endif
         }
 #endif
         for (int i = 0; i < PhysicsManagers.Length; i++)
@@ -1092,6 +1118,18 @@ public class BilliardsModule : UdonSharpBehaviour
 
         // practiceManager._Record();
 
+#if EIJIS_CALLSHOT && EIJIS_SEMIAUTOCALL && EIJIS_SEMIAUTOCALL_E
+        if (idx == 0)
+        {
+            // cueBallFixed = true;
+            cueBallRepositionCount++;
+            // semiAutoCalledTimeBall = 0;
+            semiAutoCallDelayBase = Networking.GetServerTimeInMilliseconds();
+#if EIJIS_DEBUG_SEMIAUTO_CALL_AFTER_REPOSITION
+            _LogInfo($"TKCH EIJIS_DEBUG_SEMIAUTO_CALL_AFTER_REPOSITION semiAutoCallDelayBase = {semiAutoCallDelayBase}, cueBallRepositionCount = {cueBallRepositionCount}");
+#endif
+        }
+#endif
         networkingManager._OnRepositionBalls(ballsP);
     }
 
@@ -1397,7 +1435,11 @@ public class BilliardsModule : UdonSharpBehaviour
         onRemoteFoulStateChanged(networkingManager.foulStateSynced);
         onRemoteFourBallScoresUpdated(networkingManager.fourBallScoresSynced);
         onRemoteIsTableOpenChanged(networkingManager.isTableOpenSynced, networkingManager.teamColorSynced);
+#if EIJIS_CALLSHOT
+        onRemoteTurnStateChanged(networkingManager.turnStateSynced, stateIdChanged);
+#else
         onRemoteTurnStateChanged(networkingManager.turnStateSynced);
+#endif
 #if EIJIS_CALLSHOT
         onRemotePointPocketsChanged(networkingManager.pointPocketsSynced, networkingManager.callShotLockSynced, stateIdChanged);
 #endif
@@ -1414,6 +1456,10 @@ public class BilliardsModule : UdonSharpBehaviour
         redrawDebugger();
 #if EIJIS_SEMIAUTOCALL
         semiAutoCallTick = (requireCallShotLocal && semiAutoCallLocal);
+#if EIJIS_DEBUG_SEMIAUTO_CALL_AFTER_REPOSITION
+        // debugLogFlg = true;
+        _LogInfo($"TKCH EIJIS_DEBUG_SEMIAUTO_CALL_AFTER_REPOSITION semiAutoCallTick = {semiAutoCallTick}, cueBallFixed = {cueBallFixed}");
+#endif
 #endif
     }
 
@@ -1880,7 +1926,9 @@ public class BilliardsModule : UdonSharpBehaviour
         graphicsManager._UpdateTeamColor(winningTeamSynced);
         graphicsManager._UpdateScorecard();
         graphicsManager._RackBalls();
-#if EIJIS_CALLSHOT
+#if EIJIS_CALLSHOT && EIJIS_CALLSHOT_E
+        graphicsManager._DisablePointPocketMarker();
+#else
         graphicsManager._UpdatePointPocketMarker(0, callShotLockLocal);
 #endif
 
@@ -2075,18 +2123,46 @@ public class BilliardsModule : UdonSharpBehaviour
         }
     }
 
+#if EIJIS_CALLSHOT
+    private void onRemoteTurnBegin(int timerStartSynced, bool stateIdChanged)
+#else
     private void onRemoteTurnBegin(int timerStartSynced)
+#endif
     {
         _LogInfo("onRemoteTurnBegin");
 
         canPlayLocal = true;
         timerStartLocal = timerStartSynced;
+#if EIJIS_CALLSHOT && EIJIS_SEMIAUTOCALL && EIJIS_SEMIAUTOCALL_E
+        // semiAutoCallDelayBase = (semiAutoCallDelayBase < timerStartLocal ? timerStartLocal : semiAutoCallDelayBase);
+        semiAutoCallDelayBase = Networking.GetServerTimeInMilliseconds();
+#endif
 
         enablePlayComponents();
         Array.Clear(ballsV, 0, ballsV.Length);
         Array.Clear(ballsW, 0, ballsW.Length);
 #if EIJIS_CALLSHOT
+#if EIJIS_SEMIAUTOCALL && EIJIS_SEMIAUTOCALL_E
+#if EIJIS_DEBUG_SEMIAUTO_CALL_AFTER_REPOSITION
+        _LogInfo($"TKCH EIJIS_DEBUG_SEMIAUTO_CALL_AFTER_REPOSITION cueBallFixed = {cueBallFixed}, cueBallRepositionCount = {cueBallRepositionCount}");
+#endif
+        cueBallFixed = !isReposition || (0 < cueBallRepositionCount);
+#if EIJIS_DEBUG_SEMIAUTO_CALL_AFTER_REPOSITION
+        _LogInfo($"TKCH EIJIS_DEBUG_SEMIAUTO_CALL_AFTER_REPOSITION cueBallFixed = {cueBallFixed}");
+#endif
+#endif
+#if EIJIS_CALLSHOT_E
+        if (requireCallShotLocal && (!colorTurnLocal || !stateIdChanged))
+        {
+            graphicsManager._UpdatePointPocketMarker(pointPocketsLocal, callShotLockLocal);
+        }
+        else
+        {
+            graphicsManager._DisablePointPocketMarker();
+        }
+#else
         graphicsManager._UpdatePointPocketMarker(pointPocketsLocal, callShotLockLocal);
+#endif
 #endif
     }
 
@@ -2160,7 +2236,11 @@ public class BilliardsModule : UdonSharpBehaviour
         auto_colliderBaseVFX.SetActive(true);
     }
 
+#if EIJIS_CALLSHOT
+    private void onRemoteTurnStateChanged(byte turnStateSynced, bool stateIdChanged)
+#else
     private void onRemoteTurnStateChanged(byte turnStateSynced)
+#endif
     {
         if (!gameLive) return;
         // should not escape because it can stay the same turn to turn while whos turn it is changes (especially with Undo/SnookerUndo)
@@ -2177,7 +2257,11 @@ public class BilliardsModule : UdonSharpBehaviour
             /* if (turnStateLocal == 2) */
             turnStateLocal = 0; // synthetic state
 
+#if EIJIS_CALLSHOT
+            onRemoteTurnBegin(networkingManager.timerStartSynced, stateIdChanged);
+#else
             onRemoteTurnBegin(networkingManager.timerStartSynced);
+#endif
             // practiceManager._Record();
             auto_colliderBaseVFX.SetActive(false);
         }
@@ -2212,7 +2296,14 @@ public class BilliardsModule : UdonSharpBehaviour
                 callShotLockLocal ? calledBallMarkerGray : calledBallMarkerWhite;
         }
 #endif
+#if EIJIS_CALLSHOT_E
+        if (!colorTurnLocal || !stateIdChanged)
+        {
+            graphicsManager._UpdatePointPocketMarker(pointPocketsLocal, callShotLockLocal);
+        }
+#else
         graphicsManager._UpdatePointPocketMarker(pointPocketsLocal, callShotLockLocal);
+#endif
         if (!stateIdChanged)
         {
             aud_main.PlayOneShot(snd_btn);
@@ -3434,6 +3525,9 @@ public class BilliardsModule : UdonSharpBehaviour
 #endif
 #endif
         }
+#endif
+#if EIJIS_CALLSHOT && EIJIS_SEMIAUTOCALL && EIJIS_SEMIAUTOCALL_E
+        cueBallRepositionCount = 0;
 #endif
     }
     
@@ -5356,16 +5450,30 @@ public class BilliardsModule : UdonSharpBehaviour
             return;
         }
         
+#if EIJIS_DEBUG_SEMIAUTO_CALL_AFTER_REPOSITION
+        // if (debugLogFlg) _LogInfo($"TKCH EIJIS_DEBUG_SEMIAUTO_CALL_AFTER_REPOSITION cueBallFixed = {cueBallFixed}");
+#endif
+
         bool isOnBreakShot = colorTurnLocal;
+#if EIJIS_SEMIAUTOCALL_E
+#if EIJIS_10BALL
+        if ((is8Ball || is9Ball || is10Ball) && gameLive && canPlayLocal && isMyTurn() && !isOnBreakShot && requireCallShotLocal && cueBallFixed)
+#else
+        if ((is8Ball || is9Ball) && gameLive && canPlayLocal && isMyTurn() && !isOnBreakShot && requireCallShotLocal && !markerObj.activeSelf)
+#endif
+#else
 #if EIJIS_10BALL
         if ((is8Ball || is9Ball || is10Ball) && gameLive && canPlayLocal && isMyTurn() && !isOnBreakShot && requireCallShotLocal)
 #else
         if ((is8Ball || is9Ball) && gameLive && canPlayLocal && isMyTurn() && !isOnBreakShot && requireCallShotLocal)
 #endif
+#endif
         {
 #if EIJIS_DEBUG_SEMIAUTO_CALL_FINDLOGIC
-            if (debugLogFlg) _LogInfo($"TKCH SEMIAUTO_CALL semiAutoCallBall = {semiAutoCallBallLocal}, semiAutoCalledTimeBall = {semiAutoCalledTimeBall}, calledBallId = {calledBallId}");
-            if (debugLogFlg) _LogInfo($"                   semiAutoCallPocket = {semiAutoCallPocketLocal}, semiAutoCalledPocket = {semiAutoCalledPocket}, calledPocketId = {calledPocketId}, calledBalls = {calledBallsLocal:X4}");
+            // if (debugLogFlg) _LogInfo($"TKCH SEMIAUTO_CALL semiAutoCallBall = {semiAutoCallBallLocal}, semiAutoCalledTimeBall = {semiAutoCalledTimeBall}, calledBallId = {calledBallId}");
+            // if (debugLogFlg) _LogInfo($"                   semiAutoCallPocket = {semiAutoCallPocketLocal}, semiAutoCalledPocket = {semiAutoCalledPocket}, calledPocketId = {calledPocketId}, calledBalls = {calledBallsLocal:X4}");
+            if (debugLogFlg) _LogInfo($"TKCH SEMIAUTO_CALL                    semiAutoCalledTimeBall = {semiAutoCalledTimeBall}, calledBallId = {calledBallId}");
+            if (debugLogFlg) _LogInfo($"  semiAutoCall = {semiAutoCallLocal}, semiAutoCalledPocket = {semiAutoCalledPocket}, calledPocketId = {calledPocketId}, calledBalls = {calledBallsLocal:X4}");
 #endif
             int target = -1;
             int pocketId = -1;
@@ -5413,18 +5521,24 @@ public class BilliardsModule : UdonSharpBehaviour
 #if EIJIS_DEBUG_SEMIAUTO_CALL_FINDLOGIC || EIJIS_DEBUG_NEXT_BREAK
             if (debugLogFlg) _LogInfo($"  target(final) = {target}");
 #endif
-#if EIJIS_DEBUG_SEMIAUTO_CALL_FINDLOGIC || EIJIS_DEBUG_SEMIAUTO_CALL_SIDE || EIJIS_DEBUG_NEXT_BREAK
+#if EIJIS_DEBUG_SEMIAUTO_CALL_FINDLOGIC || EIJIS_DEBUG_SEMIAUTO_CALL_SIDE || EIJIS_DEBUG_NEXT_BREAK || EIJIS_DEBUG_SEMIAUTO_CALL_AFTER_REPOSITION
             // debugLogFlg = false;
+            debugLogFlg = true;
 #endif
             
             if (0 < target)
             {
+#if EIJIS_SEMIAUTOCALL_E
+                float elapsedSeconds = (Networking.GetServerTimeInMilliseconds() - semiAutoCallDelayBase) / 1000.0f;
+#else
                 float elapsedSeconds = (Networking.GetServerTimeInMilliseconds() - timerStartLocal) / 1000.0f;
+#endif
                 
 #if EIJIS_DEBUG_SEMIAUTO_CALL_FINDLOGIC
                 if (0.1f < elapsedSeconds && elapsedSeconds < 0.12f)
                 {
-                    _LogInfo($"  semiAutoCalledBall = {semiAutoCalledBall}, calledBallId = {calledBallId}, target = {target}");
+                    // _LogInfo($"  semiAutoCalledBall = {semiAutoCalledBall}, calledBallId = {calledBallId}, target = {target}");
+                    _LogInfo($"  semiAutoCalledTimeBall = {semiAutoCalledTimeBall}, calledBallId = {calledBallId}, target = {target}");
                 }
 #endif
 
@@ -5433,25 +5547,41 @@ public class BilliardsModule : UdonSharpBehaviour
 #if EIJIS_DEBUG_SEMIAUTO_CALL
                     _LogInfo($"  elapsedSeconds = {elapsedSeconds}");
 #endif
+#if EIJIS_SEMIAUTOCALL_E
+                    if (semiAutoCallDelay < elapsedSeconds)
+#else
                     if (0.4f < elapsedSeconds)
+#endif
                     {
 #if EIJIS_DEBUG_SEMIAUTO_CALL
                         _LogInfo($"  elapsedSeconds = {elapsedSeconds}, call _TriggerOtherBallHit(target = {target})");
 #endif
                         _TriggerOtherBallHit(target, true);
+#if EIJIS_SEMIAUTOCALL_E
+                        semiAutoCalledTimeBall = semiAutoCallDelay;
+#else
                         // semiAutoCalledTimeBall = elapsedSeconds;
                         semiAutoCalledTimeBall = 0.4f;
+#endif
                     }
                 }
             }
                 
             if (semiAutoCallLocal && !semiAutoCalledPocket && calledPocketId < 0 && 0 < calledBallsLocal)
             {
+#if EIJIS_SEMIAUTOCALL_E
+                float elapsedSeconds = (Networking.GetServerTimeInMilliseconds() - semiAutoCallDelayBase) / 1000.0f;
+#else
                 float elapsedSeconds = (Networking.GetServerTimeInMilliseconds() - timerStartLocal) / 1000.0f;
+#endif
 #if EIJIS_DEBUG_SEMIAUTO_CALL
                 _LogInfo($"  elapsedSeconds = {elapsedSeconds}");
 #endif
+#if EIJIS_SEMIAUTOCALL_E
+                if (semiAutoCallDelay + semiAutoCalledTimeBall < elapsedSeconds)
+#else
                 if (0.4f + semiAutoCalledTimeBall < elapsedSeconds)
+#endif
                 {
 #if EIJIS_DEBUG_SEMIAUTO_CALL
                     _LogInfo($"  elapsedSeconds = {elapsedSeconds}, call _TriggerPocketHit(pocketId = {pocketId}, TRUE)");
@@ -5459,12 +5589,12 @@ public class BilliardsModule : UdonSharpBehaviour
                     _TriggerPocketHit(pocketId, true);
                     semiAutoCalledPocket = true;
 #if EIJIS_DEBUG_SEMIAUTO_CALL
-                    debugFlg = false;
+                    // debugFlg = false;
 #endif
                 }
             }
             
-#if EIJIS_DEBUG_SEMIAUTO_CALL_FINDLOGIC || EIJIS_DEBUG_SEMIAUTO_CALL_SIDE || EIJIS_DEBUG_NEXT_BREAK
+#if EIJIS_DEBUG_SEMIAUTO_CALL_FINDLOGIC || EIJIS_DEBUG_SEMIAUTO_CALL_SIDE || EIJIS_DEBUG_NEXT_BREAK || EIJIS_DEBUG_SEMIAUTO_CALL_AFTER_REPOSITION
             debugLogFlg = false;
 #endif
         }

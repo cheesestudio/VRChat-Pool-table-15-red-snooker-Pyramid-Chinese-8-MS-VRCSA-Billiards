@@ -6,16 +6,17 @@
 #define EIJIS_CUSHION_EFFECT
 #define EIJIS_PUSHOUT
 #define EIJIS_CALLSHOT
+#define EIJIS_CALLSHOT_E
 #define EIJIS_SEMIAUTOCALL
 #define EIJIS_10BALL
 
 // #define EIJIS_DEBUG_PIRAMIDSCORE
+// #define EIJIS_DEBUG_CALLSHOT_MARKER
 
 using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
 using TMPro;
-using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,10 +39,15 @@ public class GraphicsManager : UdonSharpBehaviour
 #endif
 #if EIJIS_CALLSHOT
 	[Header("Pocket Billiard Call-shot")]
+#if EIJIS_CALLSHOT_E
+	// [SerializeField] Material calledPocketWhite;
+	// [SerializeField] Material calledPocketGray;
+#else
 	[SerializeField] Material calledPocketBlue;
 	[SerializeField] Material calledPocketOrange;
 	[SerializeField] Material calledPocketWhite;
 	[SerializeField] Material calledPocketGray;
+#endif
 	[SerializeField] Material calledPocketSphereBlue;
 	[SerializeField] Material calledPocketSphereOrange;
 	[SerializeField] Material calledPocketSphereWhite;
@@ -1265,7 +1271,9 @@ int uniform_cue_colour;
 		blueScore.gameObject.SetActive(false);
 		snookerInstruction.gameObject.SetActive(false);
 		_HideTimers();
-#if EIJIS_CALLSHOT
+#if EIJIS_CALLSHOT && EIJIS_CALLSHOT_E
+		_DisablePointPocketMarker();
+#else
 		_UpdatePointPocketMarker(0, false);
 #endif
 
@@ -1518,21 +1526,41 @@ int uniform_cue_colour;
 #if EIJIS_CALLSHOT
 	public void _UpdatePointPocketMarker(uint pointPockets, bool callShotLock)
 	{
+#if EIJIS_DEBUG_CALLSHOT_MARKER
+		table._LogInfo($"EIJIS_DEBUG GraphicsManager::_UpdatePointPocketMarker(pointPockets = {pointPockets}, callShotLock = {callShotLock})");
+#endif
 		for (int i = 0; i < table.pointPocketMarkers.Length; i++)
 		{
 			bool enable = (pointPockets & (0x1u << i)) != 0;
+#if EIJIS_CALLSHOT_E
+			table.pointPocketMarkers[i].SetActive(table.requireCallShotLocal);
+#endif
 			if (enable)
 			{
+#if EIJIS_CALLSHOT_E
+				// table.pointPocketMarkers[i].GetComponent<MeshRenderer>().material = calledPocketWhite;
+#else
 				table.pointPocketMarkers[i].GetComponent<MeshRenderer>().material =
 					(callShotLock ? calledPocketGray :
 						(table.isTableOpenLocal ? calledPocketWhite :
 							(table.teamIdLocal ^ table.teamColorLocal) == 0 ? calledPocketBlue : calledPocketOrange));
+#endif
 				table.pointPocketMarkerSphere[i].GetComponent<MeshRenderer>().material =
 					(callShotLock ? calledPocketSphereGray :
 						(table.isTableOpenLocal ? calledPocketSphereWhite :
 							(table.teamIdLocal ^ table.teamColorLocal) == 0 ? calledPocketSphereBlue : calledPocketSphereOrange));
 			}
+#if EIJIS_CALLSHOT_E
+			// else
+			// {
+			// 	table.pointPocketMarkers[i].GetComponent<MeshRenderer>().material = calledPocketGray;
+			// }
+			// table.pointPocketMarkerBlock[i].GetComponent<MeshRenderer>().material = enable ? calledPocketWhite : calledPocketGray;
+			table.pointPocketMarkerBlock[i].SetActive(!enable);
+			table.pointPocketMarkerSphere[i].SetActive(enable);
+#else
 			table.pointPocketMarkers[i].SetActive(enable);
+#endif
 		}
 
 		table.menuManager._StateChangeCallLockMenu(callShotLock);
@@ -1540,6 +1568,9 @@ int uniform_cue_colour;
 
 	public void _DisablePointPocketMarker()
 	{
+#if EIJIS_DEBUG_CALLSHOT_MARKER
+		table._LogInfo("EIJIS_DEBUG GraphicsManager::_DisablePointPocketMarker()");
+#endif
 		for (int i = 0; i < table.pointPocketMarkers.Length; i++)
 		{
 			table.pointPocketMarkers[i].SetActive(false);
