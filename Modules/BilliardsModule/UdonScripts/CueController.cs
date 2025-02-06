@@ -485,7 +485,7 @@ public class CueController : UdonSharpBehaviour
 #if CHEESE_ISSUE_FIX
         if (!Networking.IsOwner(gameObject))    //cheese try to fix issue
         {
-            if(!ReferenceEquals(null,authorizedOwners) && 2 <= authorizedOwners.Length && Networking.LocalPlayer.playerId == authorizedOwners[0] || Networking.LocalPlayer.playerId == authorizedOwners[1])
+            if(!ReferenceEquals(null,authorizedOwners) && 2 <= authorizedOwners.Length && (Networking.LocalPlayer.playerId == authorizedOwners[0] || Networking.LocalPlayer.playerId == authorizedOwners[1]))
                 Networking.SetOwner(Networking.LocalPlayer,gameObject);
             else
                 return; 
