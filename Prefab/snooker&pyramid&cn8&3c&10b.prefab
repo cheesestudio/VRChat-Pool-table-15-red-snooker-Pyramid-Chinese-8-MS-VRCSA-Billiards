@@ -4798,6 +4798,21 @@ PrefabInstance:
         type: 2}
     - target: {fileID: 504257843529672475, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
         type: 3}
+      propertyPath: hitSounds.Array.data[0]
+      value: 
+      objectReference: {fileID: 8300000, guid: 1a7d3f2250261b0498ade3b3a287f783, type: 3}
+    - target: {fileID: 504257843529672475, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
+        type: 3}
+      propertyPath: hitSounds.Array.data[1]
+      value: 
+      objectReference: {fileID: 8300000, guid: 8e0df399388a03047b1cc56d4d9f6893, type: 3}
+    - target: {fileID: 504257843529672475, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
+        type: 3}
+      propertyPath: hitSounds.Array.data[2]
+      value: 
+      objectReference: {fileID: 8300000, guid: be78aec827249834c97390a427035b5c, type: 3}
+    - target: {fileID: 504257843529672475, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
+        type: 3}
       propertyPath: serializationData.Prefab
       value: 
       objectReference: {fileID: 504257843529672475, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
@@ -5240,6 +5255,16 @@ PrefabInstance:
       propertyPath: m_SizeDelta.y
       value: 300
       objectReference: {fileID: 0}
+    - target: {fileID: 1801553818732004869, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
+        type: 3}
+      propertyPath: snd_Sink
+      value: 
+      objectReference: {fileID: 8300000, guid: e915acdbee30e4d479efa23260998454, type: 3}
+    - target: {fileID: 1801553818732004869, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
+        type: 3}
+      propertyPath: snd_hitball
+      value: 
+      objectReference: {fileID: 8300000, guid: 10e98e4e19255b84c85326de625adc34, type: 3}
     - target: {fileID: 1801553818732004869, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
         type: 3}
       propertyPath: ScoreManager
@@ -7140,7 +7165,7 @@ PrefabInstance:
       propertyPath: m_text
       value: 'MS-VRCSA-CBC
 
-        TABLE  v1.390'
+        TABLE  v1.391'
       objectReference: {fileID: 0}
     - target: {fileID: 7928216506143082734, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
         type: 3}
@@ -7174,7 +7199,7 @@ PrefabInstance:
     - target: {fileID: 7985498930931069643, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
         type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8137010557469704324, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
         type: 3}
@@ -7521,10 +7546,45 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9135376406035283282, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
         type: 3}
+      propertyPath: hitSounds.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 9135376406035283282, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
+        type: 3}
+      propertyPath: hitSounds.Array.data[0]
+      value: 
+      objectReference: {fileID: 8300000, guid: 1a7d3f2250261b0498ade3b3a287f783, type: 3}
+    - target: {fileID: 9135376406035283282, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
+        type: 3}
+      propertyPath: hitSounds.Array.data[1]
+      value: 
+      objectReference: {fileID: 8300000, guid: 8e0df399388a03047b1cc56d4d9f6893, type: 3}
+    - target: {fileID: 9135376406035283282, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
+        type: 3}
+      propertyPath: hitSounds.Array.data[2]
+      value: 
+      objectReference: {fileID: 8300000, guid: be78aec827249834c97390a427035b5c, type: 3}
+    - target: {fileID: 9135376406035283282, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
+        type: 3}
+      propertyPath: cushionSounds.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9135376406035283282, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
+        type: 3}
       propertyPath: serializationData.Prefab
       value: 
       objectReference: {fileID: 9135376406035283282, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
         type: 3}
+    - target: {fileID: 9135376406035283282, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
+        type: 3}
+      propertyPath: bounceSounds.Array.data[0]
+      value: 
+      objectReference: {fileID: 8300000, guid: 4a649cfb8b4566d409aad470a3192057, type: 3}
+    - target: {fileID: 9135376406035283282, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
+        type: 3}
+      propertyPath: cushionSounds.Array.data[0]
+      value: 
+      objectReference: {fileID: 8300000, guid: 54718847bce96bb48b7ca08329c4c45b, type: 3}
     - target: {fileID: 9139480330203035120, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
         type: 3}
       propertyPath: serializationData.Prefab
