@@ -2152,7 +2152,7 @@ public class BilliardsModule : UdonSharpBehaviour
 #endif
 #endif
 #if EIJIS_CALLSHOT_E
-        if (requireCallShotLocal && (!colorTurnLocal || !stateIdChanged))
+        if ((is8Ball || is9Ball || is10Ball) && requireCallShotLocal && (!colorTurnLocal || !stateIdChanged))
         {
             graphicsManager._UpdatePointPocketMarker(pointPocketsLocal, callShotLockLocal);
         }
@@ -2297,7 +2297,7 @@ public class BilliardsModule : UdonSharpBehaviour
         }
 #endif
 #if EIJIS_CALLSHOT_E
-        if (!colorTurnLocal || !stateIdChanged)
+        if ((is8Ball || is9Ball || is10Ball) && requireCallShotLocal && (!colorTurnLocal || !stateIdChanged))
         {
             graphicsManager._UpdatePointPocketMarker(pointPocketsLocal, callShotLockLocal);
         }
