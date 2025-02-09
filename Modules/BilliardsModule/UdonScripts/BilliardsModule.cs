@@ -2173,8 +2173,10 @@ public class BilliardsModule : UdonSharpBehaviour
         bool isOwner = owner == Networking.LocalPlayer || fake;
         _LogInfo($"onRemoteTurnSimulate cueBallV={cueBallV.ToString("F4")} cueBallW={cueBallW.ToString("F4")} owner={simulationOwnerID}");
 
+        float lerpVolume = cueBallV.magnitude > 6 ? 6 :cueBallV.magnitude;
         if (!fake)
-            balls[0].GetComponent<AudioSource>().PlayOneShot(snd_hitball, 1.0f);
+            balls[0].GetComponent<AudioSource>().PlayOneShot(snd_hitball, lerpVolume / 6); //remap
+            //balls[0].GetComponent<AudioSource>().PlayOneShot(snd_hitball, 1.0f);
 
         canPlayLocal = false;
         disablePlayComponents();
