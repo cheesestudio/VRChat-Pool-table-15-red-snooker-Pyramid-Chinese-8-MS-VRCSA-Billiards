@@ -58,7 +58,7 @@ public class SettingLoader : UdonSharpBehaviour
 
     public override void OnStringLoadError(IVRCStringDownload result)
     {
-        if (reloadStep < url.Length)
+        if (reloadStep < url.Length - 1)
         {
             SendCustomEventDelayedSeconds("_AutoReloadColor", 10);
             reloadStep++;

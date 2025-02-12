@@ -82,7 +82,7 @@ public class ColorDownload : UdonSharpBehaviour
     public override void OnStringLoadError(IVRCStringDownload result)
     {
         //循环尝试加载url数组集中的URL
-        if (reloadStep < url.Length)
+        if (reloadStep < url.Length - 1)
         {
             //如果没有加载到最后一个URL，则加载URL数组集中的下一个URL
             SendCustomEventDelayedSeconds("_AutoReloadColor", 10);

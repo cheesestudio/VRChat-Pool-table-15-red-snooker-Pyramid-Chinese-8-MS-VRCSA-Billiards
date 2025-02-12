@@ -4,6 +4,7 @@ using UdonSharp;
 using UnityEngine;
 using UnityEngine.UI;
 using VRC.SDK3.Data;
+using VRC.SDK3.Persistence;
 using VRC.SDKBase;
 
 public class TableHook : UdonSharpBehaviour
@@ -43,6 +44,8 @@ public class TableHook : UdonSharpBehaviour
     private DataList table = new DataList();
     private DataList Translations = new DataList();
 
+    private const string SAVED_SETTING = "savedSetting";
+
     void OnEnable()
     {
         Translations.Add(hookTranslation);
@@ -51,13 +54,13 @@ public class TableHook : UdonSharpBehaviour
 
         cueHue = 0;
         outCanUse = 0;
-        switch(DefaultBall)
+        switch (DefaultBall)
         {
             default:
-            case 0: _Ball0();break;
-            case 4: _Ball1();break;
-            case 5: _Ball2();break;
-            case 6: _Ball3();break;
+            case 0: _Ball0(); break;
+            case 4: _Ball1(); break;
+            case 5: _Ball2(); break;
+            case 6: _Ball3(); break;
         }
         outCanUseTmp = DefaultCue;
         isRotating = maxRotation;
@@ -281,17 +284,29 @@ public class TableHook : UdonSharpBehaviour
         encodePos += 4;
 
         //CV2
-        floatToBytes(gameState,encodePos,cueThicknessSlider.value);
+        floatToBytes(gameState, encodePos, cueThicknessSlider.value);
         encodePos += 4;
 
         // find gameStateLength
         //Debug.Log("gameStateLength = " + (encodePos + 1));
 
-        return "CV2:" + Convert.ToBase64String(gameState);
 
+        PlayerData.SetString(SAVED_SETTING, "CV2:" + Convert.ToBase64String(gameState));
+        return "CV2:" + Convert.ToBase64String(gameState);
         //Debug.Log("CV:" + Convert.ToBase64String(gameState));
     }
 
+    public override void OnPlayerRestored(VRCPlayerApi player)
+    {
+        if (!player.isLocal) return;
+
+        if (PlayerData.HasKey(player, SAVED_SETTING))
+        { 
+            string savedSetting = PlayerData.GetString(player, SAVED_SETTING);
+            inputField.text  = savedSetting;
+            LoadLocalData(savedSetting);
+        }
+    }
     private void LoadLocalDataV1(string gameStateStr)
     {
         if (!isValidBase64(gameStateStr)) return;
@@ -372,7 +387,7 @@ public class TableHook : UdonSharpBehaviour
     }
     private void LoadLocalData(string gameStateStr)
     {
-        if(gameStateStr.StartsWith("CV2:"))
+        if (gameStateStr.StartsWith("CV2:"))
         {
             LoadLocalDataV2(gameStateStr.Substring(4));
         }

@@ -34,8 +34,8 @@ Material:
         m_Offset: {x: 0.26, y: 0.1}
     m_Ints: []
     m_Floats:
-    - _ClothHue: 1
-    - _ClothSaturation: 1
+    - _ClothHue: 0.96340615
+    - _ClothSaturation: 2.2650356
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []
