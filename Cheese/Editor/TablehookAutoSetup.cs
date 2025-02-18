@@ -38,7 +38,7 @@ public class TablehookAutoSetup
     {
         // 查找场景中的BilliardsModule
         var modules = Object.FindObjectsByType<BilliardsModule>(FindObjectsSortMode.None);
-        if (modules == null) return;
+        if (modules.Length <= 0) return;
 
         // 检查是否已存在Tablehook实例
         if (IsTablehookExists()) return;
