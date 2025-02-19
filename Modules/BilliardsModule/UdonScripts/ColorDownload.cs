@@ -36,7 +36,7 @@ public class ColorDownload : UdonSharpBehaviour
 
     void Start()
     {
-        VRCStringDownloader.LoadUrl(url[0], (IUdonEventReceiver)this);
+        SendCustomEventDelayedSeconds("_AutoReloadColor", 5);
     }
 
     // 字符串下载成功回调
@@ -88,13 +88,13 @@ public class ColorDownload : UdonSharpBehaviour
             SendCustomEventDelayedSeconds("_AutoReloadColor", 10);
             reloadStep++;
         }
-        else
-        {
-            //如果到最后一个URL，则从第一个URL开始加载
-            reloadStep = 0;
-            SendCustomEventDelayedSeconds("_AutoReloadColor", 10);
+        //else
+        //{
+        //    //如果到最后一个URL，则从第一个URL开始加载
+        //    reloadStep = 0;
+        //    SendCustomEventDelayedSeconds("_AutoReloadColor", 10);
 
-        }
+        //}
     }
 
     //重新加载字符串函数

@@ -23,7 +23,7 @@ public class SettingLoader : UdonSharpBehaviour
 
     void Start()
     {
-        VRCStringDownloader.LoadUrl(url[0], (IUdonEventReceiver)this);
+        SendCustomEventDelayedSeconds("_AutoReloadColor", 5);
     }
 
     public override void OnStringLoadSuccess(IVRCStringDownload result)
@@ -63,11 +63,11 @@ public class SettingLoader : UdonSharpBehaviour
             SendCustomEventDelayedSeconds("_AutoReloadColor", 10);
             reloadStep++;
         }
-        else
-        {
-            reloadStep = 0;
-            SendCustomEventDelayedSeconds("_AutoReloadColor", 10);
-        }
+        //else
+        //{
+        //    reloadStep = 0;
+        //    SendCustomEventDelayedSeconds("_AutoReloadColor", 10);
+        //}
     }
 
     public void _AutoReloadColor()
