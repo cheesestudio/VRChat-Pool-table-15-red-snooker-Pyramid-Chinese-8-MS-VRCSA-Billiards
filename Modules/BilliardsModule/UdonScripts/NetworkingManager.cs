@@ -9,6 +9,7 @@
 #define EIJIS_CALLSHOT
 #define EIJIS_SEMIAUTOCALL
 #define EIJIS_10BALL
+#define EIJIS_BANKING
 
 using System;
 using UdonSharp;
@@ -84,8 +85,8 @@ public class NetworkingManager : UdonSharpBehaviour
     [UdonSynced][NonSerialized] public byte turnStateSynced;
 
     // the current gamemode (0 is 8ball, 1 is 9ball, 2 is jp4b, 3 is kr4b, 4 is Snooker6Red)
-#if EIJIS_PYRAMID || EIJIS_CAROM
-    // additional games 4 is Snooker15Red, 5 is RussianPyramid, 6-9 is 3-Cushion(2,1,0-Cushion)
+#if EIJIS_PYRAMID || EIJIS_CAROM || EIJIS_10BALL || EIJIS_BANKING
+    // additional games 4 is Snooker15Red, 5 is RussianPyramid, 6-9 is 3-Cushion(2,1,0-Cushion), 10 is 10ball, 11 is Banking
 #endif
     [UdonSynced][NonSerialized] public byte gameModeSynced;
 
@@ -908,8 +909,17 @@ public class NetworkingManager : UdonSharpBehaviour
     private void swapFourBallCueBalls()
     {
 #if EIJIS_CAROM
+#if EIJIS_BANKING
         if (gameModeSynced != 2 && gameModeSynced != 3 && 
-            gameModeSynced != 6 && gameModeSynced != 7 && gameModeSynced != 8 && gameModeSynced != 9) return;
+            gameModeSynced != BilliardsModule.GAMEMODE_0CUSHION && 
+            gameModeSynced != BilliardsModule.GAMEMODE_1CUSHION && 
+            gameModeSynced != BilliardsModule.GAMEMODE_2CUSHION && 
+            gameModeSynced != BilliardsModule.GAMEMODE_3CUSHION &&
+            gameModeSynced != BilliardsModule.GAMEMODE_BANKING) return;
+#else
+        if (gameModeSynced != 2 && gameModeSynced != 3 && 
+                gameModeSynced != 6 && gameModeSynced != 7 && gameModeSynced != 8 && gameModeSynced != 9) return;
+#endif
 #else
         if (gameModeSynced != 2 && gameModeSynced != 3) return;
 #endif

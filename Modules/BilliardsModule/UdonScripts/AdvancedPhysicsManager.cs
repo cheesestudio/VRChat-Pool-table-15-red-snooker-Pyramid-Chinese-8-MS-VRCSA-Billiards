@@ -8,6 +8,7 @@
 #define EIJIS_GUIDELINE2TOGGLE
 #define EIJIS_CALLSHOT
 #define EIJIS_10BALL
+#define EIJIS_BANKING
 
 // #define HT8B_DRAW_REGIONS
 using System;
@@ -1824,6 +1825,9 @@ public class AdvancedPhysicsManager : UdonSharpBehaviour
 #endif
                     k_RAIL_HEIGHT_LOWER = k_BALL_DIAMETRE * 0.7f;
                     break;
+#if EIJIS_BANKING
+                case BilliardsModule.GAMEMODE_BANKING:
+#endif
 #if EIJIS_CAROM
                 case BilliardsModule.GAMEMODE_3CUSHION:
                 case BilliardsModule.GAMEMODE_2CUSHION:
