@@ -3812,6 +3812,9 @@ public class BilliardsModule : UdonSharpBehaviour
             // 4 ball (kr)
             initialBallsPocketed[3] = initialBallsPocketed[2];
             initialPositions[3] = initialPositions[2];
+#if EIJIS_CAROM
+            initialPositions[3][0] = new Vector3(-quarterTable, 0.0f, -0.178f);
+#endif
         }
 #if EIJIS_PYRAMID
 

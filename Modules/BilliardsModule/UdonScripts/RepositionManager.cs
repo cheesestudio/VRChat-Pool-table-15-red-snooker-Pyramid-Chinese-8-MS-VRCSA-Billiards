@@ -111,7 +111,7 @@ public class RepositionManager : UdonSharpBehaviour
                 boundedLocation = ConfineToD(boundedLocation, maxX);
             }
 #if EIJIS_CAROM
-            if (!table.isPracticeMode && (table.is0Cusion || table.is1Cusion || table.is2Cusion || table.is3Cusion) && i == 0)
+            if (!table.isPracticeMode && (table.isKr4Ball || table.is0Cusion || table.is1Cusion || table.is2Cusion || table.is3Cusion) && i == 0)
             {
                 boundedLocation = ConfineTo3c(boundedLocation);
             }
