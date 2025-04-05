@@ -111,7 +111,7 @@ public class RepositionManager : UdonSharpBehaviour
                 boundedLocation = ConfineToD(boundedLocation, maxX);
             }
 #if EIJIS_CAROM
-            if (!table.isPracticeMode && (table.is0Cusion || table.is1Cusion || table.is2Cusion || table.is3Cusion) && i == 0)
+            if (!table.isPracticeMode && (table.isKr4Ball || table.is0Cusion || table.is1Cusion || table.is2Cusion || table.is3Cusion) && i == 0)
             {
                 boundedLocation = ConfineTo3c(boundedLocation);
             }
@@ -145,9 +145,9 @@ public class RepositionManager : UdonSharpBehaviour
         float quarterTable = table.k_TABLE_WIDTH / 2;
         if (0 < BallPos.z)
         {
-            return new Vector3(-quarterTable, 0.0f, 0.15f);
+            return new Vector3(-quarterTable, 0.0f, 0.178f);
         }
-        return new Vector3(-quarterTable, 0.0f, -0.15f);;
+        return new Vector3(-quarterTable, 0.0f, -0.178f);;
     }
 #endif
     public bool PreventCollision(Transform tableSurface, Vector3 ballPos, GameObject ball)

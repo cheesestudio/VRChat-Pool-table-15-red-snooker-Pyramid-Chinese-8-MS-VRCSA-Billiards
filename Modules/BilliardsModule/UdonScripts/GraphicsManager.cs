@@ -9,6 +9,7 @@
 #define EIJIS_CALLSHOT_E
 #define EIJIS_SEMIAUTOCALL
 #define EIJIS_10BALL
+#define EIJIS_BANKING
 
 // #define EIJIS_DEBUG_PIRAMIDSCORE
 // #define EIJIS_DEBUG_CALLSHOT_MARKER
@@ -1020,11 +1021,16 @@ int uniform_cue_colour;
 
 			table.balls[0].SetActive(true);
 			table.balls[13].SetActive(true);
+#if EIJIS_BANKING
+			table.balls[14].SetActive(!table.isBanking);
+			table.balls[15].SetActive(!table.is3Cusion && !table.is2Cusion && !table.is1Cusion && !table.is0Cusion && !table.isBanking);
+#else
 			table.balls[14].SetActive(true);
 #if EIJIS_CAROM
 			table.balls[15].SetActive(!table.is3Cusion && !table.is2Cusion && !table.is1Cusion && !table.is0Cusion);
 #else
             table.balls[15].SetActive(true);
+#endif
 #endif
 		}
 #if EIJIS_SNOOKER15REDS
@@ -1082,9 +1088,15 @@ int uniform_cue_colour;
 		scorecard_gameobject.SetActive(true);
 #if EIJIS_PYRAMID
 #if EIJIS_CAROM
+#if EIJIS_BANKING
+		scorecard.SetInt("_GameMode", (int)(table.isPyramid ? 0 :
+				(table.is3Cusion || table.is1Cusion || table.is2Cusion || table.is0Cusion || table.isBanking ? 2 : table.gameModeLocal)
+			));
+#else
 		scorecard.SetInt("_GameMode", (int)(table.isPyramid ? 0 :
 			(table.is3Cusion || table.is1Cusion || table.is2Cusion || table.is0Cusion ? 2 : table.gameModeLocal)
 			));
+#endif
 #else
         scorecard.SetInt("_GameMode", (int)(table.isPyramid ? 0 : table.gameModeLocal));
 #endif
