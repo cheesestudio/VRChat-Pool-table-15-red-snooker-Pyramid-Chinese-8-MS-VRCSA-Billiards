@@ -511,6 +511,12 @@ public class NetworkingManager : UdonSharpBehaviour
         {
             foulStateSynced = 3;
         }
+#if EIJIS_CAROM
+        else if (table.isJp4Ball)
+        {
+            foulStateSynced = 0;
+        }
+#endif
         else
         {
             foulStateSynced = 1;
