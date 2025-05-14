@@ -444,7 +444,7 @@ public class AdvancedPhysicsManager : UdonSharpBehaviour
         // Run main simulation / inter-ball collision
 
         uint ball_bit = 0x1u;
-        bool is4Ball = table.is4Ball;
+        bool isCarom = table.isCarom;
 #if EIJIS_MANY_BALLS
         for (int i = 0; i < BilliardsModule.MAX_BALLS; i++)
 #else
@@ -507,7 +507,7 @@ public class AdvancedPhysicsManager : UdonSharpBehaviour
                     {
                         table._BeginPerf(table.PERF_PHYSICS_CUSHION);
                         bool hitCushion;
-                        if (is4Ball)
+                        if (isCarom)
                         {
                             hitCushion = _phy_ball_table_carom(i);
                         }
@@ -528,7 +528,7 @@ public class AdvancedPhysicsManager : UdonSharpBehaviour
                         else moveTimeLeft = 0;
 
                         // table._BeginPerf(table.PERF_PHYSICS_POCKET); // can only measure one at a time now ..
-                        if (_phy_ball_pockets(i, balls_P, is4Ball, ref balls_inPocketBounds[i]))
+                        if (_phy_ball_pockets(i, balls_P, isCarom, ref balls_inPocketBounds[i]))
                         {
                             moveTimeLeft = 0;
                             moved[i] = false;
@@ -596,7 +596,7 @@ public class AdvancedPhysicsManager : UdonSharpBehaviour
 
         }
 
-        if (is4Ball) return;
+        if (isCarom) return;
 
 #if EIJIS_SNOOKER15REDS
         if (table.isSnooker)
@@ -2691,12 +2691,12 @@ public class AdvancedPhysicsManager : UdonSharpBehaviour
 
     }
     // Check pocket condition
-    bool _phy_ball_pockets(int id, Vector3[] balls_P, bool is4ball, ref bool inPocketBounds)
+    bool _phy_ball_pockets(int id, Vector3[] balls_P, bool isCarom, ref bool inPocketBounds)
     {
         inPocketBounds = false;
         Vector3 A = balls_P[id];
         Vector3 absA = new Vector3(Mathf.Abs(A.x), 0, Mathf.Abs(A.z));
-        if (!is4ball)
+        if (!isCarom)
         {
             absA.y = k_vE.y;
             if ((absA - k_vE).sqrMagnitude < k_INNER_RADIUS_CORNER_SQ)
