@@ -522,7 +522,7 @@ public class BilliardsModule : UdonSharpBehaviour
 #if EIJIS_10BALL
     [NonSerialized] public bool is10Ball = false;
 #endif
-    [NonSerialized] public bool is4Ball = false;
+    [NonSerialized] public bool isCarom = false;
     [NonSerialized] public bool isJp4Ball = false;
     [NonSerialized] public bool isKr4Ball = false;
 #if EIJIS_SNOOKER15REDS
@@ -1564,13 +1564,13 @@ public class BilliardsModule : UdonSharpBehaviour
 #if EIJIS_BANKING
             isBanking = gameModeLocal == GAMEMODE_BANKING;
             cushionHitGoal = is0Cusion ? 0 : ((is1Cusion || isBanking) ? 1 : (is2Cusion ? 2 : 3));
-            is4Ball = isJp4Ball || isKr4Ball || is3Cusion || is2Cusion || is1Cusion || is0Cusion || isBanking;
+            isCarom = isJp4Ball || isKr4Ball || is3Cusion || is2Cusion || is1Cusion || is0Cusion || isBanking;
 #else
             cushionHitGoal = is0Cusion ? 0 : (is1Cusion ? 1 : (is2Cusion ? 2 : 3));
-            is4Ball = isJp4Ball || isKr4Ball || is3Cusion || is2Cusion || is1Cusion || is0Cusion;
+            isCarom = isJp4Ball || isKr4Ball || is3Cusion || is2Cusion || is1Cusion || is0Cusion;
 #endif
 #else
-            is4Ball = isJp4Ball || isKr4Ball;
+            isCarom = isJp4Ball || isKr4Ball;
 #endif
 #if EIJIS_SNOOKER15REDS
             isSnooker = isSnooker6Red || isSnooker15Red;
@@ -1793,7 +1793,7 @@ public class BilliardsModule : UdonSharpBehaviour
         for (int i = 0; i < cueControllers.Length; i++) cueControllers[i]._RefreshRenderer();
 
         Array.Clear(fbScoresLocal, 0, 2);
-        auto_pocketblockers.SetActive(is4Ball);
+        auto_pocketblockers.SetActive(isCarom);
 #if EIJIS_10BALL
 #if EIJIS_PYRAMID
         marker9ball.SetActive(is9Ball || is10Ball || isPyramid);
@@ -1997,9 +1997,9 @@ public class BilliardsModule : UdonSharpBehaviour
             //don't escape, as this will always be true for the sender, and they may need to run the rest.
         }
 #if EIJIS_SNOOKER15REDS
-        if (!isSnooker && !is4Ball && !isPyramid) { return; }   //cheese fix
+        if (!isSnooker && !isCarom && !isPyramid) { return; }   //cheese fix
 #else
-        if (!isSnooker6Red && !is4Ball) { return; }
+        if (!isSnooker6Red && !isCarom) { return; }
 #endif
 
         Array.Copy(fbScoresSynced, fbScoresLocal, 2);
@@ -2040,7 +2040,7 @@ public class BilliardsModule : UdonSharpBehaviour
         {
             fourBallCueBallLocal = fourBallCueBallSynced;
         }
-        if (!is4Ball) return;
+        if (!isCarom) return;
 
         fourBallCueBallLocal = fourBallCueBallSynced;
 
@@ -3146,7 +3146,7 @@ public class BilliardsModule : UdonSharpBehaviour
                 nextTurnBlocked = foulCondition;
             }
 #endif
-            else if (is4Ball)
+            else if (isCarom)
             {
                 isObjectiveSink = fbMadePoint;
                 isOpponentSink = fbMadeFoul;
@@ -3551,11 +3551,7 @@ public class BilliardsModule : UdonSharpBehaviour
                 else
                 {
                     personalData.pocketCount += count;
-#if EIJIS_BANKING
-                    if(!is4Ball && !is1Cusion && !is2Cusion && !is3Cusion && !isBanking)
-#else
-                    if(!is4Ball && !is1Cusion && !is2Cusion && !is3Cusion)
-#endif
+                    if(!isCarom)
                         personalData.inningCount++;
                 }
 
@@ -3616,7 +3612,7 @@ public class BilliardsModule : UdonSharpBehaviour
             }
             HeightBreak = 0;
         }
-        else if(!is4Ball && !is1Cusion && !is2Cusion && !is3Cusion)
+        else if(!isCarom)
             personalData.shotCount++;
 
         personalData.SaveData();
@@ -3883,9 +3879,11 @@ public class BilliardsModule : UdonSharpBehaviour
         {
             // 4 ball (kr)
             initialBallsPocketed[3] = initialBallsPocketed[2];
-            initialPositions[3] = initialPositions[2];
 #if EIJIS_CAROM
+            Array.Copy(initialPositions[2], initialPositions[3], initialPositions[2].Length);
             initialPositions[3][0] = new Vector3(-quarterTable, 0.0f, -0.178f);
+#else
+            initialPositions[3] = initialPositions[2];
 #endif
         }
 #if EIJIS_PYRAMID
