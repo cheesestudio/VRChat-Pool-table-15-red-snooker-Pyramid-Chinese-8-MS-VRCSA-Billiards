@@ -430,7 +430,7 @@ public class StandardPhysicsManager : UdonSharpBehaviour
         bool canCueBallBounceOffCushion = balls_P[0].y < k_BALL_RADIUS;
 
         table._BeginPerf(table.PERF_PHYSICS_CUSHION);
-        if (table.is4Ball)
+        if (table.isCarom)
         {
             if (canCueBallBounceOffCushion && moved[0]) _phy_ball_table_carom(0);
             if (moved[13]) _phy_ball_table_carom(13);
@@ -473,7 +473,7 @@ public class StandardPhysicsManager : UdonSharpBehaviour
             }
         }
 
-        if (table.is4Ball) return;
+        if (table.isCarom) return;
 
 #if EIJIS_SNOOKER15REDS
         if (table.isSnooker)
@@ -513,7 +513,7 @@ public class StandardPhysicsManager : UdonSharpBehaviour
 
         // Run triggers
         table._BeginPerf(table.PERF_PHYSICS_POCKET);
-        if (!table.is4Ball)
+        if (!table.isCarom)
         {
 #if EIJIS_MANY_BALLS
             for (int i = 0; i < BilliardsModule.MAX_BALLS; i++)

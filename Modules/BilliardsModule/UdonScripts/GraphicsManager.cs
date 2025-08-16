@@ -841,7 +841,7 @@ int uniform_cue_colour;
 
 	private void updateCues(uint idsrc)
 	{
-		if (table.is4Ball) updateFourBallCues();
+		if (table.isCarom) updateFourBallCues();
 #if EIJIS_CALLSHOT
 		else if ((table.is9Ball || table.is10Ball) && table.requireCallShotLocal) updateEightBallCues(idsrc);
 #endif
@@ -878,7 +878,7 @@ int uniform_cue_colour;
 
 	private void updateTable(uint teamId)
 	{
-		if (table.is4Ball)
+		if (table.isCarom)
 		{
 			if ((teamId ^ table.teamColorLocal) == 0)
 			{
@@ -1010,7 +1010,7 @@ int uniform_cue_colour;
 				table.balls[i].SetActive(false);
 		}
 #endif
-		else if (table.is4Ball)
+		else if (table.isCarom)
 		{
 #if EIJIS_MANY_BALLS
 			for (int i = 1; i < BilliardsModule.MAX_BALLS; i++)
@@ -1133,7 +1133,7 @@ int uniform_cue_colour;
 		_UpdateTeamColor(0);
 #endif
 
-		if (table.is4Ball)
+		if (table.isCarom)
 		{
 #if EIJIS_CAROM_SPIN_MARKER
 			balls[0].GetComponent<MeshFilter>().sharedMesh = meshOverrideRegular[0];
@@ -1206,7 +1206,7 @@ int uniform_cue_colour;
 			ballMaterial.SetTexture("_MainTex", table.textureSets[1]);
 #endif
 		}
-		else if (table.is4Ball)
+		else if (table.isCarom)
 		{
 			pColour0 = table.k_colour4Ball_team_0;
 			pColour1 = table.k_colour4Ball_team_1;
@@ -1368,7 +1368,7 @@ int uniform_cue_colour;
 	{
 		if (table.localPlayerDistant) return;
 
-		if (table.is4Ball)
+		if (table.isCarom)
 		{
 			scorecard.SetInt("_LeftScore", table.fbScoresLocal[0]);
 			scorecard.SetInt("_RightScore", table.fbScoresLocal[1]);
@@ -1513,7 +1513,7 @@ int uniform_cue_colour;
 
 	public void _UpdateFourBallCueBallTextures(uint fourBallCueBall)
 	{
-		if (!table.is4Ball) return;
+		if (!table.isCarom) return;
 
 		if (fourBallCueBall == 0)
 		{
