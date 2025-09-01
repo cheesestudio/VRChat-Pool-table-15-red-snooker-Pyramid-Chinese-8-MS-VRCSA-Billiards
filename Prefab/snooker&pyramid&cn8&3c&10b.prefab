@@ -5678,6 +5678,21 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 979122271220095582, guid: 7fbe3790a81b39c4cb16406eda35d11a,
         type: 3}
+      propertyPath: ColorList.Array.size
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 979122271220095582, guid: 7fbe3790a81b39c4cb16406eda35d11a,
+        type: 3}
+      propertyPath: ColorName.Array.size
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 979122271220095582, guid: 7fbe3790a81b39c4cb16406eda35d11a,
+        type: 3}
+      propertyPath: ColorName.Array.data[3]
+      value: Sacchan
+      objectReference: {fileID: 0}
+    - target: {fileID: 979122271220095582, guid: 7fbe3790a81b39c4cb16406eda35d11a,
+        type: 3}
       propertyPath: serializationData.Prefab
       value: 
       objectReference: {fileID: 979122271220095582, guid: 7fbe3790a81b39c4cb16406eda35d11a,
@@ -8805,7 +8820,7 @@ PrefabInstance:
       propertyPath: m_text
       value: 'MS-VRCSA-CBC
 
-        TABLE  v1.1392'
+        TABLE  v1.1393'
       objectReference: {fileID: 0}
     - target: {fileID: 7928216506143082734, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
         type: 3}

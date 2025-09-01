@@ -5093,10 +5093,6 @@ MonoBehaviour:
   - {fileID: 3801284455882752805}
   - {fileID: 1894841451441405608}
   - {fileID: 6938103679836900370}
-  calledPocketBlue: {fileID: 0}
-  calledPocketOrange: {fileID: 0}
-  calledPocketWhite: {fileID: 0}
-  calledPocketGray: {fileID: 0}
   calledPocketSphereBlue: {fileID: 0}
   calledPocketSphereOrange: {fileID: 0}
   calledPocketSphereWhite: {fileID: 0}

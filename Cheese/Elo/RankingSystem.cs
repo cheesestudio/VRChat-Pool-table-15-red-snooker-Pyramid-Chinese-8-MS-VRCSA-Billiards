@@ -10,7 +10,7 @@ using VRC.SDK3.StringLoading;
 using VRC.SDKBase;
 using VRC.Udon;
 using VRC.Udon.Common.Interfaces;
-using WangQAQ.ED;
+//using WangQAQ.ED;
 using static System.Net.Mime.MediaTypeNames;
 
 [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
@@ -32,7 +32,7 @@ public class RankingSystem : UdonSharpBehaviour
 	private string Player1 = "";
 	private string Player2 = "";
 
-	private CC20 _cc20;
+	//private CC20 _cc20;
 
 	// Ioc 
 	[HideInInspector] public ScoreManagerV4 _scoreManager;
@@ -54,7 +54,7 @@ public class RankingSystem : UdonSharpBehaviour
 
 	void Start()
 	{
-		_cc20 = GameObject.Find("CC20").GetComponent<CC20>();
+		//_cc20 = GameObject.Find("CC20").GetComponent<CC20>();
 	}
 
 	#region upload
@@ -76,13 +76,13 @@ public class RankingSystem : UdonSharpBehaviour
 			return;
 		}
 
-		byte[] key = BLAKE2b.BLAKE2b_256(Encoding.UTF8.GetBytes(Key));
-		byte[] iv32 = UdonRng.GetRngBLAKE2b256();   // 假设已有 32 字节的数组
+		//byte[] key = BLAKE2b.BLAKE2b_256(Encoding.UTF8.GetBytes(Key));
+		//byte[] iv32 = UdonRng.GetRngBLAKE2b256();   // 假设已有 32 字节的数组
 		byte[] iv12 = new byte[12];             // 假设已有 32 字节的数组
 
-		Array.Copy(iv32, iv12, 12);
+		//Array.Copy(iv32, iv12, 12);
 
-		_cc20._Init(key, iv12);
+		//_cc20._Init(key, iv12);
 
 		var modeString = mapModeName(ballMode);
 		// 新API
@@ -100,16 +100,16 @@ public class RankingSystem : UdonSharpBehaviour
 		string base64HMAC = string.Empty;
 		if (VRCJson.TrySerializeToJson(data, JsonExportType.Minify, out DataToken json))
 		{
-			eData = ToUrl(Convert.ToBase64String(_cc20.Process(Encoding.UTF8.GetBytes(json.String))));
-			base64ID = ToUrl(Convert.ToBase64String(BLAKE2b.BLAKE2b_128(Encoding.UTF8.GetBytes(json.String))));
+			//eData = ToUrl(Convert.ToBase64String(_cc20.Process(Encoding.UTF8.GetBytes(json.String))));
+			//base64ID = ToUrl(Convert.ToBase64String(BLAKE2b.BLAKE2b_128(Encoding.UTF8.GetBytes(json.String))));
 		}
 		else
 		{
 			return;
 		}
-		var context = $"{base64Guid}.{base64IV}.{eData}.{base64ID}";
-		base64HMAC = ToUrl(Convert.ToBase64String(BLAKE2b.HMAC_BLAKE2b_256(key, Encoding.UTF8.GetBytes(context))));
-		copyField.text = $"{ScoreUploadBaseURL}/{context}.{base64HMAC}";
+		//var context = $"{base64Guid}.{base64IV}.{eData}.{base64ID}";
+		//base64HMAC = ToUrl(Convert.ToBase64String(BLAKE2b.HMAC_BLAKE2b_256(key, Encoding.UTF8.GetBytes(context))));
+		//copyField.text = $"{ScoreUploadBaseURL}/{context}.{base64HMAC}";
 
 	}
 	public void TryToUploadNote()

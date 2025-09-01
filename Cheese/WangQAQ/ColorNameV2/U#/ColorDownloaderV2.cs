@@ -14,7 +14,7 @@ using VRC.SDK3.StringLoading;
 using VRC.SDKBase;
 using VRC.Udon;
 using VRC.Udon.Common.Interfaces;
-using WangQAQ.ED;
+//using WangQAQ.ED;
 
 namespace WangQAQ.UdonPlug
 {
@@ -23,7 +23,7 @@ namespace WangQAQ.UdonPlug
 
 		[HideInInspector] public VRCUrl url = null;
 		[HideInInspector] public byte[] key = null;
-		[HideInInspector] public HC256 _hc256;
+		//[HideInInspector] public HC256 _hc256;
 
 		/// <summary>
 		/// name,color
@@ -37,8 +37,8 @@ namespace WangQAQ.UdonPlug
 				key == null	)
 				return;
 
-			_hc256 = GameObject.Find("HC256").GetComponent<HC256>();
-			key = BLAKE2b.BLAKE2b_256(key);
+			//_hc256 = GameObject.Find("HC256").GetComponent<HC256>();
+			//key = BLAKE2b.BLAKE2b_256(key);
 
 			VRCStringDownloader.LoadUrl(url, (IUdonEventReceiver)this);
 		}
@@ -52,11 +52,11 @@ namespace WangQAQ.UdonPlug
 				var data = json.DataDictionary["data"].DataDictionary;
 				var i = data["i"].ToString();
 				var context = data["context"].ToString();
-				var decodeContext = _hc256.Process(Convert.FromBase64String(context), key, Convert.FromBase64String(i));
-				var stringContext = Encoding.UTF8.GetString(decodeContext);
-				if (VRCJson.TryDeserializeFromJson(stringContext, out var json1))
+				//var decodeContext = _hc256.Process(Convert.FromBase64String(context), key, Convert.FromBase64String(i));
+				//var stringContext = Encoding.UTF8.GetString(decodeContext);
+				//if (VRCJson.TryDeserializeFromJson(stringContext, out var json1))
 				{
-					_colors = json1.DataDictionary;
+					//_colors = json1.DataDictionary;
 				}
 			}
 		}
