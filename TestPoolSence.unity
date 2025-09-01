@@ -9496,6 +9496,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7971288915798577982, guid: 420f79165b0ba1a488916792a466261c,
         type: 3}
+      propertyPath: DefaultBall
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7971288915798577982, guid: 420f79165b0ba1a488916792a466261c,
+        type: 3}
       propertyPath: cueThicknessText
       value: 
       objectReference: {fileID: 1264812587}
