@@ -21,7 +21,7 @@ QQ群:780855553
 > 原项目:[MS-VRCSA-Billiards](https://github.com/Sacchan-VRC/MS-VRCSA-Billiards)
 ### 设置 Set up
 用的时候记得把billiardModule设置为22层，并把这层单独物理设置成只与自己交互（上面MS那个按钮可以自动设置）  
-<b>一定要在场景内放一个table hook!!!</b>   
+<b>在场景内放一个table hook(运行场景会自动检测添加,调整位置即可)</b>   
 ![image](https://github.com/user-attachments/assets/f453ae11-0735-4885-b700-87101d5971c7)
 
 ![Q84OOB{37Q{XY946MTR$E`F](https://github.com/user-attachments/assets/6bf18499-5926-4ca2-8a8c-8f8e33fd9faa)
