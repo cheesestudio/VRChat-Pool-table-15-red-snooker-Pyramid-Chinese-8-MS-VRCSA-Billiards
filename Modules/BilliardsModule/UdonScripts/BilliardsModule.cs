@@ -3081,7 +3081,7 @@ public class BilliardsModule : UdonSharpBehaviour
                     targetPocketedLocal = targetPocketedLocal & ~(gameBallMask);
                     otherPocketedLocal = otherPocketedLocal & ~(gameBallMask);
 #endif
-                    ballsP[gameBallId] = initialPositions[gameModeLocal][gameBallId];
+                    ballsP[gameBallId] = initialPositions[gameModeLocal][is9Ball ? gameBallId : 2];
                     //keep moving ball down the table until it's not touching any other balls
                     moveBallXUntilNotTouching(gameBallId);
                 }
