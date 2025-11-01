@@ -1926,7 +1926,11 @@ public class BilliardsModule : UdonSharpBehaviour
         }
 
         //UP 24/6/15  重构by cheese  24/9/26 难以想象居然撑了三个月
+#if EIJIS_BANKING
+        if (ScoreManager != null && !isPracticeMode && !isBanking)
+#else
         if (ScoreManager != null && !isPracticeMode)
+#endif
         {
             if (!BreakFinish)  //Breakfinish是由复用的参数计算的
                 ScoreManager.AddScore(playerIDsCached[0], playerIDsCached[1], playerIDsCached[winningTeamLocal], isSnooker15Red  && (string)tableModels[tableModelLocal].GetProgramVariable("TABLENAME") ==  "Snooker 12ft" );
