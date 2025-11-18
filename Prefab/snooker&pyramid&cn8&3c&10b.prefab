@@ -6040,12 +6040,12 @@ PrefabInstance:
     - target: {fileID: 535279520975553336, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -86
+      value: -3
       objectReference: {fileID: 0}
     - target: {fileID: 535279520975553336, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 83.9
+      value: -107.6
       objectReference: {fileID: 0}
     - target: {fileID: 536468849149648222, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
         type: 3}
@@ -8570,7 +8570,7 @@ PrefabInstance:
       propertyPath: m_text
       value: 'MS-VRCSA-CBC
 
-        TABLE  v1.1393'
+        TABLE  v1.1394'
       objectReference: {fileID: 0}
     - target: {fileID: 7928216506143082734, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
         type: 3}
