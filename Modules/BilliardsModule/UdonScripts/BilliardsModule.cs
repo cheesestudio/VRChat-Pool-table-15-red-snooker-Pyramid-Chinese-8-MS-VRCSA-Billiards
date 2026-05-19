@@ -544,6 +544,7 @@ public class BilliardsModule : UdonSharpBehaviour
     [NonSerialized] public bool isBanking = false;
 #endif
     [NonSerialized] public bool isPracticeMode = false;
+    [NonSerialized] public bool npcEnabledLocal = true;
     [NonSerialized] public bool isPlayer = false;
     [NonSerialized] public bool isOrangeTeamFull = false;
     [NonSerialized] public bool isBlueTeamFull = false;
@@ -810,6 +811,21 @@ public class BilliardsModule : UdonSharpBehaviour
         networkingManager._OnNoGuidelineChanged(noGuidelineEnabled);
     }
 
+    public void _TriggerNpcChanged(bool npcEnabled)
+    {
+        npcEnabledLocal = npcEnabled;
+        if (!npcEnabledLocal)
+        {
+            practiceManager._NpcStop();
+            if (practiceManager.testMode) practiceManager._StopTestMode();
+        }
+        else
+        {
+            if (!practiceManager.testMode) practiceManager._StartTestMode();
+        }
+        _LogInfo("NPC practice mode: " + (npcEnabledLocal ? "ON" : "OFF"));
+    }
+
 #if EIJIS_GUIDELINE2TOGGLE
     public void _TriggerNoGuideline2Changed(bool noGuideline2Enabled)
     {
@@ -870,7 +886,7 @@ public class BilliardsModule : UdonSharpBehaviour
 
     public void _TriggerCueBallHit()
     {
-        if (!isMyTurn()) return;
+        if (!isMyTurn() && !practiceManager.testMode) return;
 
         _LogWarn("trying to propagate cue ball hit, linear velocity is " + ballsV[0].ToString("F4") + " and angular velocity is " + ballsW[0].ToString("F4"));
 
@@ -1099,6 +1115,9 @@ public class BilliardsModule : UdonSharpBehaviour
 
     public void _OnPickupCue()
     {
+#if EIJIS_ISSUE_FIX
+        if (ReferenceEquals(null, Networking.LocalPlayer)) return;
+#endif
         if (!Networking.LocalPlayer.IsUserInVR()) desktopManager._OnPickupCue();
     }
 
@@ -1665,6 +1684,11 @@ public class BilliardsModule : UdonSharpBehaviour
 
         if (networkingManager.gameStateSynced != 3) // don't set practice mode to true after the players are kicked when the game ends
             isPracticeMode = playerIDsLocal[1] == -1 && playerIDsLocal[3] == -1;
+
+        if (!isPracticeMode && npcEnabledLocal && !practiceManager.testMode)
+        {
+            _TriggerNpcChanged(false);
+        }
 
         string[] playerDetails = new string[4];
         for (int i = 0; i < 4; i++)

@@ -5,6 +5,7 @@ using UnityEditor;
 public class ModelConfigurationEditor : Editor
 {
     bool bShowCollisionModel = true;
+    bool bShowNpcPockets = false;
     static GUIStyle styleHeader;
     static GUIStyle styleError;
     static GUIStyle styleWarning;
@@ -116,6 +117,10 @@ public class ModelConfigurationEditor : Editor
             this.bShowCollisionModel = EditorGUILayout.Toggle("Draw collision model", this.cdata_displayTarget.gameObject.activeSelf);
             this.cdata_displayTarget.gameObject.SetActive(this.bShowCollisionModel);
 
+            bShowNpcPockets = EditorGUILayout.Toggle("Show NPC pocket targets", bShowNpcPockets);
+            if (bShowNpcPockets)
+                this.cdata_displayTarget.gameObject.SetActive(false);
+
             Ht8bUIGroupEnd();
             sendValuesToVisualizerAndUpdateView(data);
         }
@@ -152,6 +157,92 @@ public class ModelConfigurationEditor : Editor
         Transform tableSurface = table_artwork.transform.Find(".TABLE_SURFACE");
         if (tableSurface)
         { this.cdata_displayTarget.table_Surface = tableSurface; }
+        SceneView.RepaintAll();
+    }
+
+    // Draw NPC pocket target positions in Scene view
+    void OnSceneGUI()
+    {
+        if (!bShowNpcPockets) return;
+        ModelData data = ((ModelConfiguration)target).data;
+        if (data == null) return;
+
+        Vector3 corner = data.cornerPocket;
+        Vector3 side = data.sidePocket;
+        float cornerInnerR = data.pocketInnerRadiusCorner;
+        float sideInnerR = data.pocketInnerRadiusSide;
+        Transform tableXform = data.transform;
+        // Find table surface Y from table_mesh child
+        Transform tableMesh = tableXform.Find("table_artwork")?.Find("table_mesh");
+        float surfaceY = tableMesh != null ? tableMesh.position.y : 0.8606015f;
+
+        // NPC pocket targets: offset toward OPPOSITE side pocket (same as PracticeManager._InitPockets)
+        Vector3[] localTargets = new Vector3[6];
+        // C0 (top-right +x,+z) → toward S5 (bottom 0,-z)
+        localTargets[0] = corner + (new Vector3(0, 0, -side.z) - corner).normalized * cornerInnerR;
+        // C1 (bottom-right +x,-z) → toward S4 (top 0,+z)
+        Vector3 c1 = new Vector3(corner.x, corner.y, -corner.z);
+        localTargets[1] = c1 + (new Vector3(0, 0, side.z) - c1).normalized * cornerInnerR;
+        // C2 (top-left -x,+z) → toward S5 (bottom 0,-z)
+        Vector3 c2 = new Vector3(-corner.x, corner.y, corner.z);
+        localTargets[2] = c2 + (new Vector3(0, 0, -side.z) - c2).normalized * cornerInnerR;
+        // C3 (bottom-left -x,-z) → toward S4 (top 0,+z)
+        Vector3 c3 = new Vector3(-corner.x, corner.y, -corner.z);
+        localTargets[3] = c3 + (new Vector3(0, 0, side.z) - c3).normalized * cornerInnerR;
+        // S4 (top 0,+z) → toward center
+        localTargets[4] = side + (Vector3.zero - side).normalized * sideInnerR;
+        // S5 (bottom 0,-z) → toward center
+        Vector3 s5 = new Vector3(side.x, side.y, -side.z);
+        localTargets[5] = s5 + (Vector3.zero - s5).normalized * sideInnerR;
+
+        // Convert all local positions to world space, with table surface Y
+        Vector3[] worldTargets = new Vector3[6];
+        for (int i = 0; i < 6; i++)
+        {
+            Vector3 p = tableXform.TransformPoint(localTargets[i]);
+            worldTargets[i] = new Vector3(p.x, surfaceY, p.z);
+        }
+
+        Vector3[] worldCorners = new Vector3[4];
+        Vector3 w0 = tableXform.TransformPoint(corner);
+        worldCorners[0] = new Vector3(w0.x, surfaceY, w0.z);
+        Vector3 w1 = tableXform.TransformPoint(new Vector3(corner.x, corner.y, -corner.z));
+        worldCorners[1] = new Vector3(w1.x, surfaceY, w1.z);
+        Vector3 w2 = tableXform.TransformPoint(new Vector3(-corner.x, corner.y, corner.z));
+        worldCorners[2] = new Vector3(w2.x, surfaceY, w2.z);
+        Vector3 w3 = tableXform.TransformPoint(new Vector3(-corner.x, corner.y, -corner.z));
+        worldCorners[3] = new Vector3(w3.x, surfaceY, w3.z);
+        Vector3 ws1 = tableXform.TransformPoint(side);
+        Vector3 worldSide1 = new Vector3(ws1.x, surfaceY, ws1.z);
+        Vector3 ws2 = tableXform.TransformPoint(new Vector3(side.x, side.y, -side.z));
+        Vector3 worldSide2 = new Vector3(ws2.x, surfaceY, ws2.z);
+
+        // Draw pocket center (white) and NPC target (cyan)
+        Handles.color = Color.white;
+        for (int i = 0; i < 4; i++)
+        {
+            Handles.DrawSolidDisc(worldCorners[i], Vector3.up, 0.02f);
+            Handles.Label(worldCorners[i] + Vector3.up * 0.02f, $"C{i}");
+        }
+        Handles.DrawSolidDisc(worldSide1, Vector3.up, 0.02f);
+        Handles.Label(worldSide1 + Vector3.up * 0.02f, "S4");
+        Handles.DrawSolidDisc(worldSide2, Vector3.up, 0.02f);
+        Handles.Label(worldSide2 + Vector3.up * 0.02f, "S5");
+
+        Handles.color = Color.cyan;
+        for (int i = 0; i < 6; i++)
+        {
+            Handles.DrawSolidDisc(worldTargets[i], Vector3.up, 0.025f);
+            Handles.Label(worldTargets[i] + Vector3.up * 0.025f, $"T{i}");
+        }
+
+        // Draw line from pocket center to NPC target
+        Handles.color = Color.yellow;
+        for (int i = 0; i < 4; i++)
+            Handles.DrawLine(worldCorners[i], worldTargets[i]);
+        Handles.DrawLine(worldSide1, worldTargets[4]);
+        Handles.DrawLine(worldSide2, worldTargets[5]);
+
         SceneView.RepaintAll();
     }
     void OnEnable()

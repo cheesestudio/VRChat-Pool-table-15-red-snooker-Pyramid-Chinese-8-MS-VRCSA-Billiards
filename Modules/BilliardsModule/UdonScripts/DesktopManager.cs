@@ -22,6 +22,7 @@ public class DesktopManager : UdonSharpBehaviour
     private const int CAMERA_RENDER_MODE_DESKTOP = CameraOverrideModule.RENDER_MODE_DESKTOP;
 
     private const float k_BALL_RADIUS = 0.03f;
+    private const float NPC_MAX_POWER = 0.65f;
     private const float CURSOR_SPEED = 0.035f;
     private float MAX_SPIN_MAGNITUDE = 0.90f;
 
@@ -590,6 +591,7 @@ public class DesktopManager : UdonSharpBehaviour
     private void renderCuePosition(Vector3 dir)
     {
         CueController cue = table.activeCue;
+        if (cue == null) return;
         cue.UpdateDesktopPosition(); // otherwise it spazzes out if FPS > FixedUpdate rate
 
         float a = spin.x * k_BALL_RADIUS;
@@ -710,10 +712,164 @@ public class DesktopManager : UdonSharpBehaviour
     }
 #endif
 #if EIJIS_CALLSHOT
-    
+
     public void _CallShotSetActive(bool show)
     {
         callShot.SetActive(show);
     }
 #endif
+
+    // --- NPC charge simulation ---
+    private bool npcCharging;
+    private float npcTargetPower;
+    private float npcChargeDuration;
+    private float npcChargeElapsed;
+    private float npcSpinDrawValue; // -1..1: negative=draw, 0=stun, positive=follow
+    // --- NPC shot animation ---
+    private bool npcShooting;
+    private float npcShotElapsed;
+    private float npcShotDuration = 0.3f;
+    private Vector3 npcShotDirection;
+
+    public void _NpcStartCharge(Vector3 shotDir, float targetPower, float duration, float spinDraw)
+    {
+        npcTargetPower = targetPower;
+        npcChargeDuration = duration;
+        npcSpinDrawValue = spinDraw;
+        npcChargeElapsed = 0f;
+        npcCharging = true;
+        power = 0f;
+
+        // Force cue renderer visible during NPC turn
+        CueController cue = table.activeCue;
+        if (cue != null) cue._EnableRenderer();
+        Transform tableSurface = table.tableSurface;
+        Vector3 cueBallLocal = table.ballsP[0];
+        float cueLen = cue._GetCuetipDistance();
+
+        // Position grip behind ball with extra offset to avoid tip penetration
+        Vector3 gripLocal = cueBallLocal - shotDir * (cueLen + cueLen * 0.5f);
+        cue._GetDesktopMarker().transform.position = tableSurface.TransformPoint(gripLocal);
+        // Use fixed rotation from shot direction (never flips unlike LookAt)
+        float yaw = Mathf.Atan2(shotDir.x, shotDir.z) * Mathf.Rad2Deg;
+        cue._GetDesktopMarker().transform.rotation = tableSurface.rotation * Quaternion.Euler(0f, yaw, 0f);
+        cue._SyncBodyFromDesktop();
+
+        spin = Vector3.zero;
+    }
+
+    public void _NpcUpdateCharge(Vector3 shotDir, float progress)
+    {
+        if (!npcCharging) return;
+        power = Mathf.Lerp(0f, npcTargetPower, Mathf.Clamp01(progress));
+
+        CueController cue = table.activeCue;
+        if (cue == null) return;
+        Transform tableSurface = table.tableSurface;
+        Vector3 cueBallLocal = table.ballsP[0];
+        float cueLen = cue._GetCuetipDistance();
+
+        // Pullback: move grip further behind ball as power increases
+        float pullback = cueLen + cueLen * 0.5f + power * 1.5f;
+        Vector3 gripLocal = cueBallLocal - shotDir * pullback;
+        cue._GetDesktopMarker().transform.position = tableSurface.TransformPoint(gripLocal);
+        float yaw = Mathf.Atan2(shotDir.x, shotDir.z) * Mathf.Rad2Deg;
+        cue._GetDesktopMarker().transform.rotation = tableSurface.rotation * Quaternion.Euler(0f, yaw, 0f);
+        cue._SyncBodyFromDesktop();
+    }
+
+    public float _NpcGetPower()
+    {
+        return npcTargetPower;
+    }
+
+    public bool _NpcIsShooting()
+    {
+        return npcShooting;
+    }
+
+    public void _NpcFinishCharge()
+    {
+        npcCharging = false;
+        power = 0f;
+    }
+
+    public void _NpcFire(Vector3 shotDir, float shotPower)
+    {
+        npcCharging = false;
+
+        // Start follow-through animation instead of firing immediately
+        npcShooting = true;
+        npcShotElapsed = 0f;
+        npcShotDirection = shotDir;
+        npcTargetPower = shotPower;
+    }
+
+    public void _NpcUpdateShot(float deltaTime)
+    {
+        if (!npcShooting) return;
+        npcShotElapsed += deltaTime;
+        float t = Mathf.Clamp01(npcShotElapsed / npcShotDuration);
+
+        CueController cue = table.activeCue;
+        if (cue == null) return;
+        Transform tableSurface = table.tableSurface;
+        Vector3 cueBallLocal = table.ballsP[0];
+        float cueLen = cue._GetCuetipDistance();
+
+        float pullbackStart = cueLen + cueLen * 0.5f + npcTargetPower * 1.5f;
+        Vector3 gripLocal;
+        if (t < 0.15f)
+        {
+            // Pause at full pullback
+            gripLocal = cueBallLocal - npcShotDirection * pullbackStart;
+        }
+        else if (t < 0.5f)
+        {
+            // Thrust forward — cue moves toward ball, tip reaches ball at end
+            float thrustT = (t - 0.15f) / 0.35f;
+            float thrust = Mathf.Lerp(0f, pullbackStart - 0.02f, Mathf.SmoothStep(0f, 1f, thrustT));
+            gripLocal = cueBallLocal - npcShotDirection * (pullbackStart - thrust);
+        }
+        else
+        {
+            // Follow-through — cue continues forward a bit then stops (never passes ball)
+            float ft = (t - 0.5f) / 0.5f;
+            float forward = Mathf.Sin(ft * Mathf.PI) * 0.08f;
+            gripLocal = cueBallLocal - npcShotDirection * Mathf.Max(0.02f, 0.02f - forward);
+        }
+
+        cue._GetDesktopMarker().transform.position = tableSurface.TransformPoint(gripLocal);
+        // Fixed rotation — never flips
+        float yaw = Mathf.Atan2(npcShotDirection.x, npcShotDirection.z) * Mathf.Rad2Deg;
+        cue._GetDesktopMarker().transform.rotation = tableSurface.rotation * Quaternion.Euler(0f, yaw, 0f);
+        cue._SyncBodyFromDesktop();
+
+        if (npcShotElapsed >= npcShotDuration)
+        {
+            npcShooting = false;
+            _NpcApplyShot();
+        }
+    }
+
+    private void _NpcApplyShot()
+    {
+        float vel = Mathf.Pow(npcTargetPower * 2.0f, 1.4f) * 4.0f;
+        if (((string)table.currentPhysicsManager.GetProgramVariable("PHYSICSNAME")).Contains("Legacy"))
+        {
+            table.currentPhysicsManager.SetProgramVariable("multiplier", -25.0f);
+            table.currentPhysicsManager.SetProgramVariable("cue_vdir", npcShotDirection);
+            vel = Mathf.Pow(npcTargetPower * 2.0f, 1.4f) * 9.0f;
+        }
+        table.currentPhysicsManager.SetProgramVariable("inV0", vel);
+        table.currentPhysicsManager.SetProgramVariable("npcShotDir", npcShotDirection);
+        // Dynamic spin: -1=full draw, 0=stun, +1=full follow; scale by power for realism
+        float powerScale = Mathf.Clamp01(npcTargetPower / NPC_MAX_POWER);
+        float spinValue = npcSpinDrawValue * k_BALL_RADIUS * Mathf.Lerp(0.3f, 1.0f, powerScale);
+        table.currentPhysicsManager.SetProgramVariable("npcSpinDraw", spinValue);
+        table.currentPhysicsManager.SendCustomEvent("_ApplyPhysics");
+        table._TriggerCueBallHit();
+
+        power = 0f;
+    }
 }

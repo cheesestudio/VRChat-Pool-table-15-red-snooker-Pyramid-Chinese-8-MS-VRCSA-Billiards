@@ -269,6 +269,7 @@ public class MenuManager : UdonSharpBehaviour
         Guideline2Toggle_button.SetIsOnWithoutNotify(!table.noGuideline2Local);
 #endif
         LockingToggle_button.SetIsOnWithoutNotify(!table.noLockingLocal);
+        NpcToggle_button.SetIsOnWithoutNotify(table.npcEnabledLocal);
 #if EIJIS_10BALL
         Wpa10BallRuleToggle_button.SetIsOnWithoutNotify(table.wpa10BallRuleLocal);
 #endif
@@ -484,6 +485,11 @@ public class MenuManager : UdonSharpBehaviour
     public void LockingToggle()
     {
         table._TriggerNoLockingChanged(!LockingToggle_button.isOn);
+    }
+    [SerializeField] private Toggle NpcToggle_button;
+    public void NpcToggle()
+    {
+        table._TriggerNpcChanged(NpcToggle_button.isOn);
     }
 #if EIJIS_10BALL
     [SerializeField] private Toggle Wpa10BallRuleToggle_button;

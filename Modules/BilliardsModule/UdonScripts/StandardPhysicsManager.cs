@@ -1689,6 +1689,8 @@ public class StandardPhysicsManager : UdonSharpBehaviour
     }
 
     public float inV0;
+    public Vector3 npcShotDir;
+    public float npcSpinDraw;
     public void _ApplyPhysics()
     {
         applyPhysics(inV0);
@@ -1696,10 +1698,21 @@ public class StandardPhysicsManager : UdonSharpBehaviour
 
     private void applyPhysics(float V0)
     {
-        GameObject cuetip = table.activeCue._GetCuetip();
-
-        Vector3 q = transform_Surface.InverseTransformDirection(cuetip.transform.forward);// direction of cue in surface space
         Vector3 o = balls_P[0];
+        Vector3 q;
+        bool isNpcShot = npcShotDir.sqrMagnitude > 0.01f;
+
+        // NPC mode: use shot direction directly, bypass cue tip transform
+        if (isNpcShot)
+        {
+            q = npcShotDir.normalized;
+            npcShotDir = Vector3.zero; // consume
+        }
+        else
+        {
+            GameObject cuetip = table.activeCue._GetCuetip();
+            q = transform_Surface.InverseTransformDirection(cuetip.transform.forward);
+        }
 
 
         Vector3 j = -Vector3.ProjectOnPlane(q, transform_Surface.up); // project cue direction onto table surface, gives us j
@@ -1708,7 +1721,9 @@ public class StandardPhysicsManager : UdonSharpBehaviour
 
         Plane jkPlane = new Plane(i, o);
 
-        Vector3 Q = RaySphere_output;
+        // For NPC mode, apply subtle draw spin; otherwise use ray-sphere result
+        Vector3 Q = isNpcShot ? o + transform_Surface.up * npcSpinDraw : RaySphere_output;
+        if (isNpcShot) npcSpinDraw = 0f; // consume
         // Clamp the increase in spin from hitting the ball further from the center by moving the hit point towards the center
         Vector3 Qflat = Vector3.ProjectOnPlane(Q - o, q);
         float distFromCenter = Qflat.magnitude / k_BALL_RADIUS;

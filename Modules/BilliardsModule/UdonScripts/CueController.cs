@@ -38,7 +38,7 @@ public class CueController : UdonSharpBehaviour
     private float cueScaleMine = 1;
     private float cueThicknessMine = 1;
     [UdonSynced] private float cueScale = 1;
-    [UdonSynced] private float cueThinkness = 1; 
+    [UdonSynced] private float cueThinkness = 1;
     private float cueSmoothingLocal = 1;
     private float cueSmoothing = 30;
 
@@ -61,6 +61,7 @@ public class CueController : UdonSharpBehaviour
     private int[] authorizedOwners;
 
     [NonSerialized] public bool TeamBlue;
+    private bool npcControlled;
 
     public void _Init()
     {
@@ -155,6 +156,28 @@ public class CueController : UdonSharpBehaviour
         secondaryController._Hide();
     }
 
+    public void _SetNpcControlled(bool active)
+    {
+        npcControlled = active;
+        if (active)
+        {
+            primaryHolding = false;
+            secondaryHolding = false;
+            primaryLocked = false;
+            secondaryLocked = false;
+        }
+        else
+        {
+            // Sync primary lag to current body position so FixedUpdate doesn't snap back
+            lagPrimaryPosition = body.transform.position;
+            // Set secondary lag behind cue direction to avoid LookAt pointing at itself
+            lagSecondaryPosition = body.transform.position + body.transform.forward * 0.3f;
+            // Sync primary grip to follow cue
+            primary.transform.position = body.transform.position;
+            primary.transform.rotation = body.transform.rotation;
+        }
+    }
+
     public void _ResetCuePosition()
     {
         if (Networking.LocalPlayer.IsOwner(gameObject))
@@ -190,8 +213,15 @@ public class CueController : UdonSharpBehaviour
         desktop.transform.position = body.transform.position;
         desktop.transform.rotation = body.transform.rotation;
     }
+    public void _SyncBodyFromDesktop()
+    {
+        body.transform.position = desktop.transform.position;
+        body.transform.rotation = desktop.transform.rotation;
+    }
     private void FixedUpdate()
     {
+        if (npcControlled) return; // NPC fully controls body position via _SyncBodyFromDesktop
+
         if (primaryHolding)
         {
             // must not be shooting, since that takes control of the cue object
@@ -524,5 +554,10 @@ public class CueController : UdonSharpBehaviour
     public VRCPlayerApi _GetHolder()
     {
         return ((VRC_Pickup)primary.GetComponent(typeof(VRC_Pickup))).currentPlayer;
+    }
+
+    public float _GetCuetipDistance()
+    {
+        return cuetipDistance;
     }
 }
