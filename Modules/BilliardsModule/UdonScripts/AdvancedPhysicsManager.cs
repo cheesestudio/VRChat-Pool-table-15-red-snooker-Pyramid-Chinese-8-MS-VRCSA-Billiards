@@ -2684,7 +2684,7 @@ public class AdvancedPhysicsManager : UdonSharpBehaviour
         {
             if (!table.isMyTurn())
             {
-                table.DG_LAB.SendCustomEvent("JustShock");
+                table.DG_LAB.SendCustomEvent("JustShock1");
                 table._LogYes("不是你的回合进球要电");
             }
         }

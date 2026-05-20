@@ -395,6 +395,11 @@ public class GraphicsManager : UdonSharpBehaviour
 		}
 	}
 
+	public void _SetNpcName(string npcName)
+	{
+		playerNames[1].text = "<size=13>" + rainbow(npcName);
+	}
+
 	public void _OnGameReset()
 	{
 		_DisableObjects();
@@ -466,7 +471,7 @@ public class GraphicsManager : UdonSharpBehaviour
 	}
 
 	#region Colors
-	private string rainbow(string name)
+	public string rainbow(string name)
 	{
 		string[] colors = generateRainbow(name.Length);
 		for (int i = 0; i < name.Length; i++)

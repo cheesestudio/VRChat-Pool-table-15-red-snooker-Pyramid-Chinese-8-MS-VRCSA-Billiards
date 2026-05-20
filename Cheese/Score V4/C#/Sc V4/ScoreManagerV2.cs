@@ -104,6 +104,45 @@ public class ScoreManagerV2 : UdonSharpBehaviour
         }
     }
 
+    // 练习模式：用名字字符串记录比分（NPC没有真实playerID）
+    public void AddScoreByName(string playerName, string npcName, bool playerWon)
+    {
+        if (string.IsNullOrEmpty(playerName)) return;
+        if (!Networking.IsOwner(gameObject))
+            Networking.SetOwner(Networking.LocalPlayer, gameObject);
+
+        if (string.IsNullOrEmpty(RedPlayer) && string.IsNullOrEmpty(BluePlayer))
+        {
+            RedPlayer = playerName;
+            BluePlayer = npcName;
+            RedScore = playerWon ? 1 : 0;
+            BlueScore = playerWon ? 0 : 1;
+        }
+        else if (playerName == RedPlayer || playerName == BluePlayer)
+        {
+            if (playerWon)
+            {
+                if (playerName == RedPlayer) RedScore++;
+                else BlueScore++;
+            }
+            else
+            {
+                if (playerName == RedPlayer) BlueScore++;
+                else RedScore++;
+            }
+        }
+        else
+        {
+            RedPlayer = playerName;
+            BluePlayer = npcName;
+            RedScore = playerWon ? 1 : 0;
+            BlueScore = playerWon ? 0 : 1;
+        }
+
+        Reflash();
+        RequestSerialization();
+    }
+
     public void M_Score_Reset()
     {
 

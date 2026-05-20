@@ -124,8 +124,15 @@ public class MenuManager : UdonSharpBehaviour
             VRCPlayerApi player = VRCPlayerApi.GetPlayerById(table.playerIDsLocal[i]);
             if (player == null)
             {
-                lobbyNames[i].text = table._translations.Get("Free slot");
-                //lobbyNames[i].text = "Free slot";
+                // 练习模式：蓝队位置显示AI名字（彩虹色）
+                if (table.isPracticeMode && i == 1 && table.practiceManager != null)
+                {
+                    lobbyNames[i].text = table.graphicsManager.rainbow(table.practiceManager.npcDisplayName);
+                }
+                else
+                {
+                    lobbyNames[i].text = table._translations.Get("Free slot");
+                }
             }
             else
             {

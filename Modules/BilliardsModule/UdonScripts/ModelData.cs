@@ -29,6 +29,7 @@ public class ModelData : UdonSharpBehaviour
 
         [SerializeField] public Vector3 cornerPocket = new Vector3(11.087f, 0, 10.63f);
         [SerializeField] public Vector3 sidePocket = new Vector3(0, 0, 10.662f);
+        [SerializeField, Range(0f, 0.20f)] public float cornerToSideOffset = 0.35f;
 
         [Header("Ball-Table Coefficients:")]
 

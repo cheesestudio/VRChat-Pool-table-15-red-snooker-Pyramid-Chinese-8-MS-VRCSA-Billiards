@@ -195,12 +195,23 @@ public class ModelConfigurationEditor : Editor
         Vector3 s5 = new Vector3(side.x, side.y, -side.z);
         localTargets[5] = s5 + (Vector3.zero - s5).normalized * sideInnerR;
 
+        // Apply corner-to-side offset (opposite side pocket)
+        Vector3[] adjusted = new Vector3[6];
+        for (int i = 0; i < 6; i++) adjusted[i] = localTargets[i];
+        adjusted[0] = Vector3.Lerp(localTargets[0], localTargets[5], data.cornerToSideOffset); // C0(+x,+z)→S5(0,-z)
+        adjusted[1] = Vector3.Lerp(localTargets[1], localTargets[4], data.cornerToSideOffset); // C1(+x,-z)→S4(0,+z)
+        adjusted[2] = Vector3.Lerp(localTargets[2], localTargets[5], data.cornerToSideOffset); // C2(-x,+z)→S5(0,-z)
+        adjusted[3] = Vector3.Lerp(localTargets[3], localTargets[4], data.cornerToSideOffset); // C3(-x,-z)→S4(0,+z)
+
         // Convert all local positions to world space, with table surface Y
         Vector3[] worldTargets = new Vector3[6];
+        Vector3[] worldAdjusted = new Vector3[6];
         for (int i = 0; i < 6; i++)
         {
             Vector3 p = tableXform.TransformPoint(localTargets[i]);
             worldTargets[i] = new Vector3(p.x, surfaceY, p.z);
+            Vector3 a = tableXform.TransformPoint(adjusted[i]);
+            worldAdjusted[i] = new Vector3(a.x, surfaceY, a.z);
         }
 
         Vector3[] worldCorners = new Vector3[4];
@@ -217,7 +228,7 @@ public class ModelConfigurationEditor : Editor
         Vector3 ws2 = tableXform.TransformPoint(new Vector3(side.x, side.y, -side.z));
         Vector3 worldSide2 = new Vector3(ws2.x, surfaceY, ws2.z);
 
-        // Draw pocket center (white) and NPC target (cyan)
+        // White = pocket centers
         Handles.color = Color.white;
         for (int i = 0; i < 4; i++)
         {
@@ -229,14 +240,23 @@ public class ModelConfigurationEditor : Editor
         Handles.DrawSolidDisc(worldSide2, Vector3.up, 0.02f);
         Handles.Label(worldSide2 + Vector3.up * 0.02f, "S5");
 
+        // Green = original T-points
+        Handles.color = Color.green;
+        for (int i = 0; i < 6; i++)
+        {
+            Handles.DrawSolidDisc(worldTargets[i], Vector3.up, 0.020f);
+            Handles.Label(worldTargets[i] + Vector3.up * 0.020f, $"T{i}");
+        }
+
+        // Cyan = adjusted T-points
         Handles.color = Color.cyan;
         for (int i = 0; i < 6; i++)
         {
-            Handles.DrawSolidDisc(worldTargets[i], Vector3.up, 0.025f);
-            Handles.Label(worldTargets[i] + Vector3.up * 0.025f, $"T{i}");
+            Handles.DrawSolidDisc(worldAdjusted[i], Vector3.up, 0.025f);
+            Handles.Label(worldAdjusted[i] + Vector3.up * 0.025f, $"T{i}'");
         }
 
-        // Draw line from pocket center to NPC target
+        // Yellow lines: pocket center → original T-point
         Handles.color = Color.yellow;
         for (int i = 0; i < 4; i++)
             Handles.DrawLine(worldCorners[i], worldTargets[i]);

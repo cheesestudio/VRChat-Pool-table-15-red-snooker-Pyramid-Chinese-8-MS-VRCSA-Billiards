@@ -819,10 +819,6 @@ public class BilliardsModule : UdonSharpBehaviour
             practiceManager._NpcStop();
             if (practiceManager.testMode) practiceManager._StopTestMode();
         }
-        else
-        {
-            if (!practiceManager.testMode) practiceManager._StartTestMode();
-        }
         _LogInfo("NPC practice mode: " + (npcEnabledLocal ? "ON" : "OFF"));
     }
 
@@ -1944,7 +1940,7 @@ public class BilliardsModule : UdonSharpBehaviour
             {
                 if(Networking.LocalPlayer != winner1 &&  Networking.LocalPlayer != winner2 )
                 {
-                    DG_LAB.SendCustomEvent("JustShock");
+                    DG_LAB.SendCustomEvent("JustShock1");
                 }
             }
         }
@@ -1958,6 +1954,16 @@ public class BilliardsModule : UdonSharpBehaviour
         {
             if (!BreakFinish)  //Breakfinish是由复用的参数计算的
                 ScoreManager.AddScore(playerIDsCached[0], playerIDsCached[1], playerIDsCached[winningTeamLocal], isSnooker15Red  && (string)tableModels[tableModelLocal].GetProgramVariable("TABLENAME") ==  "Snooker 12ft" );
+        }
+        // 练习模式：记录AI对练比分
+        if (ScoreManager != null && isPracticeMode && practiceManager != null)
+        {
+            VRCPlayerApi localPlayer = Networking.LocalPlayer;
+            if (localPlayer != null)
+            {
+                bool playerWon = winningTeamLocal == 0; // orange team = player
+                ScoreManager.AddScoreByName(localPlayer.displayName, practiceManager.npcDisplayName, playerWon);
+            }
         }
         //这段代码必须在resetCachedData前面,不然gamemode被重置了,不过用snooker简化就没事,放这里以防万一
 
@@ -3487,7 +3493,7 @@ public class BilliardsModule : UdonSharpBehaviour
                     }
                     if (DG_LAB != null)
                     {
-                        DG_LAB.SendCustomEvent("JustShock");
+                        DG_LAB.SendCustomEvent("JustShock1");
                         _LogYes("输了要电");
                     }
                 }
@@ -3512,7 +3518,7 @@ public class BilliardsModule : UdonSharpBehaviour
                 }
                 if (DG_LAB != null)
                 {
-                    DG_LAB.SendCustomEvent("JustShock");
+                    DG_LAB.SendCustomEvent("JustShock1");
                     _LogYes("输了要电");
                 }
 
@@ -3528,7 +3534,7 @@ public class BilliardsModule : UdonSharpBehaviour
                 }
                 if (DG_LAB != null)
                 {
-                    DG_LAB.SendCustomEvent("JustShock");
+                    DG_LAB.SendCustomEvent("JustShock1");
                     _LogYes("犯规了要电");
                 }
             }
