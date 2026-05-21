@@ -482,6 +482,19 @@ public class BilliardsModule : UdonSharpBehaviour
     private int firstHit = 0;
     private int secondHit = 0;
     private int thirdHit = 0;
+    public Vector3 firstHitPos = Vector3.zero; // 母球第一次撞击时的位置
+    // Collision tracking for logging
+    private const int MAX_COLLISIONS = 64;
+    private int[] colSrc = new int[MAX_COLLISIONS];
+    private int[] colDst = new int[MAX_COLLISIONS];
+    private float[] colPosX = new float[MAX_COLLISIONS];
+    private float[] colPosZ = new float[MAX_COLLISIONS];
+    private int colCount = 0;
+    private const int MAX_CUSHION_HITS = 32;
+    private int[] cushBall = new int[MAX_CUSHION_HITS];
+    private float[] cushPosX = new float[MAX_CUSHION_HITS];
+    private float[] cushPosZ = new float[MAX_CUSHION_HITS];
+    private int cushCount = 0;
     private bool jumpShotFoul;
     private bool fallOffFoul;
 #if EIJIS_CAROM
@@ -1901,6 +1914,9 @@ public class BilliardsModule : UdonSharpBehaviour
                 p2str = winner2.displayName;
             // All players are kicked from the match when it's won, so use the previous turn's player names to show the winners (playerIDsCached)
             _LogWarn("game over, team " + winningTeamLocal + " won (" + p1str + " and " + p2str + ")");
+            // Clear NPC name on game end
+            if (isPracticeMode && practiceManager != null)
+                practiceManager._npcNameDisplayed = false;
             graphicsManager._SetWinners(/* isPracticeMode ? 0u :  */winningTeamLocal, playerIDsCached);
 #if UDON_CHIPS
             VRCPlayerApi LocalPlayer = Networking.LocalPlayer;
@@ -1936,9 +1952,10 @@ public class BilliardsModule : UdonSharpBehaviour
                 }
                 personalData.SaveData();
             }
-            if(DG_LAB != null)
+            if(DG_LAB != null && isPlayer)
             {
-                if(Networking.LocalPlayer != winner1 &&  Networking.LocalPlayer != winner2 )
+                // 输的队伍所有人都要电
+                if(localTeamId != winningTeamLocal)
                 {
                     DG_LAB.SendCustomEvent("JustShock1");
                 }
@@ -1962,7 +1979,7 @@ public class BilliardsModule : UdonSharpBehaviour
             if (localPlayer != null)
             {
                 bool playerWon = winningTeamLocal == 0; // orange team = player
-                ScoreManager.AddScoreByName(localPlayer.displayName, practiceManager.npcDisplayName, playerWon);
+                ScoreManager.AddScoreByName(localPlayer.displayName, practiceManager.npcLocalizedName, playerWon);
             }
         }
         //这段代码必须在resetCachedData前面,不然gamemode被重置了,不过用snooker简化就没事,放这里以防万一
@@ -2252,6 +2269,9 @@ public class BilliardsModule : UdonSharpBehaviour
         firstHit = 0;
         secondHit = 0;
         thirdHit = 0;
+        firstHitPos = Vector3.zero;
+        colCount = 0;
+        cushCount = 0;
 #if EIJIS_CAROM
         cushionBeforeSecondBall = 0;
 #endif
@@ -2426,6 +2446,19 @@ public class BilliardsModule : UdonSharpBehaviour
             numBallsHitCushion++;
             ballhasHitCushion[ball] = true;
         }
+        // Cue ball hits cushion before any ball → record as first impact
+        if (ball == 0 && firstHit == 0 && firstHitPos == Vector3.zero)
+        {
+            firstHitPos = pos;
+        }
+        // Record all cushion hits
+        if (cushCount < MAX_CUSHION_HITS)
+        {
+            cushBall[cushCount] = ball;
+            cushPosX[cushCount] = pos.x;
+            cushPosZ[cushCount] = pos.z;
+            cushCount++;
+        }
         if (firstHit != 0)
         { ballBounced = true; }
 #if EIJIS_CAROM
@@ -2467,6 +2500,15 @@ public class BilliardsModule : UdonSharpBehaviour
             dstId = srcId;
             srcId = tmp;
         }
+        // Record all ball-ball collisions
+        if (colCount < MAX_COLLISIONS)
+        {
+            colSrc[colCount] = srcId;
+            colDst[colCount] = dstId;
+            colPosX[colCount] = ballsP[srcId].x;
+            colPosZ[colCount] = ballsP[srcId].z;
+            colCount++;
+        }
         if (srcId != 0) return;
 
         switch (gameModeLocal)
@@ -2479,12 +2521,13 @@ public class BilliardsModule : UdonSharpBehaviour
 #if EIJIS_10BALL
             case GAMEMODE_10BALL:
 #endif
-                if (firstHit == 0) firstHit = dstId;
+                if (firstHit == 0) { firstHit = dstId; firstHitPos = ballsP[0]; }
                 break;
             case 2:
                 if (firstHit == 0)
                 {
                     firstHit = dstId;
+                    firstHitPos = ballsP[0];
                     break;
                 }
                 if (secondHit == 0)
@@ -2515,6 +2558,7 @@ public class BilliardsModule : UdonSharpBehaviour
                 if (firstHit == 0)
                 {
                     firstHit = dstId;
+                    firstHitPos = ballsP[0];
                     break;
                 }
                 if (secondHit == 0)
@@ -2529,7 +2573,7 @@ public class BilliardsModule : UdonSharpBehaviour
                 break;
             case 4:
                 //Snooker
-                if (firstHit == 0) firstHit = dstId;
+                if (firstHit == 0) { firstHit = dstId; firstHitPos = ballsP[0]; }
                 break;
 #if EIJIS_BANKING
             case GAMEMODE_BANKING:
@@ -2542,6 +2586,7 @@ public class BilliardsModule : UdonSharpBehaviour
                 if (firstHit == 0)
                 {
                     firstHit = dstId;
+                    firstHitPos = ballsP[0];
                     break;
                 }
                 if (secondHit == 0)
@@ -2760,6 +2805,24 @@ public class BilliardsModule : UdonSharpBehaviour
         if (!isLocalSimulationRunning && !forceRun) return;
 
         isLocalSimulationRunning = false;
+
+        // Log all collisions
+        if (colCount > 0 || cushCount > 0)
+        {
+            string colLog = "[NPC] 碰撞: 球-球=" + colCount + "次";
+            for (int i = 0; i < colCount; i++)
+            {
+                colLog += " [" + colSrc[i] + "->" + colDst[i]
+                    + " (" + colPosX[i].ToString("F3") + "," + colPosZ[i].ToString("F3") + ")]";
+            }
+            colLog += " 球-库=" + cushCount + "次";
+            for (int i = 0; i < cushCount; i++)
+            {
+                colLog += " [球" + cushBall[i]
+                    + " (" + cushPosX[i].ToString("F3") + "," + cushPosZ[i].ToString("F3") + ")]";
+            }
+            _LogInfo(colLog);
+        }
         waitingForUpdate = !isLocalSimulationOurs;
 
         if (!isLocalSimulationOurs && networkingManager.delayedDeserialization)

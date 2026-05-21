@@ -1,56 +1,129 @@
 ![OG$UI_JKGDD6QL21LEK)9DE](https://github.com/user-attachments/assets/04739895-457d-4806-8d93-6f3ed2b80bbf)
-# 中文台球俱乐部桌 CBC pool table
+# 中文台球俱乐部桌 CBC Pool Table
 
-这个项目是用于VRChat的台球桌预制键,你可以在VRChat地图 **[中文台球俱乐部 Chinese Billiiards Club
-](https://vrchat.com/home/launch?worldId=wrld_0a35397b-2e7d-4f01-8552-034ab8e76e2e
-)**.游玩和测试这张桌子  
-非常感谢我朋友们的支持,没有他们做不出来这张桌子的:eijis-pan,RokaOvO,WangQAQ,COCOA GAME    
-球杆:Tempest,catte paling,tarsan,カボ    
-QQ群:780855553  
+VRChat 台球桌预制件，用于 VRChat 地图 **[中文台球俱乐部 Chinese Billiards Club](https://vrchat.com/home/launch?worldId=wrld_0a35397b-2e7d-4f01-8552-034ab8e76e2e)**。
 
-## 功能介绍 Features
-- 在原来的基础上加了:15球斯诺克,俄罗斯台球,中式八球（包括规则和集球器）,开仑台球,10球   
-- 桌子控件:自选球杆皮肤,球材质和桌子颜色(球杆同步，球和桌子本地),自动保存和加载设置,可以通过dc或者qq群上传设置
-- 继承原项目大部分更新，45秒计时器，库边颜色切换等
-- 计分板自动记录对局分数
+感谢朋友们的支持：eijis-pan, RokaOvO, WangQAQ, COCOA GAME
+球杆：Tempest, catte paling, tarsan, カボ
+QQ群：780855553
+
+> 原项目：[MS-VRCSA-Billiards](https://github.com/Sacchan-VRC/MS-VRCSA-Billiards)
+
+---
+
+## 游戏模式
+
+| 模式 | 说明 |
+|------|------|
+| 中式八球 | 含完整规则和集球器 |
+| 15球斯诺克 | 6红/15红可选 |
+| 俄罗斯台球 | |
+| 10球 | |
+| 开仑台球 | 0/1/2/3库开仑 |
+| 9球 | |
+| Banking | 翻袋专项 |
+
+---
+
+## NPC AI 对手 (PracticeManager)
+
+单人练习模式下可与 AI 对手对打。NPC 具备完整的台球决策能力：
+
+### 击球策略（优先级从高到低）
+
+| 优先级 | 类型 | 说明 |
+|--------|------|------|
+| PASS 1 | 直接球 | 直接入袋的击球，含走位评估 |
+| PASS 2 | 单库翻袋 | 目标球碰一次库边后入袋 |
+| PASS 2b | 两库翻袋 | 目标球碰两次库边后入袋 |
+| PASS 2.5 | 薄切球 | 大切角薄切入袋 |
+| PASS 3 | 单库勾库 | 母球碰一次库边后击中目标球 |
+| PASS 3b | 两库勾库 | 母球碰两次库边后击中目标球 |
+| — | K球 | 安全球，无进球路线时的防守策略 |
+
+### 技术特点
+
+- **库边摩擦补偿**：翻袋时考虑库边摩擦导致的反弹角度偏移，自动调整瞄准方向
+- **轨迹验证**：击球前模拟目标球路径，验证是否经过袋口
+- **路径遮挡检测**：检查母球→目标球、目标球→库边、库边→袋口三段路径是否有球遮挡
+- **犯规预测**：预测母球击球后轨迹，避免意外犯规（如母球进袋、碰到非目标球）
+- **走位评估**：评估击球后母球停留位置，优先选择有利于下一杆的位置
+- **力度控制**：根据距离和球型自动调整击球力度，翻袋/勾库时限制最大力度
+- **重复检测**：同一球同一袋重复3次以上强制切换安全球
+
+### 状态机
+
+```
+IDLE → CALCULATING → CHARGING → DELAYING → SHOOTING → OBSERVING → IDLE
+ 空闲    计算中       蓄力中      等待中      击球中      观察结果
+```
+
+### 测试模式
+
+PracticeManager 支持自动测试模式（`testMode`），可无人值守自动对打多局：
+- 自动开球、轮流击球、记录每杆结果
+- 日志输出到 `Assets/npc_log.txt`
+- 包含：球位、瞄准方向、切角、力度、旋转、轨迹验证结果
+- 可通过 `Editor/NpcLogExporter.cs` 导出日志
+
+---
+
+## 桌子功能
+
+### 玩家自定义 (TableHook)
+
+- 自选球杆皮肤、球材质、桌子颜色（球杆网络同步，球和桌子本地同步）
+- 球杆大小、粗细、平滑度、颜色偏移可调
+- 自动保存和加载设置（VRC PlayerData）
+- 可通过 Discord/QQ 群上传/下载设置
+
+### 计分系统 (ScoreManagerV4)
+
+- 自动记录对局分数
+- 排行榜上传到后端（`wangqaq.com`，HMAC 加密认证）
+- 45秒计时器
+
+### 其他功能
+
+- 全自动翻译系统（检测 VRChat 本地语言，中/日/英）
 - 专属名字颜色功能
-- 全自动翻译系统(检测VRChat本地语言自动设置),中日英三种,中文规则版翻译补充
-- 全自动排行榜功能(暂停使用,如果想要自己搭服务器可以问我)
-- 可持久化个人数据及排行榜  
-- 郊狼联动支持
-> 原项目:[MS-VRCSA-Billiards](https://github.com/Sacchan-VRC/MS-VRCSA-Billiards)
-### 设置 Set up
-用的时候记得把billiardModule设置为22层，并把这层单独物理设置成只与自己交互（上面MS那个按钮可以自动设置）  
-<b>在场景内放一个table hook(运行场景会自动检测添加,调整位置即可)</b>   
+- 可持久化个人数据及排行榜
+- 库边颜色切换
+- 郊狼联动支持（输家被电）
+
+### 设置
+
+1. 将 `BilliardsModule` 设置为 22 层，物理设置为只与自己交互（上面 MS 按钮可自动设置）
+2. 在场景内放一个 `TableHook`（运行场景会自动检测添加，调整位置即可）
+
 ![image](https://github.com/user-attachments/assets/f453ae11-0735-4885-b700-87101d5971c7)
 
 ![Q84OOB{37Q{XY946MTR$E`F](https://github.com/user-attachments/assets/6bf18499-5926-4ca2-8a8c-8f8e33fd9faa)
-更多自定义功能:  
--自定义球杆皮肤和球材质（下面视频，还要在tablehook里面加贴图现在）代码里面预留了几个空位  
--有udonchips对应,在BilliardsModule里面点一下按钮
--用我发布的现成包就行，如果想克隆库，自己加一下vrcsdk(>=3.7.5)和udonsharp  
-> [设置自定义球杆 How to set custom cue](https://youtu.be/YnoQ9jsUg0k?si=EfdxX1FDMUZXM2RX)  
- 
-### 可能性功能(未来) Feature
-- 桌子控件更多功能 table hook function
-- 更丰富的名字颜色 more name color
-- 球轨迹线 ball trial
 
-### 人员
-最终解释权： 
-Roka:俄式球桌和中式球桌是我按照Sacc台球桌的10ft桌和12ft斯诺克桌模型为基础更改的。
-起初中式球桌仅用于我的地图"FIVI Flight"使用，之后允许了中文台球俱乐部使用且协助开发。
-但使用权并未明确声明仅用于我的地图和中文台球俱乐部地图，因此不限制使用。  
-最终解释权归中文台球俱乐部所有
+- 自定义球杆皮肤和球材质：在 TableHook 里加贴图，代码里预留了几个空位
+- UdonChips 对应：在 BilliardsModule 里点按钮
+- 用现成包即可；如克隆库需自行添加 VRCSDK (>=3.7.5) 和 UdonSharp
+
+> [设置自定义球杆 How to set custom cue](https://youtu.be/YnoQ9jsUg0k?si=EfdxX1FDMUZXM2RX)
+
+---
+
+## 可能性功能（未来）
+
+- 桌子控件更多功能
+- 更丰富的名字颜色
+- 球轨迹线
+
+---
+
+## 人员
+
+最终解释权：
+Roka：俄式球桌和中式球桌是我按照 Sacc 台球桌的 10ft 桌和 12ft 斯诺克桌模型为基础更改的。起初中式球桌仅用于我的地图 "FIVI Flight" 使用，之后允许了中文台球俱乐部使用且协助开发。但使用权并未明确声明仅用于我的地图和中文台球俱乐部地图，因此不限制使用。最终解释权归中文台球俱乐部所有。
+
 ![image](https://github.com/user-attachments/assets/362abbc4-c159-4617-a6a2-23b64765709a)
-
-
 ![image](https://github.com/user-attachments/assets/8da69556-b526-488a-8127-5fc319de84a9)
-
 ![image](https://github.com/user-attachments/assets/f1ff2b1e-e0a0-49d5-becb-be3bf18a4ea8)
-
 ![9DH{L{LM 4~0@{)PZ4TD_tmb](https://github.com/cheesestudio/VRChat-Pool-table-with-15-red-snooker-Pyramid-Chinese-8-ball-based-on-MS-VRCSA-Billiards/assets/52149451/7f894791-cf72-473e-bbe6-20bec9804917)
 ![image](https://github.com/user-attachments/assets/969415da-7bda-4689-9e19-54c2f88e8d73)
 ![image](https://github.com/user-attachments/assets/36cfebe4-d929-4ac5-a14d-f71371f40442)
-
-

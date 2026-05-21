@@ -14,7 +14,18 @@ public class PracticeManager : UdonSharpBehaviour
     [SerializeField] private TextMeshProUGUI testReportText; // assign in Inspector for test report display
 
     [Header("AI Opponent")]
-    [SerializeField] public string npcDisplayName = "Cheddar"; // AI名字，可在Inspector修改
+    [HideInInspector] public string npcDisplayName = "Paruma"; // AI名字(key)，通过翻译系统自动本地化
+
+    // 获取翻译后的NPC名字
+    public string npcLocalizedName
+    {
+        get
+        {
+            if (table != null && table._translations != null)
+                return table._translations.Get(npcDisplayName);
+            return npcDisplayName;
+        }
+    }
 
     // --- Undo/Redo (existing) ---
     private object[] history = new object[128];
@@ -41,6 +52,9 @@ public class PracticeManager : UdonSharpBehaviour
     private int npcShotType; // 0=直接 1=翻袋 2=K球 3=轻碰
     private float npcCutAngle; // 切角(度)
     private float npcBestScore; // 选球分数
+    private int npcKickCushion = -1; // 勾库时实际选择的库边 (0=top,1=bottom,2=left,3=right)
+    private int npcKickCushion2 = -1; // 两库勾库的第二个库边
+    private Vector3 npcFirstImpactPos = Vector3.zero; // 预测的母球第一次撞击点
     private int npcGroupId = -1; // cached NPC group: 0=solids, 1=stripes, -1=uninitialized
     private int npcFrameDelay; // frames to wait after sim ends before NPC can fire (fixes AI-vs-AI timing bug)
 
@@ -59,9 +73,11 @@ public class PracticeManager : UdonSharpBehaviour
     // --- Failed break detection: all balls on right half → full power break ---
     private bool _isFirstNpcShot = true; // reset when game restarts
     private bool _gameWasLive = false; // track gameLive edge for reset
+    private bool _restartScheduled = false; // prevent duplicate auto-restart in test mode
 
     // --- Test Mode ---
     public bool testMode; // public so BilliardsModule can check for turn bypass
+    public bool debug; // debug模式：开启时不记录AI计算日记
     private bool _testModeStarted; // track if _StartTestMode already called
     private int testShotCount;
     private const int MAX_TEST_SHOTS = 500;
@@ -83,6 +99,8 @@ public class PracticeManager : UdonSharpBehaviour
     private bool[] testTableOpen = new bool[MAX_TEST_SHOTS]; // 台面开放
     private int[] testNpcGroup = new int[MAX_TEST_SHOTS]; // NPC组别 -1=无 0=全色 1=花色
     private float[] testBestScore = new float[MAX_TEST_SHOTS]; // 选球分数
+    private float[] testFirstImpactX = new float[MAX_TEST_SHOTS]; // 母球第一次撞击点X
+    private float[] testFirstImpactZ = new float[MAX_TEST_SHOTS]; // 母球第一次撞击点Z
     // Snapshot of ball positions before shot (only 8 balls tracked for brevity: 0,1,2-9 solids,10-15 stripes)
     private string[] testSnapBefore = new string[MAX_TEST_SHOTS];
     private string[] testSnapAfter = new string[MAX_TEST_SHOTS];
@@ -92,8 +110,14 @@ public class PracticeManager : UdonSharpBehaviour
     private const float BALL_DIAMETER = 0.05715f;
     private const float BALL_DIAMSQR = 0.003266f; // BALL_DIAMETER²
     private const float PATH_CLEARANCE = 0.062f; // BALL_DIAMETER + ~5mm margin
-    private const float MIN_POWER = 0.22f;
+    private const float MIN_POWER = 0.32f;
     private const float MAX_POWER = 0.42f;
+
+    // Debug helper: skip AI logs when debug=false
+    private void _Log(string msg)
+    {
+        if (debug) table._LogInfo(msg);
+    }
 
     [Header("NPC T-Point Offset")]
     [HideInInspector] public float cornerToSideOffset = 0.35f; // 角袋T点向中袋偏移比例 (0~1) — 运行时从ModelData读取
@@ -113,7 +137,7 @@ public class PracticeManager : UdonSharpBehaviour
         _Clear();
     }
 
-    private bool _npcNameDisplayed = false;
+    [HideInInspector] public bool _npcNameDisplayed = false;
 
     public void _Tick()
     {
@@ -136,13 +160,18 @@ public class PracticeManager : UdonSharpBehaviour
             {
                 _npcNameDisplayed = true;
                 if (table.graphicsManager != null)
-                    table.graphicsManager._SetNpcName(npcDisplayName);
+                    table.graphicsManager._SetNpcName(npcLocalizedName);
             }
             _NpcTick();
         }
         else
         {
-            _npcNameDisplayed = false;
+            if (_npcNameDisplayed)
+            {
+                _npcNameDisplayed = false;
+                if (table.graphicsManager != null)
+                    table.graphicsManager._ClearNpcName();
+            }
         }
     }
 
@@ -189,7 +218,7 @@ public class PracticeManager : UdonSharpBehaviour
             latestPtr = stateIdLocal;
         }
 
-        table._LogInfo("recording state current=" + currentPtr + " latest=" + latestPtr);
+        _Log("recording state current=" + currentPtr + " latest=" + latestPtr);
     }
 
     public void _Undo()
@@ -274,7 +303,7 @@ public class PracticeManager : UdonSharpBehaviour
     {
         if (table.isLocalSimulationRunning)
         {
-            table._LogInfo("interrupting simulation and loading new state");
+            _Log("interrupting simulation and loading new state");
         }
         object[] state = (object[])history[currentPtr - amountBack];
         object[] curState = (object[])history[currentPtr];
@@ -290,7 +319,7 @@ public class PracticeManager : UdonSharpBehaviour
     {
         if (table.isLocalSimulationRunning)
         {
-            table._LogInfo("interrupting simulation and loading new state");
+            _Log("interrupting simulation and loading new state");
         }
         object[] state = (object[])history[newPtr];
         table._LoadInMemoryState(state, newPtr);
@@ -412,6 +441,8 @@ public class PracticeManager : UdonSharpBehaviour
         testTableOpen[testShotCount] = table.isTableOpenLocal;
         testNpcGroup[testShotCount] = npcGroupId;
         testBestScore[testShotCount] = npcBestScore;
+        testFirstImpactX[testShotCount] = 0f; // will be filled in _RecordShotPost
+        testFirstImpactZ[testShotCount] = 0f;
         testShotCount++;
     }
 
@@ -422,6 +453,9 @@ public class PracticeManager : UdonSharpBehaviour
         testSnapAfter[idx] = _SnapshotBalls();
         testPocketedAfter[idx] = table.ballsPocketedLocal;
         testFoul[idx] = foul;
+        // Record actual first impact position from physics
+        testFirstImpactX[idx] = table.firstHitPos.x;
+        testFirstImpactZ[idx] = table.firstHitPos.z;
 
         // Log this shot
         uint pBefore = testPocketedBefore[idx];
@@ -451,6 +485,7 @@ public class PracticeManager : UdonSharpBehaviour
             + " 犯规=" + foul
             + (testIsFreeBall[idx] ? " 自由球" : "")
             + " 进袋=" + (pocketedStr.Length > 0 ? pocketedStr.Trim() : "无")
+            + " 撞击=(" + testFirstImpactX[idx].ToString("F3") + "," + testFirstImpactZ[idx].ToString("F3") + ")"
             + targetStatus);
     }
 
@@ -502,7 +537,7 @@ public class PracticeManager : UdonSharpBehaviour
         report += "========== END ==========";
 
         // Log to console
-        table._LogInfo(report);
+        _Log(report);
 
         // Display on in-world UI panel
         if (testReportText != null)
@@ -519,7 +554,7 @@ public class PracticeManager : UdonSharpBehaviour
         // Early exit: stop NPC immediately when game ends (prevents extra shot after game-over)
         if (testMode && npcState != NPC_IDLE && npcState != NPC_OBSERVING && !table.gameLive)
         {
-            table._LogInfo("[NPC] 游戏已结束,停止NPC");
+            _Log("[NPC] 游戏已结束,停止NPC");
             _NpcStop();
             if (testMode)
             {
@@ -536,6 +571,7 @@ public class PracticeManager : UdonSharpBehaviour
                 }
                 else
                 {
+                    _restartScheduled = true;
                     SendCustomEventDelayedSeconds(nameof(_AutoRestartGame), 1.0f);
                 }
             }
@@ -550,12 +586,13 @@ public class PracticeManager : UdonSharpBehaviour
             {
                 if (_corruptionResetCount >= MAX_CORRUPTION_RESETS)
                 {
-                    table._LogInfo("[NPC] 腐败重置次数超限(" + _corruptionResetCount + "),停止测试");
+                    _Log("[NPC] 腐败重置次数超限(" + _corruptionResetCount + "),停止测试");
                     _StopTestMode();
                     return;
                 }
-                table._LogInfo("[NPC] 腐败重置后重新开始 (第" + _corruptionResetCount + "/" + MAX_CORRUPTION_RESETS + "次)");
+                _Log("[NPC] 腐败重置后重新开始 (第" + _corruptionResetCount + "/" + MAX_CORRUPTION_RESETS + "次)");
             }
+            _restartScheduled = false;
             npcGroupId = -1;
             _lastShotBall = -1;
             _lastShotPocket = -1;
@@ -574,6 +611,29 @@ public class PracticeManager : UdonSharpBehaviour
         switch (npcState)
         {
             case NPC_IDLE:
+                // Handle game end in test mode — NPC might already be idle when gameLive flips
+                // (e.g. NPC_OBSERVING transitioned to IDLE before _FlushBuffer() processed game-end sync)
+                if (testMode && !table.gameLive && !_restartScheduled)
+                {
+                    _Log("[NPC] 游戏已结束(Idle检测),停止NPC");
+                    testGameCount++;
+                    _corruptionResetCount = 0;
+                    bool oneShot = testShotCount <= 1;
+                    if (oneShot) testOneShotClearCount++;
+                    table._LogInfo("[TEST] 第" + testGameCount + "/" + MAX_TEST_GAMES + "局结束, 共" + testShotCount + "杆" + (oneShot ? " ★一杆清台!" : ""));
+                    testShotCount = 0;
+                    if (testGameCount >= MAX_TEST_GAMES)
+                    {
+                        table._LogInfo("[TEST] 完成" + MAX_TEST_GAMES + "局! 一杆清台次数: " + testOneShotClearCount);
+                        _StopTestMode();
+                    }
+                    else
+                    {
+                        _restartScheduled = true;
+                        SendCustomEventDelayedSeconds(nameof(_AutoRestartGame), 1.0f);
+                    }
+                    break;
+                }
                 // Wait one frame after sim ends so _FlushBuffer() can sync teamIdLocal
                 if (npcFrameDelay > 0)
                 {
@@ -592,26 +652,43 @@ public class PracticeManager : UdonSharpBehaviour
                 // If all balls 2-15 appear pocketed but game is live, the sync state is wrong
                 if (table.gameLive && (table.ballsPocketedLocal & 0xFFFCu) == 0xFFFCu)
                 {
-                    table._LogInfo("[NPC] 检测到ballsPocketedLocal异常(0x" + table.ballsPocketedLocal.ToString("X8") + "),尝试修正...");
+                    _Log("[NPC] 检测到ballsPocketedLocal异常(0x" + table.ballsPocketedLocal.ToString("X8") + "),尝试修正...");
                     // Scan actual ball positions to determine true pocketed state
                     uint corrected = 0x3u; // balls 0,1 always "pocketed" in bitmask sense
+                    int actuallyOnTable = 0;
                     for (int i = 2; i <= 15; i++)
                     {
                         Vector3 p = table.ballsP[i];
-                        // Ball is pocketed if position is far outside table bounds
-                        if (Mathf.Abs(p.x) > table.k_TABLE_WIDTH + 0.2f || Mathf.Abs(p.z) > table.k_TABLE_HEIGHT + 0.2f)
+                        // Ball is pocketed if position is far outside table bounds in x,z OR y
+                        // (Chinese 8-ball rack places pocketed balls at y=5,0,-5,...)
+                        if (Mathf.Abs(p.x) > table.k_TABLE_WIDTH + 0.2f
+                            || Mathf.Abs(p.z) > table.k_TABLE_HEIGHT + 0.2f
+                            || Mathf.Abs(p.y) > 1.0f)
                         {
                             corrected |= (1u << i);
                         }
+                        else
+                        {
+                            actuallyOnTable++;
+                        }
                     }
-                    if (corrected != table.ballsPocketedLocal)
+                    // Only fix if at least 2 balls are genuinely on the table (not on rack)
+                    // Single ball on table could be 8-ball, which is correct
+                    if (actuallyOnTable >= 2 || corrected == table.ballsPocketedLocal)
                     {
-                        table._LogInfo("[NPC] 修正ballsPocketedLocal: 0x" + table.ballsPocketedLocal.ToString("X8") + " → 0x" + corrected.ToString("X8"));
-                        table.ballsPocketedLocal = corrected;
+                        if (corrected != table.ballsPocketedLocal)
+                        {
+                            _Log("[NPC] 修正ballsPocketedLocal: 0x" + table.ballsPocketedLocal.ToString("X8") + " → 0x" + corrected.ToString("X8") + " 台面球数=" + actuallyOnTable);
+                            table.ballsPocketedLocal = corrected;
+                        }
+                        else
+                        {
+                            _Log("[NPC] ballsPocketedLocal与实际球位一致,无需修正 台面球数=" + actuallyOnTable);
+                        }
                     }
                     else
                     {
-                        table._LogInfo("[NPC] ballsPocketedLocal与实际球位一致,无需修正");
+                        _Log("[NPC] 只有" + actuallyOnTable + "个球在台面(可能是8-ball或架球位),跳过修正");
                     }
                 }
 
@@ -625,7 +702,9 @@ public class PracticeManager : UdonSharpBehaviour
                     {
                         if ((table.ballsPocketedLocal & (1u << i)) != 0) continue;
                         Vector3 p = table.ballsP[i];
-                        if (Mathf.Abs(p.x) > table.k_TABLE_WIDTH + 0.2f || Mathf.Abs(p.z) > table.k_TABLE_HEIGHT + 0.2f)
+                        if (Mathf.Abs(p.x) > table.k_TABLE_WIDTH + 0.2f
+                            || Mathf.Abs(p.z) > table.k_TABLE_HEIGHT + 0.2f
+                            || Mathf.Abs(p.y) > 2.0f)
                         {
                             positionsCorrupted = true;
                             break;
@@ -636,7 +715,7 @@ public class PracticeManager : UdonSharpBehaviour
                         if (testMode)
                         {
                             _corruptionResetCount++;
-                            table._LogInfo("[NPC] 检测到球位置腐败(球在台面外),重置游戏... (第" + _corruptionResetCount + "/" + MAX_CORRUPTION_RESETS + "次)");
+                            _Log("[NPC] 检测到球位置腐败(球在台面外),重置游戏... (第" + _corruptionResetCount + "/" + MAX_CORRUPTION_RESETS + "次)");
                             _safetyFailCount = 0;
                             _repeatCount = 0;
                             _lastShotBall = -1;
@@ -646,7 +725,7 @@ public class PracticeManager : UdonSharpBehaviour
                         }
                         else
                         {
-                            table._LogInfo("[NPC] 检测到球位置腐败,跳过本回合");
+                            _Log("[NPC] 检测到球位置腐败,跳过本回合");
                             _safetyFailCount = 0;
                         }
                         break;
@@ -670,26 +749,26 @@ public class PracticeManager : UdonSharpBehaviour
                     if (_isFirstNpcShot && _IsAllBallsOnRightHalf())
                     {
                         _isFirstNpcShot = false;
-                        table._LogInfo("[NPC] 检测到玩家开球失败(15球全在右半边),满力开球");
+                        _Log("[NPC] 检测到玩家开球失败(15球全在右半边),满力开球");
                         // Constrain cue ball to kitchen area (left quarter)
                         float kitchenLine = -table.k_TABLE_WIDTH * 0.5f;
                         if (table.ballsP[0].x > kitchenLine)
                         {
                             table.ballsP[0] = new Vector3(kitchenLine, table.ballsP[0].y, table.ballsP[0].z);
                             table._TriggerPlaceBall(0);
-                            table._LogInfo("[NPC] 开球:白球移至开球线 x=" + kitchenLine.ToString("F3"));
+                            _Log("[NPC] 开球:白球移至开球线 x=" + kitchenLine.ToString("F3"));
                         }
                         npcTargetBall = -1;
                         npcTargetPocket = -1;
                         npcShotType = 0;
                         npcCutAngle = 0f;
                         npcBestScore = 0f;
-                        // Aim at head ball (ball 2, the front of the rack)
-                        Vector3 headBall = table.ballsP[2];
+                        // Aim at center of rack (ball 8, the middle of the triangle)
+                        Vector3 rackCenter = table.ballsP[8];
                         Vector3 cuePos = table.ballsP[0];
-                        npcAimDir = (headBall - cuePos).normalized;
-                        npcPower = MAX_POWER * 1.3f; // full power break
-                        npcSpinValue = 0.2f; // mild follow to push through
+                        npcAimDir = (rackCenter - cuePos).normalized;
+                        npcPower = MAX_POWER * 1.5f; // full power break
+                        npcSpinValue = -0.05f; // mild draw
                         if (testMode) _RecordShotPre();
                         if (table.activeCue != null) table.activeCue._SetNpcControlled(true);
                         float baseDuration = testMode ? 0.3f : 0.5f;
@@ -701,7 +780,7 @@ public class PracticeManager : UdonSharpBehaviour
                     }
                     _isFirstNpcShot = false;
 
-                    table._LogInfo("[NPC] 检测到NPC回合,开始计算... open=" + table.isTableOpenLocal
+                    _Log("[NPC] 检测到NPC回合,开始计算... open=" + table.isTableOpenLocal
                         + " pocketed=0x" + table.ballsPocketedLocal.ToString("X8")
                         + " teamId=" + table.teamIdLocal + " teamColor=" + table.teamColorLocal
                         + " npcGroup=" + npcGroupId);
@@ -772,7 +851,8 @@ public class PracticeManager : UdonSharpBehaviour
                     }
 
                     // Log shot result
-                    table._LogInfo("[NPC] 结果: foul=" + table.foulStateLocal + " pocketed=0x" + table.ballsPocketedLocal.ToString("X8") + " gameLive=" + table.gameLive);
+                    table._LogInfo("[NPC] 结果: foul=" + table.foulStateLocal + " pocketed=0x" + table.ballsPocketedLocal.ToString("X8") + " gameLive=" + table.gameLive
+                        + " 撞击点=(" + table.firstHitPos.x.ToString("F3") + "," + table.firstHitPos.z.ToString("F3") + ")");
                     // Record shot result in test mode
                     if (testMode)
                     {
@@ -795,12 +875,13 @@ public class PracticeManager : UdonSharpBehaviour
                             }
                             else
                             {
+                                _restartScheduled = true;
                                 SendCustomEventDelayedSeconds(nameof(_AutoRestartGame), 1.0f);
                             }
                         }
                         else if (testShotCount >= MAX_TEST_SHOTS)
                         {
-                            table._LogInfo("[TEST] 达到最大射击次数 " + MAX_TEST_SHOTS);
+                            _Log("[TEST] 达到最大射击次数 " + MAX_TEST_SHOTS);
                             _StopTestMode();
                         }
                     }
@@ -881,7 +962,7 @@ public class PracticeManager : UdonSharpBehaviour
         // === Repeat shot prevention: if same shot chosen 3+ times, force safety ===
         if (_repeatCount >= 3)
         {
-            table._LogInfo("[NPC] 重复shot检测: 球" + _lastShotBall + "->袋" + _lastShotPocket + " 已重复" + _repeatCount + "次,强制安全球");
+            _Log("[NPC] 重复shot检测: 球" + _lastShotBall + "->袋" + _lastShotPocket + " 已重复" + _repeatCount + "次,强制安全球");
             _repeatCount = 0;
             _lastShotBall = -1;
             return false;
@@ -891,11 +972,15 @@ public class PracticeManager : UdonSharpBehaviour
         uint targetBalls = _GetTargetBalls();
         _InitPockets();
         _VisualizeTPoints();
-        table._LogInfo("[NPC] 袋口: 角=" + npcPockets[0].ToString("F3") + " 侧=" + npcPockets[4].ToString("F3"));
+        _Log("[NPC] 袋口: 角=" + npcPockets[0].ToString("F3") + " 侧=" + npcPockets[4].ToString("F3"));
 
         int targetCount = 0;
-        for (int i = 1; i <= 15; i++) { if ((targetBalls & (1u << i)) != 0) targetCount++; }
-        table._LogInfo("[NPC] 目标球数=" + targetCount + " open=" + table.isTableOpenLocal);
+        string targetList = "";
+        for (int i = 1; i <= 15; i++)
+        {
+            if ((targetBalls & (1u << i)) != 0) { targetCount++; targetList += i + " "; }
+        }
+        _Log("[NPC] 目标球数=" + targetCount + " open=" + table.isTableOpenLocal + " 组=" + npcGroupId + " 球=[" + targetList.Trim() + "]");
 
         float bestScore = -1f;
         int bestBall = -1;
@@ -904,6 +989,8 @@ public class PracticeManager : UdonSharpBehaviour
         float bestShotDist = 1f;
         float bestSpin = 0f;
         int bestShotType = 0; // 0=direct, 1=bank, 2=kick
+        int bestKickCushion = -1; // first cushion for kick shot
+        int bestKickCushion2 = -1; // second cushion for two-cushion kick
 
         // === PASS 1: Direct pocketing shots ===
         for (int b = 1; b <= 15; b++)
@@ -917,20 +1004,20 @@ public class PracticeManager : UdonSharpBehaviour
                 Vector3 pocketPos = npcPockets[p];
 
                 float ballToPocket = (pocketPos - ballPos).magnitude;
-                if (ballToPocket < 0.05f || ballToPocket > 2.0f) { if (b == 2 || b == 3) table._LogInfo("[NPC] 跳过: 球" + b + "->袋" + p + " 距离=" + ballToPocket.ToString("F3")); continue; }
+                if (ballToPocket < 0.05f || ballToPocket > 2.0f) { if (debug) _Log("[NPC] 跳过: 球" + b + "->袋" + p + " 距离=" + ballToPocket.ToString("F3")); continue; }
 
                 Vector3 t2pDir = (pocketPos - ballPos) / ballToPocket;
                 Vector3 ghostBall = ballPos - t2pDir * BALL_DIAMETER;
-                // Ghost ball must be on the table — otherwise cue path goes through cushion
-                if (Mathf.Abs(ghostBall.x) > table.k_TABLE_WIDTH - BALL_RADIUS
-                    || Mathf.Abs(ghostBall.z) > table.k_TABLE_HEIGHT - BALL_RADIUS) { if (b == 2 || b == 3) table._LogInfo("[NPC] 跳过: 球" + b + "->袋" + p + " ghost出界"); continue; }
+                // Ghost ball must be roughly on the table — allow small tolerance for corner shots
+                if (Mathf.Abs(ghostBall.x) > table.k_TABLE_WIDTH + BALL_RADIUS * 0.5f
+                    || Mathf.Abs(ghostBall.z) > table.k_TABLE_HEIGHT + BALL_RADIUS * 0.5f) { if (debug) _Log("[NPC] 跳过: 球" + b + "->袋" + p + " ghost出界"); continue; }
                 Vector3 cueToGhost = ghostBall - cuePos;
                 float shotDist = cueToGhost.magnitude;
-                if (shotDist < 0.05f || shotDist > 2.5f) { if (b == 2 || b == 3) table._LogInfo("[NPC] 跳过: 球" + b + "->袋" + p + " shotDist=" + shotDist.ToString("F3")); continue; }
+                if (shotDist < 0.05f || shotDist > 2.5f) { if (debug) _Log("[NPC] 跳过: 球" + b + "->袋" + p + " shotDist=" + shotDist.ToString("F3")); continue; }
 
                 Vector3 aimDir = cueToGhost / shotDist;
                 float alignment = Vector3.Dot(aimDir, t2pDir);
-                if (alignment < 0.05f) { if (b == 2 || b == 3) table._LogInfo("[NPC] 跳过: 球" + b + "->袋" + p + " alignment=" + alignment.ToString("F3")); continue; } // max ~87° cut angle
+                if (alignment < 0.05f) { if (debug) _Log("[NPC] 跳过: 球" + b + "->袋" + p + " alignment=" + alignment.ToString("F3")); continue; } // max ~87° cut angle
 
                 // Throw compensation: aim thin to counteract ball-ball friction (throw)
                 // [TEMPORARILY DISABLED FOR TESTING]
@@ -959,7 +1046,7 @@ public class PracticeManager : UdonSharpBehaviour
                     if (alignment < 0.05f) continue;
                 }
                 */
-                if (!_IsPathClear(cuePos, ghostBall, b)) { if (b == 2 || b == 3) table._LogInfo("[NPC] 跳过: 球" + b + "->袋" + p + " 路径遮挡"); continue; }
+                if (!_IsPathClear(cuePos, ghostBall, b)) { if (debug) _Log("[NPC] 跳过: 球" + b + "->袋" + p + " 路径遮挡"); continue; }
                 // Ghost ball position must not overlap any other ball
                 {
                     bool ghostBlocked = false;
@@ -970,7 +1057,7 @@ public class PracticeManager : UdonSharpBehaviour
                         float gDistSqr = (table.ballsP[g] - ghostBall).sqrMagnitude;
                         if (gDistSqr < BALL_DIAMSQR) { ghostBlocked = true; break; }
                     }
-                    if (ghostBlocked) { if (b == 2 || b == 3) table._LogInfo("[NPC] 跳过: 球" + b + "->袋" + p + " ghost重叠"); continue; }
+                    if (ghostBlocked) { if (debug) _Log("[NPC] 跳过: 球" + b + "->袋" + p + " ghost重叠"); continue; }
                 }
                 // Check cue ball path doesn't pass through target ball before reaching ghost ball
                 {
@@ -983,30 +1070,30 @@ public class PracticeManager : UdonSharpBehaviour
                         {
                             Vector3 closest = cuePos + c2g * t;
                             float distSqr = (ballPos - closest).sqrMagnitude;
-                            if (distSqr < BALL_DIAMSQR) { if (b == 2 || b == 3) table._LogInfo("[NPC] 跳过: 球" + b + "->袋" + p + " 母球穿目标球"); continue; }
+                            if (distSqr < BALL_DIAMSQR) { if (debug) _Log("[NPC] 跳过: 球" + b + "->袋" + p + " 母球穿目标球"); continue; }
                         }
                     }
                 }
                 // Check cue ball path doesn't cross cushion rail
                 if (_IsPathCrossesCushion(cuePos, ghostBall))
                 {
-                    table._LogInfo("[NPC] 跳过: 球" + b + "->袋" + p + " cue路径穿库");
+                    _Log("[NPC] 跳过: 球" + b + "->袋" + p + " cue路径穿库");
                     continue;
                 }
                 float cutAnglePre = Mathf.Acos(Mathf.Clamp(Vector3.Dot(aimDir, t2pDir), -1f, 1f));
                 if (_IsBallToPocketBlocked(ballPos, pocketPos, b, cutAnglePre, table.pocketLocations[p]))
                 {
-                    table._LogInfo("[NPC] 跳过: 球" + b + "->袋" + p + " jaw碰撞/路径遮挡 切角=" + (cutAnglePre * Mathf.Rad2Deg).ToString("F1") + "°");
+                    _Log("[NPC] 跳过: 球" + b + "->袋" + p + " jaw碰撞/路径遮挡 切角=" + (cutAnglePre * Mathf.Rad2Deg).ToString("F1") + "°");
                     continue;
                 }
                 // Check target ball path to pocket doesn't cross cushion rail
                 if (_IsPathCrossesCushion(ballPos, pocketPos))
                 {
-                    table._LogInfo("[NPC] 跳过: 球" + b + "->袋" + p + " 目标球路径穿库");
+                    _Log("[NPC] 跳过: 球" + b + "->袋" + p + " 目标球路径穿库");
                     continue;
                 }
 
-                if (b == 2 || b == 3) table._LogInfo("[NPC] 球" + b + "->袋" + p + " 通过所有检查! alignment=" + alignment.ToString("F3") + " cut=" + (cutAnglePre * Mathf.Rad2Deg).ToString("F1") + "° dist=" + shotDist.ToString("F3"));
+                if (debug) _Log("[NPC] 球" + b + "->袋" + p + " 通过所有检查! alignment=" + alignment.ToString("F3") + " cut=" + (cutAnglePre * Mathf.Rad2Deg).ToString("F1") + "° dist=" + shotDist.ToString("F3"));
                 // Pocketing score: alignment is dominant, shorter = better
                 float pocketScore = alignment * 2.0f
                     + Mathf.Clamp01(1.0f - shotDist / 2.0f) * 0.3f
@@ -1134,26 +1221,38 @@ public class PracticeManager : UdonSharpBehaviour
                     Vector3 pocketPos = npcPockets[p];
                     for (int cushion = 0; cushion < 4; cushion++)
                     {
-                        Vector3 reflected = _ReflectPocket(pocketPos, cushion);
-                        // Cushion friction compensation: ball "squeezes" along cushion at shallow angles.
-                        // Offset scales with angle — shallow hits (parallel to cushion) need more offset.
-                        Vector3 bankRawDir = (reflected - ballPos).normalized;
-                        // Friction offset along cushion SURFACE (not normal).
-                        // Ball squeezes along the cushion in its travel direction,
-                        // so shift virtual pocket in the same direction to compensate.
-                        float frictionOffset = 0.03f;
+                        // Save original reflected for bounce point calculation (geometry, no friction offset)
+                        Vector3 reflectedOrig = _ReflectPocket(pocketPos, cushion);
+                        // Friction offset: friction makes bounce steeper (closer to normal),
+                        // so ball travels LESS along cushion after bounce (closer to normal).
+                        // Ball lands TOWARD the normal, away from pocket → need steeper aim.
+                        // Shift virtual pocket TOWARD ball travel direction.
+                        Vector3 reflected = reflectedOrig;
+                        Vector3 bankRawDir = (reflectedOrig - ballPos).normalized;
+                        // Dynamic offset: ball→cushion distance reflects power needs;
+                        // higher power → more friction → ball travels LESS along cushion
+                        float ballToCushionDist = (reflectedOrig - ballPos).magnitude;
+                        float baseFriction = 0.08f;
+                        float frictionScale = Mathf.Clamp(ballToCushionDist * 0.12f, 0f, 0.08f);
+                        float frictionOffset = baseFriction + frictionScale;
                         switch (cushion)
                         {
-                            case 0: // top cushion: offset along x
+                            case 0:
                             case 1:
                                 reflected.x += Mathf.Sign(bankRawDir.x) * frictionOffset;
                                 break;
-                            case 2: // left/right cushion: offset along z
+                            case 2:
                             case 3:
                                 reflected.z += Mathf.Sign(bankRawDir.z) * frictionOffset;
                                 break;
                         }
                         Vector3 bankDir = (reflected - ballPos).normalized;
+                        // Cue must be on the OPPOSITE side of target from bank direction,
+                        // so cue pushes target TOWARD cushion (in bankDir direction).
+                        // cueToTarget points cue→target; if it aligns with bankDir (Dot>0),
+                        // cue is behind target relative to cushion — would push target AWAY.
+                        Vector3 cueToTarget = ballPos - cuePos;
+                        if (Vector3.Dot(cueToTarget, bankDir) > 0f) continue;
                         Vector3 ghostBall = ballPos - bankDir * BALL_DIAMETER;
                         if (Mathf.Abs(ghostBall.x) > table.k_TABLE_WIDTH - BALL_RADIUS
                             || Mathf.Abs(ghostBall.z) > table.k_TABLE_HEIGHT - BALL_RADIUS) continue;
@@ -1163,11 +1262,9 @@ public class PracticeManager : UdonSharpBehaviour
 
                         Vector3 aimDir = cueToGhost / shotDist;
                         float alignment = Vector3.Dot(aimDir, bankDir);
-                        if (alignment < 0.4f) continue;
+                        if (alignment < 0.5f) continue;
                         float cutAngleB = Mathf.Acos(Mathf.Clamp(Vector3.Dot(-aimDir, bankDir), -1f, 1f));
-                        // Avoid double kiss: reject very straight bank shots (cut angle < ~15°)
                         if (cutAngleB < 0.26f) continue;
-                        // Reject extreme bank angles (>160°) — virtually impossible
                         if (cutAngleB > 2.79f) continue;
                         if (!_IsPathClear(cuePos, ghostBall, b)) continue;
                         // Check target ball doesn't block cue path to ghost
@@ -1187,7 +1284,7 @@ public class PracticeManager : UdonSharpBehaviour
                             }
                             if (targetBlocks)
                             {
-                                table._LogInfo("[NPC] 跳过翻袋: 球" + b + "->袋" + p + " 目标球挡住ghost路径");
+                                _Log("[NPC] 跳过翻袋: 球" + b + "->袋" + p + " 目标球挡住ghost路径");
                                 continue;
                             }
                         }
@@ -1206,9 +1303,11 @@ public class PracticeManager : UdonSharpBehaviour
 
                         // === Bank shot: check target ball path to cushion and pocket ===
                         {
-                            // Calculate bounce point on cushion
+                            // Calculate bounce point using friction-adjusted reflected (matches actual aim direction)
                             Vector3 bouncePoint = _GetCushionBouncePoint(ballPos, reflected, cushion);
                             if (bouncePoint.x == float.MaxValue) continue;
+                            // Bounce point must be on valid cushion segment (not in pocket opening)
+                            if (!_IsCushionBouncePointValid(bouncePoint, cushion)) continue;
 
                             // Check path from target ball to cushion bounce point
                             bool targetPathBlocked = false;
@@ -1234,7 +1333,7 @@ public class PracticeManager : UdonSharpBehaviour
                             }
                             if (targetPathBlocked)
                             {
-                                table._LogInfo("[NPC] 跳过翻袋: 球" + b + "->袋" + p + " 目标球到库边路径遮挡");
+                                _Log("[NPC] 跳过翻袋: 球" + b + "->袋" + p + " 目标球到库边路径遮挡");
                                 continue;
                             }
 
@@ -1262,8 +1361,31 @@ public class PracticeManager : UdonSharpBehaviour
                             }
                             if (returnPathBlocked)
                             {
-                                table._LogInfo("[NPC] 跳过翻袋: 球" + b + "->袋" + p + " 库边到袋口路径遮挡");
+                                _Log("[NPC] 跳过翻袋: 球" + b + "->袋" + p + " 库边到袋口路径遮挡");
                                 continue;
+                            }
+
+                            // === Trajectory verification: does ball path actually reach pocket? ===
+                            {
+                                Vector3 pocketCenter = table.pocketLocations[p];
+                                Vector3 bounceToPocket = (pocketPos - bouncePoint).normalized;
+                                float projT = Vector3.Dot(pocketCenter - bouncePoint, bounceToPocket);
+                                float minDist = float.MaxValue;
+                                if (projT > 0f)
+                                {
+                                    Vector3 closest = bouncePoint + bounceToPocket * projT;
+                                    minDist = (pocketCenter - closest).magnitude;
+                                }
+                                float pocketRadius = table.k_INNER_RADIUS_CORNER;
+                                if (Mathf.Abs(pocketCenter.x) < 0.1f && Mathf.Abs(pocketCenter.z) > 0.5f)
+                                    pocketRadius = table.k_INNER_RADIUS_SIDE;
+                                if (minDist > pocketRadius)
+                                {
+                                    _Log("[NPC] 跳过翻袋: 球" + b + "->袋" + p
+                                        + " 轨迹偏差=" + (minDist * 100f).ToString("F1") + "cm > 袋半径"
+                                        + (pocketRadius * 100f).ToString("F1") + "cm");
+                                    continue;
+                                }
                             }
                         }
 
@@ -1284,6 +1406,165 @@ public class PracticeManager : UdonSharpBehaviour
                             bestShotDist = shotDist;
                             bestSpin = bankSpinForShot;
                             bestShotType = 1;
+                        }
+                    }
+                }
+            }
+        }
+
+        // === PASS 2b: Two-cushion bank shots (两库翻袋) — ball hits two cushions before pocket ===
+        if (bestScore < 0.5f)
+        {
+            for (int b = 1; b <= 15; b++)
+            {
+                if ((targetBalls & (1u << b)) == 0) continue;
+                if ((table.ballsPocketedLocal & (1u << b)) != 0) continue;
+                Vector3 ballPos = table.ballsP[b];
+
+                for (int p = 0; p < 6; p++)
+                {
+                    Vector3 pocketPos = npcPockets[p];
+                    // Try all ordered pairs of cushions: ball→c1→c2→pocket
+                    for (int c1 = 0; c1 < 4; c1++)
+                    {
+                        for (int c2 = 0; c2 < 4; c2++)
+                        {
+                            if (c1 == c2) continue;
+                            // Reflect pocket across c2, then across c1
+                            Vector3 temp = _ReflectPocket(pocketPos, c2);
+                            Vector3 reflected2 = _ReflectPocket(temp, c1);
+
+                            Vector3 bankDir = (reflected2 - ballPos).normalized;
+                            // Cue must push target TOWARD cushion (in bankDir direction)
+                            Vector3 cueToTarget2 = ballPos - cuePos;
+                            if (Vector3.Dot(cueToTarget2, bankDir) > 0f) continue;
+                            Vector3 ghostBall = ballPos - bankDir * BALL_DIAMETER;
+                            if (Mathf.Abs(ghostBall.x) > table.k_TABLE_WIDTH - BALL_RADIUS
+                                || Mathf.Abs(ghostBall.z) > table.k_TABLE_HEIGHT - BALL_RADIUS) continue;
+                            Vector3 cueToGhost = ghostBall - cuePos;
+                            float shotDist = cueToGhost.magnitude;
+                            if (shotDist < 0.1f || shotDist > 2.5f) continue;
+
+                            Vector3 aimDir = cueToGhost / shotDist;
+                            float alignment = Vector3.Dot(aimDir, bankDir);
+                            if (alignment < 0.4f) continue;
+                            float cutAngleB = Mathf.Acos(Mathf.Clamp(Vector3.Dot(-aimDir, bankDir), -1f, 1f));
+                            if (cutAngleB < 0.26f || cutAngleB > 2.79f) continue;
+                            if (!_IsPathClear(cuePos, ghostBall, b)) continue;
+                            if (_IsPathCrossesCushion(cuePos, ghostBall)) continue;
+
+                            // Calculate bounce point on first cushion
+                            Vector3 reflected1 = _ReflectPocket(pocketPos, c2);
+                            Vector3 reflected2 = _ReflectPocket(reflected1, c1);
+                            Vector3 bounce1 = _GetCushionBouncePoint(ballPos, reflected2, c1);
+                            if (bounce1.x == float.MaxValue) continue;
+                            if (!_IsCushionBouncePointValid(bounce1, c1)) continue;
+
+                            // Calculate bounce point on second cushion from the double-reflected path
+                            Vector3 bounce2 = _GetCushionBouncePoint(bounce1, reflected1, c2);
+                            if (bounce2.x == float.MaxValue) continue;
+                            if (!_IsCushionBouncePointValid(bounce2, c2)) continue;
+
+                            // Check path: ball→bounce1 not blocked
+                            bool pathBlocked = false;
+                            for (int g = 1; g <= 15; g++)
+                            {
+                                if (g == b) continue;
+                                if ((table.ballsPocketedLocal & (1u << g)) != 0) continue;
+                                Vector3 gPos = table.ballsP[g];
+                                Vector3 toB1 = bounce1 - ballPos;
+                                float b1Len = toB1.magnitude;
+                                if (b1Len < 0.001f) continue;
+                                Vector3 b1Dir = toB1 / b1Len;
+                                Vector3 oc = gPos - ballPos;
+                                float along = Vector3.Dot(oc, b1Dir);
+                                if (along < BALL_RADIUS || along > b1Len - BALL_RADIUS) continue;
+                                Vector3 closest = ballPos + b1Dir * along;
+                                if ((gPos - closest).sqrMagnitude < (BALL_DIAMETER + BALL_RADIUS) * (BALL_DIAMETER + BALL_RADIUS))
+                                { pathBlocked = true; break; }
+                            }
+                            if (pathBlocked) continue;
+
+                            // Check path: bounce1→bounce2 not blocked
+                            pathBlocked = false;
+                            for (int g = 1; g <= 15; g++)
+                            {
+                                if (g == b) continue;
+                                if ((table.ballsPocketedLocal & (1u << g)) != 0) continue;
+                                Vector3 gPos = table.ballsP[g];
+                                Vector3 toB2 = bounce2 - bounce1;
+                                float b2Len = toB2.magnitude;
+                                if (b2Len < 0.001f) continue;
+                                Vector3 b2Dir = toB2 / b2Len;
+                                Vector3 oc = gPos - bounce1;
+                                float along = Vector3.Dot(oc, b2Dir);
+                                if (along < BALL_RADIUS || along > b2Len - BALL_RADIUS) continue;
+                                Vector3 closest = bounce1 + b2Dir * along;
+                                if ((gPos - closest).sqrMagnitude < (BALL_DIAMETER + BALL_RADIUS) * (BALL_DIAMETER + BALL_RADIUS))
+                                { pathBlocked = true; break; }
+                            }
+                            if (pathBlocked) continue;
+
+                            // Check path: bounce2→pocket not blocked
+                            pathBlocked = false;
+                            for (int g = 1; g <= 15; g++)
+                            {
+                                if (g == b) continue;
+                                if ((table.ballsPocketedLocal & (1u << g)) != 0) continue;
+                                Vector3 gPos = table.ballsP[g];
+                                Vector3 toP = pocketPos - bounce2;
+                                float pLen = toP.magnitude;
+                                if (pLen < 0.001f) continue;
+                                Vector3 pDir = toP / pLen;
+                                Vector3 oc = gPos - bounce2;
+                                float along = Vector3.Dot(oc, pDir);
+                                if (along < BALL_RADIUS || along > pLen - BALL_RADIUS) continue;
+                                Vector3 closest = bounce2 + pDir * along;
+                                if ((gPos - closest).sqrMagnitude < (BALL_DIAMETER + BALL_RADIUS) * (BALL_DIAMETER + BALL_RADIUS))
+                                { pathBlocked = true; break; }
+                            }
+                            if (pathBlocked) continue;
+
+                            // === Trajectory verification: does ball path actually reach pocket? ===
+                            {
+                                Vector3 pocketCenter = table.pocketLocations[p];
+                                Vector3 bounce2ToPocket = (pocketPos - bounce2).normalized;
+                                float projT = Vector3.Dot(pocketCenter - bounce2, bounce2ToPocket);
+                                float minDist = float.MaxValue;
+                                if (projT > 0f)
+                                {
+                                    Vector3 closest = bounce2 + bounce2ToPocket * projT;
+                                    minDist = (pocketCenter - closest).magnitude;
+                                }
+                                float pocketRadius = table.k_INNER_RADIUS_CORNER;
+                                if (Mathf.Abs(pocketCenter.x) < 0.1f && Mathf.Abs(pocketCenter.z) > 0.5f)
+                                    pocketRadius = table.k_INNER_RADIUS_SIDE;
+                                if (minDist > pocketRadius)
+                                {
+                                    _Log("[NPC] 跳过两库翻袋: 球" + b + "->袋" + p
+                                        + " 库" + c1 + "->库" + c2
+                                        + " 轨迹偏差=" + (minDist * 100f).ToString("F1") + "cm > 袋半径"
+                                        + (pocketRadius * 100f).ToString("F1") + "cm");
+                                    continue;
+                                }
+                            }
+
+                            float totalDist = shotDist + (bounce1 - ballPos).magnitude + (bounce2 - bounce1).magnitude + (pocketPos - bounce2).magnitude;
+                            if (totalDist > 5.0f) continue;
+
+                            float baseScore = alignment * 0.8f + Mathf.Clamp01(1.0f - totalDist / 5.0f) * 0.3f;
+                            float score = baseScore;
+                            if (score > bestScore)
+                            {
+                                bestScore = score;
+                                bestBall = b;
+                                bestPocket = p;
+                                bestAimDir = aimDir;
+                                bestShotDist = shotDist;
+                                bestSpin = 0f;
+                                bestShotType = 1;
+                                _Log("[NPC] 两库翻袋: 球" + b + "->袋" + p + " 库" + c1 + "->库" + c2 + " 分=" + score.ToString("F2"));
+                            }
                         }
                     }
                 }
@@ -1373,7 +1654,7 @@ public class PracticeManager : UdonSharpBehaviour
                     if (dToPocket < 0.15f) safetyScore -= 0.2f;
                 }
 
-                table._LogInfo("[NPC] 轻碰: 球" + b + " dist=" + cueToBallDist.ToString("F2") + " safety=" + safetyScore.ToString("F2"));
+                _Log("[NPC] 轻碰: 球" + b + " dist=" + cueToBallDist.ToString("F2") + " safety=" + safetyScore.ToString("F2"));
 
                 if (safetyScore > bestScore)
                 {
@@ -1405,7 +1686,7 @@ public class PracticeManager : UdonSharpBehaviour
                     Vector3 cushionPoint = _GetCushionPoint(cuePos, ballPos, cushion);
                     if (cushionPoint.x == float.MaxValue)
                     {
-                        table._LogInfo("[NPC] 勾库: 球" + b + "->库" + cushion + " 无交点");
+                        _Log("[NPC] 勾库: 球" + b + "->库" + cushion + " 无交点");
                         continue;
                     }
 
@@ -1413,25 +1694,27 @@ public class PracticeManager : UdonSharpBehaviour
                     float dist2 = (ballPos - cushionPoint).magnitude;
                     if (dist1 + dist2 > 2.5f)
                     {
-                        table._LogInfo("[NPC] 勾库: 球" + b + "->库" + cushion + " 距离过远=" + (dist1 + dist2).ToString("F2"));
+                        _Log("[NPC] 勾库: 球" + b + "->库" + cushion + " 距离过远=" + (dist1 + dist2).ToString("F2"));
                         continue;
                     }
 
                     Vector3 aimDir = (cushionPoint - cuePos).normalized;
+                    // Bounce point must be on valid cushion segment (not in pocket opening)
+                    if (!_IsCushionBouncePointValid(cushionPoint, cushion)) continue;
                     // Check ball collision only (skip bounds check — cushion point is on the boundary)
                     if (!_IsPathClearBallsOnly(cuePos, cushionPoint, -1))
                     {
-                        table._LogInfo("[NPC] 勾库: 球" + b + "->库" + cushion + " 母球到库边路径遮挡");
+                        _Log("[NPC] 勾库: 球" + b + "->库" + cushion + " 母球到库边路径遮挡");
                         continue;
                     }
                     if (!_IsPathClearBallsOnly(cushionPoint, ballPos, b))
                     {
-                        table._LogInfo("[NPC] 勾库: 球" + b + "->库" + cushion + " 库边到目标路径遮挡");
+                        _Log("[NPC] 勾库: 球" + b + "->库" + cushion + " 库边到目标路径遮挡");
                         continue;
                     }
 
                     float score = 0.4f + Mathf.Clamp01(1.0f - (dist1 + dist2) / 2.5f) * 0.3f;
-                    table._LogInfo("[NPC] 勾库: 球" + b + "->库" + cushion + " 通过! dist=" + (dist1 + dist2).ToString("F2") + " score=" + score.ToString("F2"));
+                    _Log("[NPC] 勾库: 球" + b + "->库" + cushion + " 通过! dist=" + (dist1 + dist2).ToString("F2") + " score=" + score.ToString("F2"));
                     if (score > bestScore)
                     {
                         bestScore = score;
@@ -1441,6 +1724,69 @@ public class PracticeManager : UdonSharpBehaviour
                         bestShotDist = dist1 + dist2;
                         bestSpin = 0f;
                         bestShotType = 2;
+                        bestKickCushion = cushion;
+                    }
+                }
+            }
+        }
+
+        // === PASS 3b: Two-cushion kick shots (两库勾库) — cue ball hits two cushions before target ===
+        if (bestScore < 0.5f)
+        {
+            for (int b = 1; b <= 15; b++)
+            {
+                if ((targetBalls & (1u << b)) == 0) continue;
+                if ((table.ballsPocketedLocal & (1u << b)) != 0) continue;
+                Vector3 ballPos = table.ballsP[b];
+
+                for (int c1 = 0; c1 < 4; c1++)
+                {
+                    for (int c2 = 0; c2 < 4; c2++)
+                    {
+                        if (c1 == c2) continue;
+                        // Reflect ball across c2, then across c1 so the cue path matches the full two-cushion geometry
+                        Vector3 reflected1 = _ReflectPoint(ballPos, c2);
+                        Vector3 reflected2 = _ReflectPoint(reflected1, c1);
+
+                        Vector3 kickDir = (reflected2 - cuePos).normalized;
+                        // Find where cue path hits first cushion (c1)
+                        Vector3 bounce1 = _GetCushionPoint(cuePos, reflected2, c1);
+                        if (bounce1.x == float.MaxValue) continue;
+                        if (!_IsCushionBouncePointValid(bounce1, c1)) continue;
+
+                        // From bounce1, find where it hits second cushion (c2) on the reflected path
+                        Vector3 bounce2 = _GetCushionPoint(bounce1, reflected1, c2);
+                        if (bounce2.x == float.MaxValue) continue;
+                        if (!_IsCushionBouncePointValid(bounce2, c2)) continue;
+
+                        float dist1 = (bounce1 - cuePos).magnitude;
+                        float dist2 = (bounce2 - bounce1).magnitude;
+                        float dist3 = (ballPos - bounce2).magnitude;
+                        float totalDist = dist1 + dist2 + dist3;
+                        if (totalDist > 3.5f) continue;
+
+                        Vector3 aimDir = (bounce1 - cuePos).normalized;
+                        // Check path: cue→bounce1
+                        if (!_IsPathClearBallsOnly(cuePos, bounce1, -1)) continue;
+                        // Check path: bounce1→bounce2
+                        if (!_IsPathClearBallsOnly(bounce1, bounce2, -1)) continue;
+                        // Check path: bounce2→ball (exclude target ball)
+                        if (!_IsPathClearBallsOnly(bounce2, ballPos, b)) continue;
+
+                        float score = 0.35f + Mathf.Clamp01(1.0f - totalDist / 3.5f) * 0.25f;
+                        if (score > bestScore)
+                        {
+                            bestScore = score;
+                            bestBall = b;
+                            bestPocket = -1;
+                            bestAimDir = aimDir;
+                            bestShotDist = totalDist;
+                            bestSpin = 0f;
+                            bestShotType = 2;
+                            bestKickCushion = c1;
+                            bestKickCushion2 = c2;
+                            _Log("[NPC] 两库勾库: 球" + b + " 库" + c1 + "->库" + c2 + " dist=" + totalDist.ToString("F2") + " score=" + score.ToString("F2"));
+                        }
                     }
                 }
             }
@@ -1451,7 +1797,7 @@ public class PracticeManager : UdonSharpBehaviour
 
         if (bestBall < 0)
         {
-            table._LogInfo("[NPC] 无进球路线(直接+翻袋+K球均无)");
+            _Log("[NPC] 无进球路线(直接+翻袋+K球均无)");
             return false;
         }
 
@@ -1468,6 +1814,7 @@ public class PracticeManager : UdonSharpBehaviour
         if (cosAngle < 0.5f) cosAngle = 0.5f;
         float effectiveDist = bestShotDist + ballToPocketDist / cosAngle;
         if (bestShotType == 2) effectiveDist *= 1.3f;
+        if (bestShotType == 1 && bestShotDist > 1.5f) effectiveDist *= 1.4f; // two-cushion bank: longer path
         float needVel = Mathf.Sqrt(3.92f * effectiveDist) * 0.85f;
         float power = Mathf.Pow(needVel / 4.0f, 1.0f / 1.4f) * 0.5f;
         power = Mathf.Clamp(power, MIN_POWER, MAX_POWER);
@@ -1476,7 +1823,7 @@ public class PracticeManager : UdonSharpBehaviour
         if (bestShotType == 3)
         {
             power = MIN_POWER;
-            table._LogInfo("[NPC] 轻碰减力: 力=" + power.ToString("F2"));
+            _Log("[NPC] 轻碰减力: 力=" + power.ToString("F2"));
         }
 
         // === Kick shot power cap: softer than direct shots ===
@@ -1485,7 +1832,7 @@ public class PracticeManager : UdonSharpBehaviour
             float kickMaxPower = Mathf.Clamp(0.18f + effectiveDist * 0.06f, 0.22f, 0.32f);
             if (power > kickMaxPower)
             {
-                table._LogInfo("[NPC] 勾库减力: 原力=" + power.ToString("F2") + " -> " + kickMaxPower.ToString("F2"));
+                _Log("[NPC] 勾库减力: 原力=" + power.ToString("F2") + " -> " + kickMaxPower.ToString("F2"));
                 power = kickMaxPower;
             }
         }
@@ -1498,7 +1845,7 @@ public class PracticeManager : UdonSharpBehaviour
             float bankMaxPower = Mathf.Clamp(0.20f + effectiveDist * 0.08f, 0.25f, 0.38f);
             if (power > bankMaxPower)
             {
-                table._LogInfo("[NPC] 翻袋减力: 原力=" + power.ToString("F2") + " -> " + bankMaxPower.ToString("F2") + " (dist=" + effectiveDist.ToString("F2") + ")");
+                _Log("[NPC] 翻袋减力: 原力=" + power.ToString("F2") + " -> " + bankMaxPower.ToString("F2") + " (dist=" + effectiveDist.ToString("F2") + ")");
                 power = bankMaxPower;
             }
         }
@@ -1519,21 +1866,24 @@ public class PracticeManager : UdonSharpBehaviour
             // Straight shot: stop shot (定杆) — light backspin to cancel forward roll from friction
             if (finalCut < 0.30f)
             {
-                // Distance-dependent backspin: short=very light, long=slightly more to fight friction
                 float drawDist = Mathf.Clamp01(cueToBallDist / 1.5f);
                 bestSpin = Mathf.Lerp(-0.15f, -0.3f, drawDist);
                 // Only reduce power for stop shot when target ball is CLOSE to pocket
-                if (ballToPkt < 0.30f && finalCut < 0.10f)
+                // Skip reduction if power is already at minimum — short-distance shots need it
+                if (power > MIN_POWER + 0.02f)
                 {
-                    power *= 0.95f;
-                }
-                else if (ballToPkt < 0.50f)
-                {
-                    power *= 0.95f;
+                    if (ballToPkt < 0.30f && finalCut < 0.10f)
+                    {
+                        power *= 0.95f;
+                    }
+                    else if (ballToPkt < 0.50f)
+                    {
+                        power *= 0.95f;
+                    }
                 }
                 // Don't reduce power when target is far from pocket — need momentum
                 power = Mathf.Max(power, minReachPower);
-                table._LogInfo("[NPC] 定杆: cut=" + (finalCut * Mathf.Rad2Deg).ToString("F0") + "° dist=" + cueToBallDist.ToString("F2") + " spin=" + bestSpin.ToString("F2") + " 力度→" + power.ToString("F2"));
+                _Log("[NPC] 定杆: cut=" + (finalCut * Mathf.Rad2Deg).ToString("F0") + "° dist=" + cueToBallDist.ToString("F2") + " spin=" + bestSpin.ToString("F2") + " 力度→" + power.ToString("F2"));
             }
 
             // === Cut angle scratch prevention: trace tangent trajectory with cushion bounces ===
@@ -1599,9 +1949,60 @@ public class PracticeManager : UdonSharpBehaviour
                 {
                     bestSpin = -0.6f;
                     power *= 0.70f;
-                    table._LogInfo("[NPC] 防摔袋: cut=" + (finalCut * Mathf.Rad2Deg).ToString("F0")
+                    _Log("[NPC] 防摔袋: cut=" + (finalCut * Mathf.Rad2Deg).ToString("F0")
                         + "° 母球切线近袋" + scratchPocket + " 距=" + (scratchDist * 100f).ToString("F1")
                         + "cm → spin=-0.6 力度×0.70");
+                }
+            }
+
+            // === Straight shot scratch prevention: cue ball follows target into pocket ===
+            if (finalCut < 0.25f && bestBall >= 0 && bestPocket >= 0)
+            {
+                Vector3 bPos2 = table.ballsP[bestBall];
+                // On straight shot, cue ball continues along same line after contact
+                // Check if any pocket is along the cue→target→pocket line
+                for (int sp = 0; sp < 6; sp++)
+                {
+                    Vector3 pktCenter = table.pocketLocations[sp];
+                    Vector3 cueToPkt = pktCenter - cuePos;
+                    float cueToPktDist = cueToPkt.magnitude;
+                    if (cueToPktDist < 0.1f) continue;
+                    Vector3 cueToPktDir = cueToPkt / cueToPktDist;
+                    // Check if pocket is roughly along the shot line (same direction as aim)
+                    float alignment = Vector3.Dot(cueToPktDir, bestAimDir);
+                    if (alignment < 0.95f) continue; // not straight enough
+                    // Check if target ball is between cue and pocket
+                    float cueToBallDist2 = (bPos2 - cuePos).magnitude;
+                    if (cueToBallDist2 > cueToPktDist) continue; // pocket is behind cue
+                    // Straight shot into pocket — cue ball will follow!
+                    // Dynamic correction based on ball-to-pocket distance
+                    float bToPkt = (pktCenter - bPos2).magnitude;
+                    float dynSpin, dynPowerMul;
+                    if (bToPkt < 0.03f)
+                    {
+                        // Ultra close: ball almost in pocket, cue ball has almost no room to slow down
+                        dynSpin = -0.90f;
+                        dynPowerMul = 0.35f;
+                    }
+                    else if (bToPkt < 0.08f)
+                    {
+                        // Close: need very strong draw
+                        dynSpin = -0.80f;
+                        dynPowerMul = 0.45f;
+                    }
+                    else
+                    {
+                        // Normal: moderate draw
+                        dynSpin = -0.65f;
+                        dynPowerMul = 0.60f;
+                    }
+                    bestSpin = dynSpin;
+                    power *= dynPowerMul;
+                    _Log("[NPC] 直线球防摔袋: 球" + bestBall + "->袋" + sp
+                        + " 切角=" + (finalCut * Mathf.Rad2Deg).ToString("F1")
+                        + "° 球袋距=" + (bToPkt * 100f).ToString("F1") + "cm"
+                        + " → spin=" + dynSpin.ToString("F2") + " 力度×" + dynPowerMul.ToString("F2"));
+                    break;
                 }
             }
 
@@ -1618,9 +2019,59 @@ public class PracticeManager : UdonSharpBehaviour
             float pocketRadius = table.k_INNER_RADIUS_CORNER;
             if (Mathf.Abs(pocketCenter.x) < 0.1f && Mathf.Abs(pocketCenter.z) > 0.5f)
                 pocketRadius = table.k_INNER_RADIUS_SIDE;
-            table._LogInfo("[NPC] 轨迹验证: 球" + bestBall + " 最近袋中心距离=" + (minDistToPocket * 100f).ToString("F1")
+            _Log("[NPC] 轨迹验证: 球" + bestBall + " 最近袋中心距离=" + (minDistToPocket * 100f).ToString("F1")
                 + "cm 入袋半径=" + (pocketRadius * 100f).ToString("F1") + "cm "
                 + (minDistToPocket < pocketRadius ? "OK" : "WARNING:可能不入袋"));
+        }
+
+        // === Bank shot trajectory verification ===
+        if (bestPocket >= 0 && bestShotType == 1)
+        {
+            Vector3 bPos = table.ballsP[bestBall];
+            Vector3 pp = npcPockets[bestPocket];
+            // Find which cushion the target ball bounces off
+            for (int c = 0; c < 4; c++)
+            {
+                Vector3 reflected = _ReflectPocket(pp, c);
+                // Apply friction offset: shift toward ball travel direction
+                Vector3 bankRaw = (reflected - bPos).normalized;
+                float ballToCushionDist = (reflected - bPos).magnitude;
+                float baseFriction = 0.08f;
+                float frictionScale = Mathf.Clamp(ballToCushionDist * 0.12f, 0f, 0.08f);
+                float frictionOff = baseFriction + frictionScale;
+                switch (c)
+                {
+                    case 0:
+                    case 1:
+                        reflected.x += Mathf.Sign(bankRaw.x) * frictionOff;
+                        break;
+                    case 2:
+                    case 3:
+                        reflected.z += Mathf.Sign(bankRaw.z) * frictionOff;
+                        break;
+                }
+                Vector3 bouncePt = _GetCushionBouncePoint(bPos, reflected, c);
+                if (bouncePt.x == float.MaxValue) continue;
+                if (!_IsCushionBouncePointValid(bouncePt, c)) continue;
+
+                // Verify path: bounce→pocket direction
+                Vector3 bounceToPocket = (pp - bouncePt).normalized;
+                Vector3 pocketCenter = table.pocketLocations[bestPocket];
+                float projT = Vector3.Dot(pocketCenter - bouncePt, bounceToPocket);
+                float minDist = float.MaxValue;
+                if (projT > 0f)
+                {
+                    Vector3 closest = bouncePt + bounceToPocket * projT;
+                    minDist = (pocketCenter - closest).magnitude;
+                }
+                float pocketRadius = table.k_INNER_RADIUS_CORNER;
+                if (Mathf.Abs(pocketCenter.x) < 0.1f && Mathf.Abs(pocketCenter.z) > 0.5f)
+                    pocketRadius = table.k_INNER_RADIUS_SIDE;
+                _Log("[NPC] 翻袋轨迹验证: 球" + bestBall + "->库" + c + "->袋" + bestPocket
+                    + " 最近袋中心距离=" + (minDist * 100f).ToString("F1") + "cm "
+                    + (minDist < pocketRadius ? "OK" : "WARNING:可能不入袋"));
+                break;
+            }
         }
 
         npcAimDir = bestAimDir;
@@ -1630,25 +2081,51 @@ public class PracticeManager : UdonSharpBehaviour
         npcTargetPocket = bestPocket;
         npcShotType = bestShotType;
         npcBestScore = bestScore;
+        npcKickCushion = bestKickCushion;
+        npcKickCushion2 = bestKickCushion2;
+        // Calculate first impact point
+        if (bestShotType == 2 && bestKickCushion >= 0)
+        {
+            // Kick shot: first impact is cushion bounce point
+            if (bestKickCushion2 >= 0)
+            {
+                Vector3 reflected1 = _ReflectPoint(table.ballsP[bestBall], bestKickCushion2);
+                Vector3 reflected2 = _ReflectPoint(reflected1, bestKickCushion);
+                npcFirstImpactPos = _GetCushionPoint(cuePos, reflected2, bestKickCushion);
+            }
+            else
+            {
+                npcFirstImpactPos = _GetCushionPoint(cuePos, table.ballsP[bestBall], bestKickCushion);
+            }
+        }
+        else if (bestBall >= 0)
+        {
+            // Direct/bank shot: first impact is ghost ball position
+            npcFirstImpactPos = cuePos + bestAimDir * bestShotDist;
+        }
+        else npcFirstImpactPos = cuePos;
         // Calculate cut angle for logging
         if (bestPocket >= 0 && bestBall >= 0)
         {
             Vector3 t2pLog = (npcPockets[bestPocket] - table.ballsP[bestBall]).normalized;
-            npcCutAngle = Mathf.Acos(Mathf.Clamp(Vector3.Dot(-bestAimDir, t2pLog), -1f, 1f)) * Mathf.Rad2Deg;
+            npcCutAngle = Mathf.Acos(Mathf.Clamp(Vector3.Dot(bestAimDir, t2pLog), -1f, 1f)) * Mathf.Rad2Deg;
         }
         else npcCutAngle = 0f;
 
         string shotTypeStr = bestShotType == 0 ? "直接" : (bestShotType == 1 ? "翻袋" : (bestShotType == 2 ? "K球" : "轻碰"));
-        table._LogInfo("[NPC] " + shotTypeStr + ": 球" + bestBall + "->袋" + bestPocket
-            + " 力=" + power.ToString("F2") + " 旋=" + bestSpin.ToString("F2")
-            + " 距=" + bestShotDist.ToString("F2") + " 分=" + bestScore.ToString("F2"));
+        string spinType = bestSpin < -0.05f ? "低杆" : (bestSpin > 0.05f ? "高杆" : "定杆");
+        Vector3 ghostBallLog = cuePos + bestAimDir * bestShotDist;
+        _Log("[NPC] " + shotTypeStr + ": 球" + bestBall + "->袋" + bestPocket
+            + " 力=" + power.ToString("F2") + " 旋=" + bestSpin.ToString("F2") + "(" + spinType + ")"
+            + " 距=" + bestShotDist.ToString("F2") + " 分=" + bestScore.ToString("F2")
+            + " ghost=(" + ghostBallLog.x.ToString("F3") + "," + ghostBallLog.z.ToString("F3") + ")");
         if (bestPocket >= 0)
         {
             Vector3 bp = table.ballsP[bestBall];
             Vector3 pp = npcPockets[bestPocket];
             Vector3 t2p = (pp - bp).normalized;
             float debugCut = Mathf.Acos(Mathf.Clamp(Vector3.Dot(bestAimDir, t2p), -1f, 1f)) * Mathf.Rad2Deg;
-            table._LogInfo("[NPC] 瞄准: aimDir=(" + bestAimDir.x.ToString("F3") + "," + bestAimDir.z.ToString("F3")
+            _Log("[NPC] 瞄准: aimDir=(" + bestAimDir.x.ToString("F3") + "," + bestAimDir.z.ToString("F3")
                 + ") t2pDir=(" + t2p.x.ToString("F3") + "," + t2p.z.ToString("F3")
                 + ") 切角=" + debugCut.ToString("F1") + "°"
                 + " 袋口=(" + pp.x.ToString("F2") + "," + pp.z.ToString("F2") + ")"
@@ -1728,26 +2205,11 @@ public class PracticeManager : UdonSharpBehaviour
                 remainingDist -= nearestT;
                 traceStart = segEnd;
             }
-            if (scratchRisk)
-            {
-                table._LogInfo("[NPC] 犯规预测: 母球可能落袋! 近袋" + scratchPocket
-                    + " 距离=" + (scratchDist * 100f).ToString("F1") + "cm");
-                if (scratchDist < 0.12f)
-                {
-                    bestSpin = -0.6f;
-                    npcPower *= 0.65f;
-                    table._LogInfo("[NPC] 犯规修正: spin→-0.6 力度×0.65");
-                }
-                else
-                {
-                    bestSpin = Mathf.Min(bestSpin, -0.5f);
-                    npcPower *= 0.8f;
-                    table._LogInfo("[NPC] 犯规修正: spin→" + bestSpin.ToString("F1") + " 力度×0.8");
-                }
-            }
-
-            // === Check if any ball blocks the cue ball path ===
-            float maxPathLen = BALL_DIAMETER * 8f; // trace up to 8 ball diameters
+            // === Unified foul correction: scratch risk + roadblock in one pass ===
+            bool roadblockDetected = false;
+            float roadblockPerpDist = 0f;
+            int roadblockBall = -1;
+            float maxPathLen = BALL_DIAMETER * 8f;
             for (int ob = 1; ob <= 15; ob++)
             {
                 if (ob == bestBall) continue;
@@ -1761,13 +2223,56 @@ public class PracticeManager : UdonSharpBehaviour
                     float perpDist = (obPos - closestPt).magnitude;
                     if (perpDist < BALL_DIAMETER)
                     {
-                        table._LogInfo("[NPC] 犯规预测: 母球路径可能碰到球" + ob
-                            + " 距离=" + (perpDist * 100f).ToString("F1") + "cm");
-                        bestSpin = Mathf.Min(bestSpin, -0.7f);
-                        npcPower *= 0.75f;
-                        table._LogInfo("[NPC] 路障修正: spin→" + bestSpin.ToString("F1") + " 力度×0.75");
+                        roadblockDetected = true;
+                        roadblockPerpDist = perpDist;
+                        roadblockBall = ob;
                     }
                 }
+            }
+
+            if (scratchRisk || roadblockDetected)
+            {
+                float finalSpin = bestSpin;
+                float powerMul = 1.0f;
+
+                if (scratchRisk && roadblockDetected)
+                {
+                    // Both triggered: use the most aggressive single correction
+                    finalSpin = -0.8f;
+                    powerMul = 0.55f;
+                    _Log("[NPC] 犯规预测: 母球近袋" + scratchPocket
+                        + " 距=" + (scratchDist * 100f).ToString("F1") + "cm"
+                        + " + 路障球" + roadblockBall
+                        + " 距=" + (roadblockPerpDist * 100f).ToString("F1") + "cm"
+                        + " → spin=" + finalSpin.ToString("F2") + " 力度×" + powerMul.ToString("F2") + " (合并修正)");
+                }
+                else if (scratchRisk)
+                {
+                    if (scratchDist < 0.12f)
+                    {
+                        finalSpin = -0.7f;
+                        powerMul = 0.60f;
+                    }
+                    else
+                    {
+                        finalSpin = Mathf.Min(bestSpin, -0.5f);
+                        powerMul = 0.8f;
+                    }
+                    _Log("[NPC] 犯规预测: 母球可能落袋! 近袋" + scratchPocket
+                        + " 距=" + (scratchDist * 100f).ToString("F1") + "cm"
+                        + " → spin=" + finalSpin.ToString("F2") + " 力度×" + powerMul.ToString("F2"));
+                }
+                else // roadblock only
+                {
+                    finalSpin = Mathf.Min(bestSpin, -0.7f);
+                    powerMul = 0.75f;
+                    _Log("[NPC] 犯规预测: 母球路径可能碰到球" + roadblockBall
+                        + " 距=" + (roadblockPerpDist * 100f).ToString("F1") + "cm"
+                        + " → spin=" + finalSpin.ToString("F2") + " 力度×" + powerMul.ToString("F2"));
+                }
+
+                bestSpin = finalSpin;
+                npcPower *= powerMul;
             }
         }
 
@@ -1836,7 +2341,6 @@ public class PracticeManager : UdonSharpBehaviour
 
         // All positions are table-local; convert to world for LineRenderer
         Vector3 ghostBall = cuePos + aimDir * shotDist;
-        _DrawLine(_L2W(WithY(cuePos, y)), _L2W(WithY(ghostBall, y)), Color.green);
         _DrawDot(_L2W(WithY(cuePos, y)), 0.012f, Color.blue);
 
         if (bestPocket >= 0)
@@ -1846,30 +2350,64 @@ public class PracticeManager : UdonSharpBehaviour
 
             if (shotType == 1)
             {
-                // Bank shot: find which cushion the target ball hits
-                int hitCushion = -1;
-                Vector3 bouncePt = Vector3.zero;
+                // Bank shot: try single-cushion first, then two-cushion
+                bool drawn = false;
+                // Single cushion
                 for (int c = 0; c < 4; c++)
                 {
                     Vector3 reflected = _ReflectPocket(pocketPos, c);
-                    Vector3 bp = _GetCushionBouncePoint(ballPos, reflected, c);
-                    if (bp.x != float.MaxValue)
+                    // Apply friction offset: shift toward ball travel direction
+                    Vector3 bankRaw = (reflected - ballPos).normalized;
+                    float ballToCushionDist = (reflected - ballPos).magnitude;
+                    float baseFriction = 0.08f;
+                    float frictionScale = Mathf.Clamp(ballToCushionDist * 0.12f, 0f, 0.08f);
+                    float frictionOff = baseFriction + frictionScale;
+                    switch (c)
                     {
-                        hitCushion = c;
-                        bouncePt = bp;
+                        case 0:
+                        case 1:
+                            reflected.x += Mathf.Sign(bankRaw.x) * frictionOff;
+                            break;
+                        case 2:
+                        case 3:
+                            reflected.z += Mathf.Sign(bankRaw.z) * frictionOff;
+                            break;
+                    }
+                    Vector3 bp = _GetCushionBouncePoint(ballPos, reflected, c);
+                    if (bp.x != float.MaxValue && _IsCushionBouncePointValid(bp, c))
+                    {
+                        _DrawLine(_L2W(WithY(ballPos, y)), _L2W(WithY(bp, y)), Color.red, 0.004f);
+                        _DrawLine(_L2W(WithY(bp, y)), _L2W(WithY(pocketPos, y)), Color.yellow, 0.004f);
+                        _DrawDot(_L2W(WithY(bp, y)), 0.012f, Color.red);
+                        drawn = true;
                         break;
                     }
                 }
-                if (hitCushion >= 0)
+                // Two-cushion
+                if (!drawn)
                 {
-                    // Draw target ball path: ball → cushion bounce → pocket
-                    _DrawLine(_L2W(WithY(ballPos, y)), _L2W(WithY(bouncePt, y)), Color.red, 0.004f);
-                    _DrawLine(_L2W(WithY(bouncePt, y)), _L2W(WithY(pocketPos, y)), Color.yellow, 0.004f);
-                    _DrawDot(_L2W(WithY(bouncePt, y)), 0.012f, Color.red);
+                    for (int c1 = 0; c1 < 4 && !drawn; c1++)
+                    {
+                        for (int c2 = 0; c2 < 4 && !drawn; c2++)
+                        {
+                            if (c1 == c2) continue;
+                            Vector3 reflected1 = _ReflectPocket(pocketPos, c2);
+                            Vector3 reflected2 = _ReflectPocket(reflected1, c1);
+                            Vector3 b1 = _GetCushionBouncePoint(ballPos, reflected2, c1);
+                            if (b1.x == float.MaxValue || !_IsCushionBouncePointValid(b1, c1)) continue;
+                            Vector3 b2 = _GetCushionBouncePoint(b1, reflected1, c2);
+                            if (b2.x == float.MaxValue || !_IsCushionBouncePointValid(b2, c2)) continue;
+                            _DrawLine(_L2W(WithY(ballPos, y)), _L2W(WithY(b1, y)), Color.red, 0.004f);
+                            _DrawLine(_L2W(WithY(b1, y)), _L2W(WithY(b2, y)), Color.red, 0.004f);
+                            _DrawLine(_L2W(WithY(b2, y)), _L2W(WithY(pocketPos, y)), Color.yellow, 0.004f);
+                            _DrawDot(_L2W(WithY(b1, y)), 0.012f, Color.red);
+                            _DrawDot(_L2W(WithY(b2, y)), 0.012f, Color.red);
+                            drawn = true;
+                        }
+                    }
                 }
-                else
+                if (!drawn)
                 {
-                    // Fallback: draw direct line
                     _DrawLine(_L2W(WithY(ballPos, y)), _L2W(WithY(pocketPos, y)), Color.red, 0.004f);
                 }
             }
@@ -1879,8 +2417,57 @@ public class PracticeManager : UdonSharpBehaviour
                 _DrawLine(_L2W(WithY(ballPos, y)), _L2W(WithY(pocketPos, y)), Color.red, 0.004f);
             }
 
+            _DrawLine(_L2W(WithY(cuePos, y)), _L2W(WithY(ghostBall, y)), Color.green);
             _DrawDot(_L2W(WithY(ghostBall, y)), 0.010f, Color.yellow);
             _DrawLine(_L2W(WithY(ghostBall, y)), _L2W(WithY(ballPos, y)), Color.white);
+        }
+        else if (shotType == 2 && bestBall >= 0)
+        {
+            // ===== KICK SHOT (勾库/K球) — cue ball bounces off cushion before hitting target =====
+            Vector3 ballPos = table.ballsP[bestBall];
+            Vector3 kickGhost = Vector3.zero;
+
+            if (npcKickCushion2 >= 0)
+            {
+                // Two-cushion kick: use the same double-reflection geometry as selection
+                Vector3 reflected1 = _ReflectPoint(ballPos, npcKickCushion2);
+                Vector3 reflected2 = _ReflectPoint(reflected1, npcKickCushion);
+                Vector3 bounce1 = _GetCushionPoint(cuePos, reflected2, npcKickCushion);
+                Vector3 bounce2 = (bounce1.x != float.MaxValue)
+                    ? _GetCushionPoint(bounce1, reflected1, npcKickCushion2)
+                    : new Vector3(float.MaxValue, 0, 0);
+                if (bounce1.x != float.MaxValue && bounce2.x != float.MaxValue)
+                {
+                    _DrawLine(_L2W(WithY(cuePos, y)), _L2W(WithY(bounce1, y)), Color.cyan, 0.005f);
+                    _DrawLine(_L2W(WithY(bounce1, y)), _L2W(WithY(bounce2, y)), Color.cyan, 0.005f);
+                    _DrawLine(_L2W(WithY(bounce2, y)), _L2W(WithY(ballPos, y)), Color.white, 0.004f);
+                    _DrawDot(_L2W(WithY(bounce1, y)), 0.014f, Color.cyan);
+                    _DrawDot(_L2W(WithY(bounce2, y)), 0.014f, Color.cyan);
+                    kickGhost = bounce1;
+                    _DrawLine(_L2W(WithY(cuePos, y)), _L2W(WithY(kickGhost, y)), Color.green);
+                    _DrawDot(_L2W(WithY(kickGhost, y)), 0.010f, Color.yellow);
+                    return;
+                }
+            }
+
+            if (npcKickCushion >= 0)
+            {
+                // Single cushion kick: use saved cushion
+                Vector3 cushionPoint = _GetCushionPoint(cuePos, ballPos, npcKickCushion);
+                if (cushionPoint.x != float.MaxValue)
+                {
+                    _DrawLine(_L2W(WithY(cuePos, y)), _L2W(WithY(cushionPoint, y)), Color.cyan, 0.005f);
+                    _DrawLine(_L2W(WithY(cushionPoint, y)), _L2W(WithY(ballPos, y)), Color.white, 0.004f);
+                    _DrawDot(_L2W(WithY(cushionPoint, y)), 0.014f, Color.cyan);
+                    kickGhost = cushionPoint;
+                    _DrawLine(_L2W(WithY(cuePos, y)), _L2W(WithY(kickGhost, y)), Color.green);
+                    _DrawDot(_L2W(WithY(kickGhost, y)), 0.010f, Color.yellow);
+                    return;
+                }
+            }
+
+            // Fallback: direct line
+            _DrawLine(_L2W(WithY(cuePos, y)), _L2W(WithY(ballPos, y)), Color.white);
         }
 
         for (int i = 0; i < 6; i++)
@@ -2115,14 +2702,38 @@ public class PracticeManager : UdonSharpBehaviour
     }
 
     // Reflect a point across a cushion
+    // Cushion friction reduces reflection angle ~15% vs geometric mirror.
+    // Compensate by pushing the virtual reflected point further from the cushion.
+    private const float CUSHION_FRICTION_COMP = 0.10f;
+
     private Vector3 _ReflectPoint(Vector3 point, int cushion)
     {
         switch (cushion)
         {
-            case 0: return new Vector3(point.x, 0f, 2f * table.k_TABLE_HEIGHT - point.z); // top
-            case 1: return new Vector3(point.x, 0f, -2f * table.k_TABLE_HEIGHT - point.z); // bottom
-            case 2: return new Vector3(-2f * table.k_TABLE_WIDTH - point.x, 0f, point.z); // left
-            case 3: return new Vector3(2f * table.k_TABLE_WIDTH - point.x, 0f, point.z); // right
+            case 0: // top (z = +k_TABLE_HEIGHT)
+            {
+                float z = 2f * table.k_TABLE_HEIGHT - point.z;
+                z += (z - point.z) * CUSHION_FRICTION_COMP;
+                return new Vector3(point.x, 0f, z);
+            }
+            case 1: // bottom (z = -k_TABLE_HEIGHT)
+            {
+                float z = -2f * table.k_TABLE_HEIGHT - point.z;
+                z += (z - point.z) * CUSHION_FRICTION_COMP;
+                return new Vector3(point.x, 0f, z);
+            }
+            case 2: // left (x = -k_TABLE_WIDTH)
+            {
+                float x = -2f * table.k_TABLE_WIDTH - point.x;
+                x += (x - point.x) * CUSHION_FRICTION_COMP;
+                return new Vector3(x, 0f, point.z);
+            }
+            case 3: // right (x = +k_TABLE_WIDTH)
+            {
+                float x = 2f * table.k_TABLE_WIDTH - point.x;
+                x += (x - point.x) * CUSHION_FRICTION_COMP;
+                return new Vector3(x, 0f, point.z);
+            }
             default: return point;
         }
     }
@@ -2201,7 +2812,7 @@ public class PracticeManager : UdonSharpBehaviour
             return remaining;
         }
 
-        // Always recalculate from current state — don't cache stale values
+        // Always recalculate from current teamIdLocal — test mode NPC plays both teams
         npcGroupId = (int)(table.teamIdLocal ^ table.teamColorLocal);
         uint groupMask = ((uint)npcGroupId == 0) ? 0x1FCu : 0xFE00u;
         uint result = remaining & groupMask;
@@ -2210,11 +2821,12 @@ public class PracticeManager : UdonSharpBehaviour
         // Don't trust pocketed flag — just check physical position
         if (result == 0)
         {
-            bool ball1OnTable = table.ballsP[1].sqrMagnitude > 0.001f;
+            Vector3 b1 = table.ballsP[1];
+            bool ball1OnTable = Mathf.Abs(b1.x) < table.k_TABLE_WIDTH && Mathf.Abs(b1.z) < table.k_TABLE_HEIGHT;
             if (ball1OnTable)
             {
                 result |= 0x2u; // add 8-ball (ball 1)
-                table._LogInfo("[NPC] 组球清完,加入8-ball  ball1pos=" + table.ballsP[1].ToString("F3") + " pocketed=0x" + pocketed.ToString("X8"));
+                _Log("[NPC] 组球清完,加入8-ball  ball1pos=" + table.ballsP[1].ToString("F3") + " pocketed=0x" + pocketed.ToString("X8"));
             }
         }
 
@@ -2322,9 +2934,9 @@ public class PracticeManager : UdonSharpBehaviour
         Vector3 openDir = (Vector3.zero - pocketCenter).normalized;
 
         // Approach angle check: ball must approach from a direction that can enter the pocket
-        // openDir = pocket center -> table center (inward). Ball travels TOWARD pocket, opposite to openDir.
-        // So valid approach: approachDir ≈ -openDir → Dot ≈ -1. We negate to get positive alignment.
-        Vector3 approachDir = (pocketCenter - ballPos).normalized;
+        // Use T-point (where ball is actually aimed) not pocket center — for corner pockets
+        // the T-point is offset 35% toward side pocket, which changes the approach angle
+        Vector3 approachDir = (pocketTPoint - ballPos).normalized;
         float alignWithPocket = -Vector3.Dot(approachDir, openDir);
 
         // Cushion-parallel exception: ball near cushion traveling parallel can slide into pocket
@@ -2346,6 +2958,26 @@ public class PracticeManager : UdonSharpBehaviour
         // Only reject if ball is clearly approaching from wrong direction (align < 0.2)
         if (alignWithPocket < 0.2f) return true;
 
+        return false;
+    }
+
+    // Check if a cushion bounce point is within the valid cushion segment (between two pocket openings)
+    private bool _IsCushionBouncePointValid(Vector3 point, int cushion)
+    {
+        float tw = table.k_TABLE_WIDTH;
+        float th = table.k_TABLE_HEIGHT;
+        float sw = 0.08f; // pocket opening half-width
+        switch (cushion)
+        {
+            case 0: // top (z = +th)
+                return point.x > -tw + sw && point.x < tw - sw;
+            case 1: // bottom (z = -th)
+                return point.x > -tw + sw && point.x < tw - sw;
+            case 2: // left (x = -tw)
+                return point.z > -th + sw && point.z < th - sw;
+            case 3: // right (x = +tw)
+                return point.z > -th + sw && point.z < th - sw;
+        }
         return false;
     }
 
@@ -2373,8 +3005,8 @@ public class PracticeManager : UdonSharpBehaviour
 
         if (_BallApproachBadAngle(ballPos, pocketPos, pocketCenter, cutAngle)) return true;
 
-        // Clearance: target ball radius + blocking ball radius
-        float clearSqr = (BALL_DIAMETER + BALL_RADIUS) * (BALL_DIAMETER + BALL_RADIUS);
+        // Clearance: two ball radii (center-to-center must not overlap)
+        float clearSqr = BALL_DIAMETER * BALL_DIAMETER;
         for (int i = 1; i <= 15; i++)
         {
             if (i == excludeBall) continue;
@@ -2471,7 +3103,9 @@ public class PracticeManager : UdonSharpBehaviour
             {
                 if ((table.ballsPocketedLocal & (1u << i)) != 0) continue;
                 Vector3 p = table.ballsP[i];
-                if (Mathf.Abs(p.x) > table.k_TABLE_WIDTH + 0.2f || Mathf.Abs(p.z) > table.k_TABLE_HEIGHT + 0.2f)
+                if (Mathf.Abs(p.x) > table.k_TABLE_WIDTH + 0.2f
+                    || Mathf.Abs(p.z) > table.k_TABLE_HEIGHT + 0.2f
+                    || Mathf.Abs(p.y) > 2.0f)
                 {
                     anyBallOutOfBounds = true;
                     break;
@@ -2479,12 +3113,12 @@ public class PracticeManager : UdonSharpBehaviour
             }
             if (anyBallOutOfBounds)
             {
-                table._LogInfo("[NPC] 球位置腐败,跳过安全球");
+                _Log("[NPC] 球位置腐败,跳过安全球");
                 return; // let _NpcTick handle the reset on next frame
             }
 
             _safetyFailCount++;
-            table._LogInfo("[NPC] 无法击球 (第" + _safetyFailCount + "次)");
+            _Log("[NPC] 无法击球 (第" + _safetyFailCount + "次)");
             if (_safetyFailCount >= 3)
             {
                 _safetyFailCount = 0;
@@ -2536,7 +3170,7 @@ public class PracticeManager : UdonSharpBehaviour
                         npcShotType = 2; // 勾库
                         npcCutAngle = 0f;
                         npcBestScore = 0f;
-                        table._LogInfo("[NPC] 强制勾库安全球: 击球" + bestBall + " 距=" + kickDist.ToString("F2") + " 力=" + npcPower.ToString("F2"));
+                        _Log("[NPC] 强制勾库安全球: 击球" + bestBall + " 距=" + kickDist.ToString("F2") + " 力=" + npcPower.ToString("F2"));
                         npcChargeDuration = testMode ? 0.5f : 1.0f;
                         npcChargeElapsed = 0f;
                         if (table.activeCue != null) table.activeCue._SetNpcControlled(true);
@@ -2560,9 +3194,13 @@ public class PracticeManager : UdonSharpBehaviour
                 }
                 if (bestBall >= 0)
                 {
-                    Vector3 forcedAim = (table.ballsP[bestBall] - cuePos).normalized;
-                    float forcedDist = (table.ballsP[bestBall] - cuePos).magnitude;
-                    npcAimDir = forcedAim;
+                    Vector3 fBallPos = table.ballsP[bestBall];
+                    Vector3 forcedAim = (fBallPos - cuePos).normalized;
+                    float forcedDist = (fBallPos - cuePos).magnitude;
+                    // Offset aim off-center to reduce accidental pocketing
+                    Vector3 fPerp = new Vector3(-forcedAim.z, 0f, forcedAim.x);
+                    Vector3 forcedSafeAim = (fBallPos + fPerp * BALL_RADIUS * 0.4f - cuePos).normalized;
+                    npcAimDir = forcedSafeAim;
                     npcPower = Mathf.Clamp(forcedDist * 1.5f / 4.0f, MIN_POWER, 0.30f);
                     npcSpinValue = 0f;
                     npcTargetBall = bestBall;
@@ -2570,7 +3208,7 @@ public class PracticeManager : UdonSharpBehaviour
                     npcShotType = 0; // 安全球(直打)
                     npcCutAngle = 0f;
                     npcBestScore = 0f;
-                    table._LogInfo("[NPC] 强制安全球(遮挡): 击球" + bestBall + " 距=" + forcedDist.ToString("F2") + " 力=" + npcPower.ToString("F2"));
+                    _Log("[NPC] 强制安全球(遮挡): 击球" + bestBall + " 距=" + forcedDist.ToString("F2") + " 力=" + npcPower.ToString("F2"));
                     npcChargeDuration = testMode ? 0.5f : 1.0f;
                     npcChargeElapsed = 0f;
                     if (table.activeCue != null) table.activeCue._SetNpcControlled(true);
@@ -2585,12 +3223,16 @@ public class PracticeManager : UdonSharpBehaviour
         }
         _safetyFailCount = 0;
 
-        Vector3 aim = (table.ballsP[bestBall] - cuePos).normalized;
-        float shotDist = (table.ballsP[bestBall] - cuePos).magnitude;
+        Vector3 kBallPos = table.ballsP[bestBall];
+        Vector3 aim = (kBallPos - cuePos).normalized;
+        float shotDist = (kBallPos - cuePos).magnitude;
+        // Offset aim slightly off-center to avoid accidentally pocketing the target ball
+        Vector3 kPerp = new Vector3(-aim.z, 0f, aim.x);
+        Vector3 safeAim = (kBallPos + kPerp * BALL_RADIUS * 0.4f - cuePos).normalized;
         float minVel = shotDist * 1.5f;
         float minPower = Mathf.Pow(minVel / 4.0f, 1.0f / 1.4f) * 0.5f;
 
-        npcAimDir = aim;
+        npcAimDir = safeAim;
         npcPower = Mathf.Clamp(minPower, MIN_POWER, 0.35f);
         npcSpinValue = 0f;
         npcTargetBall = bestBall;
@@ -2599,7 +3241,7 @@ public class PracticeManager : UdonSharpBehaviour
         npcCutAngle = 0f;
         npcBestScore = 0f;
 
-        table._LogInfo("[NPC] 安全球: 击球" + bestBall + " 距=" + shotDist.ToString("F2")
+        _Log("[NPC] 安全球: 击球" + bestBall + " 距=" + shotDist.ToString("F2")
             + " 力=" + npcPower.ToString("F2") + " 母球预测=("
             + bestCueEndpoint.x.ToString("F2") + "," + bestCueEndpoint.z.ToString("F2") + ")");
         npcChargeDuration = testMode ? 0.5f : 1.0f;
@@ -2627,7 +3269,7 @@ public class PracticeManager : UdonSharpBehaviour
             Vector3 p = table.ballsP[i];
             s += " " + i + "=(" + p.x.ToString("F2") + "," + p.z.ToString("F2") + ")";
         }
-        table._LogInfo(s);
+        _Log(s);
     }
 
     // Ball-in-hand: find optimal cue ball placement
@@ -2699,7 +3341,7 @@ public class PracticeManager : UdonSharpBehaviour
         // Pass 2: relaxed — only require no overlap with other balls
         if (bestScore >= float.MaxValue)
         {
-            table._LogInfo("[NPC] 自由球: 严格约束无解,放宽约束重试");
+            _Log("[NPC] 自由球: 严格约束无解,放宽约束重试");
             for (int b = 1; b <= 15; b++)
             {
                 if ((targetBalls & (1u << b)) == 0) continue;
@@ -2746,7 +3388,7 @@ public class PracticeManager : UdonSharpBehaviour
         // Pass 3: absolute fallback — place near center, away from all balls
         if (bestScore >= float.MaxValue)
         {
-            table._LogInfo("[NPC] 自由球: 所有约束无解,放置台面中心");
+            _Log("[NPC] 自由球: 所有约束无解,放置台面中心");
             bestPos = new Vector3(0f, 0f, 0f);
             // Shift if center is occupied
             for (int i = 1; i <= 15; i++)
@@ -2763,14 +3405,14 @@ public class PracticeManager : UdonSharpBehaviour
 
         table.ballsP[0] = bestPos;
         table._TriggerPlaceBall(0);
-        table._LogInfo("[NPC] 自由球摆放: (" + bestPos.x.ToString("F2") + ", " + bestPos.z.ToString("F2") + ") 距离=" + bestScore.ToString("F2"));
+        _Log("[NPC] 自由球摆放: (" + bestPos.x.ToString("F2") + ", " + bestPos.z.ToString("F2") + ") 距离=" + bestScore.ToString("F2"));
     }
 
 
     private void _NpcShoot()
     {
         float vel = Mathf.Pow(npcPower * 2.0f, 1.4f) * 4.0f;
-        table._LogInfo("[NPC] 击球: 球" + npcTargetBall + " 力=" + npcPower.ToString("F2") + " 速=" + vel.ToString("F1") + "m/s"
+        _Log("[NPC] 击球: 球" + npcTargetBall + " 力=" + npcPower.ToString("F2") + " 速=" + vel.ToString("F1") + "m/s"
             + " 方向=(" + npcAimDir.x.ToString("F3") + "," + npcAimDir.z.ToString("F3") + ")");
         table.desktopManager._NpcFire(npcAimDir, npcPower);
         npcState = NPC_SHOOTING;

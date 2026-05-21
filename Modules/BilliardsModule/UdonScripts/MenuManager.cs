@@ -127,7 +127,7 @@ public class MenuManager : UdonSharpBehaviour
                 // 练习模式：蓝队位置显示AI名字（彩虹色）
                 if (table.isPracticeMode && i == 1 && table.practiceManager != null)
                 {
-                    lobbyNames[i].text = table.graphicsManager.rainbow(table.practiceManager.npcDisplayName);
+                    lobbyNames[i].text = table.graphicsManager.rainbow(table.practiceManager.npcLocalizedName);
                 }
                 else
                 {

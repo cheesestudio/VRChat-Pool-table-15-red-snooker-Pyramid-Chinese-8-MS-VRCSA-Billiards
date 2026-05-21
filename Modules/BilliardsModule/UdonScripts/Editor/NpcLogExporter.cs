@@ -4,10 +4,28 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
 
+[InitializeOnLoad]
 public class NpcLogExporter : EditorWindow
 {
     private static string logPath = "Assets/npc_log.txt";
     private static int maxLines = 5000;
+
+    static NpcLogExporter()
+    {
+        EditorApplication.playModeStateChanged += OnPlayModeChanged;
+    }
+
+    static void OnPlayModeChanged(PlayModeStateChange state)
+    {
+        if (state == PlayModeStateChange.EnteredPlayMode)
+        {
+            ClearLog();
+        }
+        else if (state == PlayModeStateChange.ExitingPlayMode)
+        {
+            ExportLog();
+        }
+    }
 
     private static string[] ReadLogFileShared()
     {

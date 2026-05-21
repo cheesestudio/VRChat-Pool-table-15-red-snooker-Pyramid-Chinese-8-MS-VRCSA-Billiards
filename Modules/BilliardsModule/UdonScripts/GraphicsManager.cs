@@ -385,7 +385,12 @@ public class GraphicsManager : UdonSharpBehaviour
 			playerNames[0].text = "<size=7><line-height=8.25>" + _FormatName(VRCPlayerApi.GetPlayerById(players[0])) + "\n" + _FormatName(VRCPlayerApi.GetPlayerById(players[2]));
 		}
 
-		if (players[3] == -1 || !table.teamsLocal)
+		// Practice mode: blue team slot shows NPC name, not "No one"
+		if (table.isPracticeMode && table.practiceManager != null)
+		{
+			// Don't overwrite NPC name here — _SetNpcName handles it
+		}
+		else if (players[3] == -1 || !table.teamsLocal)
 		{
 			playerNames[1].text = "<size=13>" + _FormatName(VRCPlayerApi.GetPlayerById(players[1]));
 		}
@@ -398,6 +403,11 @@ public class GraphicsManager : UdonSharpBehaviour
 	public void _SetNpcName(string npcName)
 	{
 		playerNames[1].text = "<size=13>" + rainbow(npcName);
+	}
+
+	public void _ClearNpcName()
+	{
+		playerNames[1].text = "";
 	}
 
 	public void _OnGameReset()
@@ -431,6 +441,23 @@ public class GraphicsManager : UdonSharpBehaviour
 
 	public void _SetWinners(uint winnerId, int[] players)
 	{
+		// Practice mode: show player name on left, NPC name on right
+		if (table.isPracticeMode && table.practiceManager != null)
+		{
+			VRCPlayerApi localPlayer = Networking.LocalPlayer;
+			string playerName = (localPlayer != null) ? localPlayer.displayName : "Player";
+			string npcName = table.practiceManager.npcLocalizedName;
+			winnerText.gameObject.SetActive(true);
+			winnerText.gameObject.transform.localRotation = Quaternion.identity;
+			if (winnerId == 0)
+				winnerText.text = _FormatName(localPlayer) + " wins!";
+			else
+				winnerText.text = rainbow(npcName) + " wins!";
+			numGameResets++;
+			SendCustomEventDelayedSeconds(nameof(disableWinnerText), 15f);
+			return;
+		}
+
 		VRCPlayerApi player1 = winnerId == 0 ? VRCPlayerApi.GetPlayerById(players[0]) : VRCPlayerApi.GetPlayerById(players[1]);
 		VRCPlayerApi player2 = winnerId == 0 ? VRCPlayerApi.GetPlayerById(players[2]) : VRCPlayerApi.GetPlayerById(players[3]);
 
