@@ -376,6 +376,14 @@ public class GraphicsManager : UdonSharpBehaviour
 
 	public void _SetScorecardPlayers(int[] players)
 	{
+		// Practice mode: left = orange team's first player, right = NPC (set by _SetNpcName)
+		if (table.isPracticeMode && table.practiceManager != null)
+		{
+			playerNames[0].text = "<size=13>" + _FormatName(VRCPlayerApi.GetPlayerById(players[0]));
+			// playerNames[1] is set by _SetNpcName, don't overwrite
+			return;
+		}
+
 		if (players[2] == -1 || !table.teamsLocal)
 		{
 			playerNames[0].text = "<size=13>" + _FormatName(VRCPlayerApi.GetPlayerById(players[0]));
@@ -385,12 +393,7 @@ public class GraphicsManager : UdonSharpBehaviour
 			playerNames[0].text = "<size=7><line-height=8.25>" + _FormatName(VRCPlayerApi.GetPlayerById(players[0])) + "\n" + _FormatName(VRCPlayerApi.GetPlayerById(players[2]));
 		}
 
-		// Practice mode: blue team slot shows NPC name, not "No one"
-		if (table.isPracticeMode && table.practiceManager != null)
-		{
-			// Don't overwrite NPC name here — _SetNpcName handles it
-		}
-		else if (players[3] == -1 || !table.teamsLocal)
+		if (players[3] == -1 || !table.teamsLocal)
 		{
 			playerNames[1].text = "<size=13>" + _FormatName(VRCPlayerApi.GetPlayerById(players[1]));
 		}

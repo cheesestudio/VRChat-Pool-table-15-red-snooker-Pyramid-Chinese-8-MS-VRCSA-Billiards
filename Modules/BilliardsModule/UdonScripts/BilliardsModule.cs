@@ -1,4 +1,4 @@
-﻿#define EIJIS_ISSUE_FIX
+#define EIJIS_ISSUE_FIX
 #define EIJIS_TABLE_LABEL
 #define EIJIS_MANY_BALLS
 #define EIJIS_SNOOKER15REDS
@@ -186,7 +186,7 @@ public class BilliardsModule : UdonSharpBehaviour
     private float k_SPOT_POSITION_X = 0.5334f; // First X position of the racked balls
     private const float k_SPOT_CAROM_X = 0.8001f; // Spot position for carom mode
 #if EIJIS_SNOOKER15REDS
-    private readonly int[] sixredsnooker_ballpoints =
+    public readonly int[] sixredsnooker_ballpoints =
     {
         0, 7, 2, 5, 1, 6, 1, 3,
         4, 1, 1, 1, 1, 1, 1, 1,
@@ -194,7 +194,7 @@ public class BilliardsModule : UdonSharpBehaviour
         0, 1, 1, 1, 1, 1, 1, 0
     };
     private readonly uint SNOOKER_BALLS_MASK = 0x7E00FFFEu;
-    private readonly uint SNOOKER_REDS_MASK = 0x7E00FE50u;
+    public readonly uint SNOOKER_REDS_MASK = 0x7E00FE50u;
     private const int SNOOKER_REDS_COUNT = 15;
     [NonSerialized]
     public readonly int[] break_order_sixredsnooker =
@@ -206,7 +206,7 @@ public class BilliardsModule : UdonSharpBehaviour
         1
     };
 #else
-    private readonly int[] sixredsnooker_ballpoints = { 0, 7, 2, 5, 1, 6, 1, 3, 4, 1, 1, 1, 1 };
+    public readonly int[] sixredsnooker_ballpoints = { 0, 7, 2, 5, 1, 6, 1, 3, 4, 1, 1, 1, 1 };
     private readonly int[] break_order_sixredsnooker = { 4, 6, 9, 10, 11, 12, 2, 7, 8, 3, 5, 1 };
 #endif
     private readonly int[] break_order_8ball = { 9, 2, 10, 11, 1, 3, 4, 12, 5, 13, 14, 6, 15, 7, 8 };
@@ -479,7 +479,7 @@ public class BilliardsModule : UdonSharpBehaviour
     private uint targetPocketedOrig;
     private uint otherPocketedOrig;
 #endif
-    private int firstHit = 0;
+    public int firstHit = 0;
     private int secondHit = 0;
     private int thirdHit = 0;
     public Vector3 firstHitPos = Vector3.zero; // 母球第一次撞击时的位置
@@ -1821,6 +1821,7 @@ public class BilliardsModule : UdonSharpBehaviour
         graphicsManager._OnGameStarted();
         desktopManager._OnGameStarted();
         applyCueAccess();
+        practiceManager._NpcStop();
         practiceManager._Clear();
         repositionManager._OnGameStarted();
         for (int i = 0; i < cueControllers.Length; i++) cueControllers[i]._RefreshRenderer();
@@ -1897,6 +1898,14 @@ public class BilliardsModule : UdonSharpBehaviour
     {
 
         _LogInfo($"onRemoteGameEnded winningTeam={winningTeamSynced}");
+        if (practiceManager != null)
+        {
+            practiceManager._NpcStop();
+            if (practiceManager.testMode)
+            {
+                practiceManager._OnTableGameEnded(winningTeamSynced);
+            }
+        }
 
         isLocalSimulationRunning = false;
 
