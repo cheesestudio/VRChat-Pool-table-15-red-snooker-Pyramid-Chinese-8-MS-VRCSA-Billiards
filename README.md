@@ -1,3 +1,7 @@
+[中文](README.md) · [English](README.en.md) · [日本語](README.ja.md)
+
+---
+
 ![OG$UI_JKGDD6QL21LEK)9DE](https://github.com/user-attachments/assets/04739895-457d-4806-8d93-6f3ed2b80bbf)
 # 中文台球俱乐部桌 CBC Pool Table
 
@@ -5,7 +9,7 @@ VRChat 台球桌预制件，用于 VRChat 地图 **[中文台球俱乐部 Chines
 
 感谢朋友们的支持：eijis-pan, RokaOvO, WangQAQ, COCOA GAME
 球杆：Tempest, catte paling, tarsan, カボ
-QQ群：780855553
+QQ 群：780855553
 
 > 原项目：[MS-VRCSA-Billiards](https://github.com/Sacchan-VRC/MS-VRCSA-Billiards)
 
@@ -16,12 +20,12 @@ QQ群：780855553
 | 模式 | 说明 |
 |------|------|
 | 中式八球 | 含完整规则和集球器 |
-| 15球斯诺克 | 6红/15红可选 |
-| 俄罗斯台球 | |
-| 10球 | |
-| 开仑台球 | 0/1/2/3库开仑 |
-| 9球 | |
-| Banking | 翻袋专项 |
+| 15 球斯诺克 | 6 红/15 红可选 |
+| 俄罗斯台球 | 大球窄袋，可击打任意球，入袋计分 |
+| 10 球 | 1–10 号，须先碰最小号，指定球袋，可选 WPA 规则 |
+| 开仑台球 | 0/1/2/3 库开仑 |
+| 9 球 | 1–9 号，须先碰最小号，先打进 9 号球胜 |
+| 比球 | 开球前定先后手，双方各击一球，停得离对面库边更近者胜 |
 
 ---
 
@@ -39,7 +43,7 @@ QQ群：780855553
 | PASS 2.5 | 薄切球 | 大切角薄切入袋 |
 | PASS 3 | 单库勾库 | 母球碰一次库边后击中目标球 |
 | PASS 3b | 两库勾库 | 母球碰两次库边后击中目标球 |
-| — | K球 | 安全球，无进球路线时的防守策略 |
+| — | K 球 | 安全球，无进球路线时的防守策略 |
 
 ### 技术特点
 
@@ -49,7 +53,7 @@ QQ群：780855553
 - **犯规预测**：预测母球击球后轨迹，避免意外犯规（如母球进袋、碰到非目标球）
 - **走位评估**：评估击球后母球停留位置，优先选择有利于下一杆的位置
 - **力度控制**：根据距离和球型自动调整击球力度，翻袋/勾库时限制最大力度
-- **重复检测**：同一球同一袋重复3次以上强制切换安全球
+- **重复检测**：同一球同一袋重复 3 次以上强制切换安全球
 
 ### 状态机
 
@@ -81,7 +85,7 @@ PracticeManager 支持自动测试模式（`testMode`），可无人值守自动
 
 - 自动记录对局分数
 - 排行榜上传到后端（`wangqaq.com`，HMAC 加密认证）
-- 45秒计时器
+- 45 秒计时器
 
 ### 其他功能
 
@@ -105,6 +109,27 @@ PracticeManager 支持自动测试模式（`testMode`），可无人值守自动
 - 用现成包即可；如克隆库需自行添加 VRCSDK (>=3.7.5) 和 UdonSharp
 
 > [设置自定义球杆 How to set custom cue](https://youtu.be/YnoQ9jsUg0k?si=EfdxX1FDMUZXM2RX)
+
+---
+
+## VRC Light Volumes (VRCLV) 支持
+
+台球桌的实体表面着色器已内置 VRC Light Volumes（VRCLV）支持。VRCLV 用运行时球谐（SH）光照替代 Unity 静态光照探针，让台面能正确响应动态光照。
+
+**当前状态**：已在 Unity 2022.3.22f1 与 VRC Light Volumes 3.0.0-dev.14 下通过 Shader 导入/编译检查。集成无需开关或宏；场景中存在有效的 Light Volumes 时使用 VRCLV，未配置时 `LightVolumeSH()` 会自动回退到 Unity 光照探针。
+
+**已支持的着色器**：
+- `metaphira/TableSurface`（台面布，PC；当前台面材质已使用）
+- `metaphira/VRC LV Standard`（球、球杆、桌腿等实体；相关材质已替换）
+- `metaphira/TableSurface (Quest)`（台面布，Quest；Shader 已可用，但当前资产未自动引用）
+- `metaphira/TableSurface (Glass)`（玻璃面；Shader 已可用，但当前资产未自动引用）
+
+**启用步骤**：
+1. 通过 VCC 安装 **VRC Light Volumes** 包（项目已在 VCC 依赖中声明）。
+2. 按 VRCLV 的使用说明在世界场景中创建并配置 `LightVolumeManager`、Light Volumes，并完成需要的烘焙。仅安装包不会产生 LV 光照。
+3. 放入台球桌即可，无需修改代码。Shader 的 `#include` 已指向 `Packages/red.sim.lightvolumes/Shaders/LightVolumes.cginc`。
+
+**注意**：仓库中的非示例场景目前没有配置 Light Volume Manager/Volumes，因此直接运行时只能验证 Unity 光照探针回退。Quest 和 Glass Shader 也尚未接入自动材质替换流程，需要使用者手动指定或加入自己的平台切换配置。UI、准线、投影等 unlit 材质不受光照，无需处理。
 
 ---
 

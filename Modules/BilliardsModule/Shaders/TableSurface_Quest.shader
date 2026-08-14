@@ -17,7 +17,31 @@
 
       CGPROGRAM
 
-      #pragma surface surf Lambert noforwardadd vertex:vert
+      // ---- VRC Light Volumes (VRCLV) support ----
+      // LightVolumeSH() automatically falls back to Unity light probes when no
+      // Light Volumes are present in the scene, so no toggle is required.
+      #include "UnityCG.cginc"
+      #include "Packages/red.sim.lightvolumes/Shaders/LightVolumes.cginc"
+
+      half4 LightingVRC_LV_Lambert (SurfaceOutput s, half3 viewDir, UnityGI gi)
+      {
+         half NdotL = saturate(dot(s.Normal, gi.light.dir));
+         half4 c;
+         c.rgb = s.Albedo * gi.light.color * NdotL;
+         c.rgb += s.Albedo * gi.indirect.diffuse;
+         c.a = s.Alpha;
+         return c;
+      }
+
+      inline void LightingVRC_LV_Lambert_GI (SurfaceOutput s, UnityGIInput data, inout UnityGI gi)
+      {
+         float3 L0, L1r, L1g, L1b;
+         LightVolumeSH(data.worldPos, L0, L1r, L1g, L1b);
+         gi.indirect.diffuse = LightVolumeEvaluate(s.Normal, L0, L1r, L1g, L1b);
+      }
+
+      #pragma surface surf VRC_LV_Lambert noforwardadd vertex:vert
+      #pragma target 3.5
 
       sampler2D _MainTex;
       sampler2D _EmissionMap;
@@ -32,6 +56,7 @@
       {
          float2 uv_MainTex;
          float3 modelPos;
+         float3 worldPos;
       };
 
       void vert(inout appdata_full v, out Input o)

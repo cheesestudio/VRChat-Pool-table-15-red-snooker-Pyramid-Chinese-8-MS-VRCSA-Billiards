@@ -5450,7 +5450,7 @@ MonoBehaviour:
   bt_ConstDecelRate: 1
   bt_BounceFactor: 0.5
   bt_PocketRestitutionFactor: 0.7
-  bc_UseHan05: 1
+  bc_UseMat10: 1
   bc_CoefRestitution: 0.85
   bc_DynRestitution: 0
   bc_UseConstFriction: 0
@@ -6257,6 +6257,16 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2651364125897717947, guid: 905932e560bcbbc42875c4e8cb000f18,
         type: 3}
+      propertyPath: bs_BallMass
+      value: 0.17
+      objectReference: {fileID: 0}
+    - target: {fileID: 2651364125897717947, guid: 905932e560bcbbc42875c4e8cb000f18,
+        type: 3}
+      propertyPath: bc_CoefRestitution
+      value: 0.74
+      objectReference: {fileID: 0}
+    - target: {fileID: 2651364125897717947, guid: 905932e560bcbbc42875c4e8cb000f18,
+        type: 3}
       propertyPath: pocketInnerRadiusCorner
       value: 0.07
       objectReference: {fileID: 0}
@@ -6527,6 +6537,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 542148238114610786, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
+        type: 3}
+      propertyPath: bs_BallMass
+      value: 0.17
+      objectReference: {fileID: 0}
+    - target: {fileID: 542148238114610786, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
+        type: 3}
+      propertyPath: bc_CoefRestitution
+      value: 0.74
       objectReference: {fileID: 0}
     - target: {fileID: 542148238114610786, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
         type: 3}
@@ -7740,6 +7760,16 @@ PrefabInstance:
         type: 3}
     - target: {fileID: 3085930936808541980, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
         type: 3}
+      propertyPath: bs_BallMass
+      value: 0.142
+      objectReference: {fileID: 0}
+    - target: {fileID: 3085930936808541980, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
+        type: 3}
+      propertyPath: bc_CoefRestitution
+      value: 0.98
+      objectReference: {fileID: 0}
+    - target: {fileID: 3085930936808541980, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
+        type: 3}
       propertyPath: serializationData.Prefab
       value: 
       objectReference: {fileID: 3085930936808541980, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
@@ -7903,6 +7933,16 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 11400000, guid: 293d6a1be4d42e84a8b0c8cb5131a897,
         type: 2}
+    - target: {fileID: 3627814334501873282, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
+        type: 3}
+      propertyPath: bs_BallMass
+      value: 0.17
+      objectReference: {fileID: 0}
+    - target: {fileID: 3627814334501873282, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
+        type: 3}
+      propertyPath: bc_CoefRestitution
+      value: 0.74
+      objectReference: {fileID: 0}
     - target: {fileID: 3627814334501873282, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
         type: 3}
       propertyPath: cornerToSideOffset
@@ -8443,6 +8483,16 @@ PrefabInstance:
         type: 2}
     - target: {fileID: 5079576247674667036, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
         type: 3}
+      propertyPath: bs_BallMass
+      value: 0.142
+      objectReference: {fileID: 0}
+    - target: {fileID: 5079576247674667036, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
+        type: 3}
+      propertyPath: bc_CoefRestitution
+      value: 0.98
+      objectReference: {fileID: 0}
+    - target: {fileID: 5079576247674667036, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
+        type: 3}
       propertyPath: serializationData.Prefab
       value: 
       objectReference: {fileID: 5079576247674667036, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
@@ -8818,6 +8868,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6307173213387880045, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
+        type: 3}
+      propertyPath: bs_BallMass
+      value: 0.17
+      objectReference: {fileID: 0}
+    - target: {fileID: 6307173213387880045, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
+        type: 3}
+      propertyPath: bc_CoefRestitution
+      value: 0.74
       objectReference: {fileID: 0}
     - target: {fileID: 6307173213387880045, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
         type: 3}
@@ -9372,7 +9432,7 @@ PrefabInstance:
       propertyPath: m_text
       value: 'MS-VRCSA-CBC
 
-        TABLE  v1.1395'
+        TABLE  v1.1396'
       objectReference: {fileID: 0}
     - target: {fileID: 7928216506143082734, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
         type: 3}
@@ -9406,7 +9466,7 @@ PrefabInstance:
     - target: {fileID: 7985498930931069643, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8114430729261694965, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
         type: 3}
@@ -9510,32 +9570,32 @@ PrefabInstance:
     - target: {fileID: 8634481141779221278, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
         type: 3}
       propertyPath: pinkSpot
-      value: 0.46722078
+      value: 0.5588
       objectReference: {fileID: 0}
     - target: {fileID: 8634481141779221278, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
         type: 3}
       propertyPath: baulkLine
-      value: -0.6103674
+      value: -0.75247496
       objectReference: {fileID: 0}
     - target: {fileID: 8634481141779221278, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
         type: 3}
       propertyPath: blackSpot
-      value: 0.84992105
+      value: 1.0033
       objectReference: {fileID: 0}
     - target: {fileID: 8634481141779221278, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
         type: 3}
       propertyPath: tableWidth
-      value: 1.0487415
+      value: 1.27
       objectReference: {fileID: 0}
     - target: {fileID: 8634481141779221278, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
         type: 3}
       propertyPath: tableHeight
-      value: 0.588595
+      value: 0.635
       objectReference: {fileID: 0}
     - target: {fileID: 8634481141779221278, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
         type: 3}
       propertyPath: sidePocket.z
-      value: 0.665
+      value: 0.7047
       objectReference: {fileID: 0}
     - target: {fileID: 8634481141779221278, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
         type: 3}
@@ -9545,67 +9605,67 @@ PrefabInstance:
     - target: {fileID: 8634481141779221278, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
         type: 3}
       propertyPath: k_BALL_RADIUS
-      value: 0.028575001
+      value: 0.03075
       objectReference: {fileID: 0}
     - target: {fileID: 8634481141779221278, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
         type: 3}
       propertyPath: table_Surface
       value: 
-      objectReference: {fileID: 8376922632172408580}
+      objectReference: {fileID: 3020166908577491110}
     - target: {fileID: 8634481141779221278, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
         type: 3}
       propertyPath: cornerPocket.x
-      value: 1.09
+      value: 1.2857
       objectReference: {fileID: 0}
     - target: {fileID: 8634481141779221278, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
         type: 3}
       propertyPath: cornerPocket.z
-      value: 0.633
+      value: 0.6535
       objectReference: {fileID: 0}
     - target: {fileID: 8634481141779221278, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
         type: 3}
       propertyPath: facingAngleSide
-      value: 105.45
+      value: 100
       objectReference: {fileID: 0}
     - target: {fileID: 8634481141779221278, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
         type: 3}
       propertyPath: pocketDepthSide
-      value: 0.037
+      value: 0.0377
       objectReference: {fileID: 0}
     - target: {fileID: 8634481141779221278, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
         type: 3}
       propertyPath: pocketRadiusSide
-      value: 0.0368
+      value: 0.0317
       objectReference: {fileID: 0}
     - target: {fileID: 8634481141779221278, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
         type: 3}
       propertyPath: semiCircleRadius
-      value: 0.19847423
+      value: 0.2413
       objectReference: {fileID: 0}
     - target: {fileID: 8634481141779221278, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
         type: 3}
       propertyPath: facingAngleCorner
-      value: 137.5
+      value: 144
       objectReference: {fileID: 0}
     - target: {fileID: 8634481141779221278, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
         type: 3}
       propertyPath: pocketWidthCorner
-      value: 0.08514
+      value: 0.0787
       objectReference: {fileID: 0}
     - target: {fileID: 8634481141779221278, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
         type: 3}
       propertyPath: k_RAIL_DEPTH_WIDTH
-      value: 0.167433
+      value: 0.158167
       objectReference: {fileID: 0}
     - target: {fileID: 8634481141779221278, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
         type: 3}
       propertyPath: pocketHeightCorner
-      value: 0.0792
+      value: 0.07705
       objectReference: {fileID: 0}
     - target: {fileID: 8634481141779221278, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
         type: 3}
       propertyPath: k_RAIL_DEPTH_HEIGHT
-      value: 0.174946
+      value: 0.16526
       objectReference: {fileID: 0}
     - target: {fileID: 8634481141779221278, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
         type: 3}
@@ -9615,17 +9675,17 @@ PrefabInstance:
     - target: {fileID: 8634481141779221278, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
         type: 3}
       propertyPath: k_RAIL_HEIGHT_UPPER
-      value: 0.041938
+      value: 0.03911
       objectReference: {fileID: 0}
     - target: {fileID: 8634481141779221278, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
         type: 3}
       propertyPath: pocketInnerRadiusSide
-      value: 0.072
+      value: 0.06
       objectReference: {fileID: 0}
     - target: {fileID: 8634481141779221278, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
         type: 3}
       propertyPath: pocketInnerRadiusCorner
-      value: 0.078
+      value: 0.058
       objectReference: {fileID: 0}
     - target: {fileID: 8635316910354426285, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
         type: 3}
@@ -9810,6 +9870,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9135376406035283282, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
+        type: 3}
+      propertyPath: PHYSICSNAME
+      value: <color=#FFD700>Advanced V0.6X</color>
       objectReference: {fileID: 0}
     - target: {fileID: 9135376406035283282, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
         type: 3}
@@ -12986,9 +13051,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c9969258aa6757e4593d3c8fe783a236, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!4 &8376922632172408580 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 3400427408947014921, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
-    type: 3}
-  m_PrefabInstance: {fileID: 6588889907410297357}
-  m_PrefabAsset: {fileID: 0}

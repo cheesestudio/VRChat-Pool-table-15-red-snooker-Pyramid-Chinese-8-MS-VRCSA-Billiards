@@ -94,7 +94,7 @@ public class BilliardsModule : UdonSharpBehaviour
     [NonSerialized] public float K_BOUNCE_FACTOR; // BounceFactor
     [NonSerialized] public float k_POCKET_RESTITUTION; // Reduces bounce inside of pockets
     [Header("Cushion Model:")]
-    [NonSerialized] public bool isHanModel; // bc_UseHan05
+    [NonSerialized] public bool isMatModel; // bc_UseHan05
     [NonSerialized] public float k_E_C; // bc_CoefRestitution
     [NonSerialized] public bool isDynamicRestitution; // bc_DynRestitution
     [NonSerialized] public bool isCushionFrictionConstant; // bc_UseConstFriction
@@ -715,8 +715,9 @@ public class BilliardsModule : UdonSharpBehaviour
 
         infReset.text = string.Empty;
 
-        debugger = this.transform.Find("debugger").gameObject;
-        debugger.SetActive(true);
+        Transform debuggerT = transform.Find("debugger");
+        if (debuggerT) debugger = debuggerT.gameObject;
+        if (debugger) debugger.SetActive(true);
 
         Transform gdisplay = guideline.transform.GetChild(0);
         if (gdisplay)
@@ -4179,7 +4180,7 @@ public class BilliardsModule : UdonSharpBehaviour
         k_F_SPIN_RATE = data.bt_CoefSpinRate;
         isDRate = data.bt_ConstDecelRate;
         K_BOUNCE_FACTOR = data.bt_BounceFactor;
-        isHanModel = data.bc_UseHan05;
+        isMatModel = data.bc_UseMat10;
         k_E_C = data.bc_CoefRestitution;
         isDynamicRestitution = data.bc_DynRestitution;
         isCushionFrictionConstant = data.bc_UseConstFriction;
@@ -6106,7 +6107,7 @@ public class BilliardsModule : UdonSharpBehaviour
     {
         for (int i = 0; i < cueControllers.Length; i++) cueControllers[i]._RefreshRenderer();
         balls[0].transform.parent.gameObject.SetActive(!localPlayerDistant);
-        debugger.SetActive(!localPlayerDistant);
+        if (debugger) debugger.SetActive(!localPlayerDistant);
         menuManager._RefreshLobby();
         graphicsManager._UpdateLOD();
     }
@@ -6197,6 +6198,7 @@ public void _RedrawDebugger() { }
 
     private void _log(string ln)
     {
+        if (!debugger) return;
 #if EIJIS_TABLE_LABEL
         Debug.Log("[<color=\"#B5438F\">BilliardsModule</color>" + logLabel + "] " + ln);
 #else
@@ -6225,6 +6227,7 @@ public void _RedrawDebugger() { }
 
     private void redrawDebugger()
     {
+        if (!debugger) return;
 #if EIJIS_TABLE_LABEL
         string output = "BilliardsModule " + VERSION + " [" + logLabel + " ] ";
 #else

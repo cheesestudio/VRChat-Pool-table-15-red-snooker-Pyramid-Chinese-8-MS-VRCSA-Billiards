@@ -18,11 +18,31 @@
         Blend SrcAlpha OneMinusSrcAlpha
 
         CGPROGRAM
+        // ---- VRC Light Volumes (VRCLV) support ----
+        // LightVolumeSH() automatically falls back to Unity light probes when no
+        // Light Volumes are present in the scene, so no toggle is required.
+        #include "UnityCG.cginc"
+        #include "Packages/red.sim.lightvolumes/Shaders/LightVolumes.cginc"
+        #include "UnityPBSLighting.cginc"
+
+        half4 LightingVRC_LV (SurfaceOutputStandard s, half3 viewDir, UnityGI gi)
+        {
+            return LightingStandard(s, viewDir, gi);
+        }
+
+        inline void LightingVRC_LV_GI (SurfaceOutputStandard s, UnityGIInput data, inout UnityGI gi)
+        {
+            float3 L0, L1r, L1g, L1b;
+            LightVolumeSH(data.worldPos, L0, L1r, L1g, L1b);
+            gi.indirect.diffuse = LightVolumeEvaluate(s.Normal, L0, L1r, L1g, L1b);
+            gi.indirect.specular = LightVolumeSpecularDominant(s.Albedo, s.Smoothness, s.Metallic, s.Normal, data.worldViewDir, L0, L1r, L1g, L1b);
+        }
+
         // Physically based Standard lighting model, and enable shadows on all light types
-        #pragma surface surf Standard fullforwardshadows vertex:vert alpha
+        #pragma surface surf VRC_LV fullforwardshadows vertex:vert alpha
 
         // Use shader model 3.0 target, to get nicer looking lighting
-        #pragma target 3.0
+        #pragma target 3.5
 
         sampler2D _MainTex;
         sampler2D _EmissionMap;
@@ -32,6 +52,7 @@
         {
             float2 uv_MainTex;
             float3 modelPos;
+            float3 worldPos;
         };
 
         void vert(inout appdata_full v, out Input o)
