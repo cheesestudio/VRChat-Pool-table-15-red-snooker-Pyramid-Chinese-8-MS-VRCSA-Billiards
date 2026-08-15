@@ -4,6 +4,7 @@
 #define EIJIS_PUSHOUT
 #define EIJIS_CALLSHOT
 #define EIJIS_10BALL
+#define EIJIS_ISSUE_FIX_BALL_REPOSITIN_UNSYNC
 
 // #define EIJIS_DEBUG_BALLORDER
 
@@ -52,6 +53,9 @@ public class DesktopManager : UdonSharpBehaviour
     private bool holdingCue;
     private bool inUI;
     private bool repositionMode;
+#if EIJIS_ISSUE_FIX_BALL_REPOSITIN_UNSYNC
+    private bool waitingMouse0Release = false;
+#endif
 
     private bool isShooting;
     private bool isRepositioning;
@@ -170,7 +174,25 @@ public class DesktopManager : UdonSharpBehaviour
 
         if (Input.GetKeyDown(KeyCode.Q))
         {
+#if EIJIS_ISSUE_FIX_BALL_REPOSITIN_UNSYNC
+            if (repositionMode)
+            {
+                if (isRepositioning)
+                {
+                    waitingMouse0Release = true;
+                }
+                else
+                {
+                    repositionMode = false;
+                }
+            }
+            else
+            {
+                repositionMode = true;
+            }
+#else
             repositionMode = !repositionMode;
+#endif
         }
 
         if (canShoot)
@@ -219,6 +241,13 @@ public class DesktopManager : UdonSharpBehaviour
                 {
                     isRepositioning = false;
                     stopRepositioning();
+#if EIJIS_ISSUE_FIX_BALL_REPOSITIN_UNSYNC
+                    if (waitingMouse0Release)
+                    {
+                        repositionMode = false;
+                        waitingMouse0Release = false;
+                    }
+#endif
                 }
             }
             else
