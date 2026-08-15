@@ -1,4 +1,4 @@
-﻿Shader "metaphira/TableSurface"
+Shader "cheese/TableSurface VRCLV"
 {
    Properties
    {
@@ -38,15 +38,23 @@
 
       half4 LightingVRC_LV (SurfaceOutputStandard s, half3 viewDir, UnityGI gi)
       {
-         return LightingStandard(s, viewDir, gi);
+         half3 lightVolumeSpecular = gi.indirect.specular;
+         gi.indirect.specular = 0;
+         half4 color = LightingStandard(s, viewDir, gi);
+         color.rgb += lightVolumeSpecular;
+         return color;
       }
 
       inline void LightingVRC_LV_GI (SurfaceOutputStandard s, UnityGIInput data, inout UnityGI gi)
       {
+         LightingStandard_GI(s, data, gi);
+
+         float3 worldNormal = normalize(s.Normal);
+         float3 worldViewDir = normalize(data.worldViewDir);
          float3 L0, L1r, L1g, L1b;
-         LightVolumeSH(data.worldPos, L0, L1r, L1g, L1b);
-         gi.indirect.diffuse = LightVolumeEvaluate(s.Normal, L0, L1r, L1g, L1b);
-         gi.indirect.specular = LightVolumeSpecularDominant(s.Albedo, s.Smoothness, s.Metallic, s.Normal, data.worldViewDir, L0, L1r, L1g, L1b);
+         LightVolumeSH(data.worldPos, L0, L1r, L1g, L1b, 0, worldNormal);
+         gi.indirect.diffuse = LightVolumeEvaluate(worldNormal, L0, L1r, L1g, L1b);
+         gi.indirect.specular = LightVolumeSpecularDominant(s.Albedo, s.Smoothness, s.Metallic, worldNormal, worldViewDir, L0, L1r, L1g, L1b);
       }
 
       #pragma surface surf VRC_LV fullforwardshadows vertex:vert

@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: snooker12
-  m_Shader: {fileID: 4800000, guid: 4d2b9e4ef22d6924993fad8181636136, type: 3}
+  m_Shader: {fileID: 4800000, guid: 682f0fc429bdfbe4387ea0f06c38240f, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:

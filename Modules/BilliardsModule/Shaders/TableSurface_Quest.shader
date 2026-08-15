@@ -1,4 +1,4 @@
-﻿Shader "metaphira/TableSurface (Quest)"
+Shader "cheese/TableSurface Quest VRCLV"
 {
    Properties
    {
@@ -22,6 +22,7 @@
       // Light Volumes are present in the scene, so no toggle is required.
       #include "UnityCG.cginc"
       #include "Packages/red.sim.lightvolumes/Shaders/LightVolumes.cginc"
+      #include "Lighting.cginc"
 
       half4 LightingVRC_LV_Lambert (SurfaceOutput s, half3 viewDir, UnityGI gi)
       {
@@ -35,9 +36,12 @@
 
       inline void LightingVRC_LV_Lambert_GI (SurfaceOutput s, UnityGIInput data, inout UnityGI gi)
       {
+         LightingLambert_GI(s, data, gi);
+
+         float3 worldNormal = normalize(s.Normal);
          float3 L0, L1r, L1g, L1b;
-         LightVolumeSH(data.worldPos, L0, L1r, L1g, L1b);
-         gi.indirect.diffuse = LightVolumeEvaluate(s.Normal, L0, L1r, L1g, L1b);
+         LightVolumeSH(data.worldPos, L0, L1r, L1g, L1b, 0, worldNormal);
+         gi.indirect.diffuse = LightVolumeEvaluate(worldNormal, L0, L1r, L1g, L1b);
       }
 
       #pragma surface surf VRC_LV_Lambert noforwardadd vertex:vert

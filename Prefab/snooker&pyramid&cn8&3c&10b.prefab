@@ -9432,7 +9432,7 @@ PrefabInstance:
       propertyPath: m_text
       value: 'MS-VRCSA-CBC
 
-        TABLE  v1.1396'
+        TABLE  v1.1397'
       objectReference: {fileID: 0}
     - target: {fileID: 7928216506143082734, guid: 33b9a5bf9f9ccf64789dc9dad186569e,
         type: 3}

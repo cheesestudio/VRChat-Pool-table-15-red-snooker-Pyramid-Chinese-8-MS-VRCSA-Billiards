@@ -114,22 +114,27 @@ PracticeManager supports an automatic test mode (`testMode`) that plays multiple
 
 ## VRC Light Volumes (VRCLV) Support
 
-The billiard table's physical surface shaders have built-in VRC Light Volumes (VRCLV) support. VRCLV replaces Unity's static light probes with runtime spherical harmonics (SH) lighting, letting the table respond correctly to dynamic lighting.
+The billiards table provides separate standard-lighting and VRC Light Volumes (VRCLV) shaders. Projects without the VRCLV package can therefore keep using the standalone shaders instead of rendering the table white because `LightVolumes.cginc` is missing.
 
-**Status**: Shader import and compilation have been verified with Unity 2022.3.22f1 and VRC Light Volumes 3.0.0-dev.14. No switch or macro is required: valid Light Volumes are sampled when available, and `LightVolumeSH()` automatically falls back to Unity light probes when the scene is not configured for VRCLV.
+**One-click switching**:
+1. Select any table with a `BilliardsModule` component in the Hierarchy.
+2. Check the package and material status in the **VRC Light Volumes** section of the Inspector.
+3. After installing VRCLV, click **Use VRC Light Volumes** to enable it. Click **Use Standard Lighting** to restore shaders that do not depend on VRCLV.
 
-**Supported shaders**:
-- `metaphira/TableSurface` (table cloth, PC; currently assigned to the table materials)
-- `metaphira/VRC LV Standard` (balls, cues, legs, and other solid parts; relevant materials have been converted)
-- `metaphira/TableSurface (Quest)` (table cloth, Quest; the shader is available but is not referenced automatically by the current assets)
-- `metaphira/TableSurface (Glass)` (glass surface; the shader is available but is not referenced automatically by the current assets)
+The operation asks for confirmation and updates all relevant shared BilliardsModule materials in the project. The same actions are available under `Tools > VRC LV > Enable For Billiards Materials` and `Tools > VRC LV > Use Standard Billiards Materials`. Unlit UI, guideline, leaderboard, reset-button, and shadow materials are excluded.
 
-**Enabling steps**:
-1. Install the **VRC Light Volumes** package via VCC (it is already declared as a VCC dependency).
-2. Follow the VRCLV setup instructions to create and configure a `LightVolumeManager` and Light Volumes in your world, then perform any required baking. Installing the package alone does not create LV lighting.
-3. Add the billiards table; no code changes are required. The shaders already include `Packages/red.sim.lightvolumes/Shaders/LightVolumes.cginc`.
+**Shader mapping**:
 
-**Note**: The repository's non-sample scenes currently contain no Light Volume Manager or volumes, so running them directly only verifies the Unity light-probe fallback. The Quest and Glass shaders are also not wired into an automatic material replacement flow; assign them manually or add them to your own platform-switching configuration. UI, guideline, and shadow unlit materials are unaffected by lighting and need no changes.
+| Standard lighting | VRC Light Volumes |
+|---|---|
+| `Standard` | `cheese/VRC LV Standard` |
+| `metaphira/TableSurface` | `cheese/TableSurface VRCLV` |
+| `metaphira/TableSurface (Glass)` | `cheese/TableSurface Glass VRCLV` |
+| `metaphira/TableSurface (Quest)` | `cheese/TableSurface Quest VRCLV` |
+
+**Package detection and notes**: The editor detects VRCLV through `Packages/red.sim.lightvolumes/Shaders/LightVolumes.cginc`; there is no shader installation-detection macro to rely on. When the package is absent, the enable button is disabled, but **Use Standard Lighting** remains available for recovery. Switch back to standard lighting before removing VRCLV when possible. After enabling it, follow the VRCLV documentation to configure a `LightVolumeManager` and Light Volumes in the scene and perform the required baking. Installing the package and switching materials alone does not create Light Volume lighting.
+
+Shader import and editor-script compilation have been verified with Unity 2022.3.22f1 and VRC Light Volumes 3.0.0-dev.14.
 
 ---
 

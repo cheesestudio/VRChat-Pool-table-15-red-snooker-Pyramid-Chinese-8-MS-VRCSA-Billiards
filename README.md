@@ -114,22 +114,27 @@ PracticeManager 支持自动测试模式（`testMode`），可无人值守自动
 
 ## VRC Light Volumes (VRCLV) 支持
 
-台球桌的实体表面着色器已内置 VRC Light Volumes（VRCLV）支持。VRCLV 用运行时球谐（SH）光照替代 Unity 静态光照探针，让台面能正确响应动态光照。
+台球桌提供相互独立的标准光照和 VRC Light Volumes（VRCLV）着色器。这样，未安装 VRCLV 包的项目可以继续使用标准着色器，不会因为缺少 `LightVolumes.cginc` 而让桌子显示成全白。
 
-**当前状态**：已在 Unity 2022.3.22f1 与 VRC Light Volumes 3.0.0-dev.14 下通过 Shader 导入/编译检查。集成无需开关或宏；场景中存在有效的 Light Volumes 时使用 VRCLV，未配置时 `LightVolumeSH()` 会自动回退到 Unity 光照探针。
+**一键切换**：
+1. 在 Hierarchy 中选择任意带有 `BilliardsModule` 组件的台球桌。
+2. 在 Inspector 的 **VRC Light Volumes** 区域查看包和材质状态。
+3. 安装 VRCLV 后，点击 **Use VRC Light Volumes** 启用；点击 **Use Standard Lighting** 恢复为不依赖 VRCLV 的标准着色器。
 
-**已支持的着色器**：
-- `metaphira/TableSurface`（台面布，PC；当前台面材质已使用）
-- `metaphira/VRC LV Standard`（球、球杆、桌腿等实体；相关材质已替换）
-- `metaphira/TableSurface (Quest)`（台面布，Quest；Shader 已可用，但当前资产未自动引用）
-- `metaphira/TableSurface (Glass)`（玻璃面；Shader 已可用，但当前资产未自动引用）
+切换操作会显示确认框，并一次更新项目内所有 BilliardsModule 共用的相关材质。也可以使用菜单 `Tools > VRC LV > Enable For Billiards Materials` 或 `Tools > VRC LV > Use Standard Billiards Materials`。UI、准线、排行榜、重置按钮和投影等不受光照的材质不会被切换。
 
-**启用步骤**：
-1. 通过 VCC 安装 **VRC Light Volumes** 包（项目已在 VCC 依赖中声明）。
-2. 按 VRCLV 的使用说明在世界场景中创建并配置 `LightVolumeManager`、Light Volumes，并完成需要的烘焙。仅安装包不会产生 LV 光照。
-3. 放入台球桌即可，无需修改代码。Shader 的 `#include` 已指向 `Packages/red.sim.lightvolumes/Shaders/LightVolumes.cginc`。
+**着色器对应关系**：
 
-**注意**：仓库中的非示例场景目前没有配置 Light Volume Manager/Volumes，因此直接运行时只能验证 Unity 光照探针回退。Quest 和 Glass Shader 也尚未接入自动材质替换流程，需要使用者手动指定或加入自己的平台切换配置。UI、准线、投影等 unlit 材质不受光照，无需处理。
+| 标准光照 | VRC Light Volumes |
+|---|---|
+| `Standard` | `cheese/VRC LV Standard` |
+| `metaphira/TableSurface` | `cheese/TableSurface VRCLV` |
+| `metaphira/TableSurface (Glass)` | `cheese/TableSurface Glass VRCLV` |
+| `metaphira/TableSurface (Quest)` | `cheese/TableSurface Quest VRCLV` |
+
+**包检测与注意事项**：编辑器通过 `Packages/red.sim.lightvolumes/Shaders/LightVolumes.cginc` 检测 VRCLV，不依赖不存在的 Shader 安装检测宏。未安装包时，启用按钮会被禁用，但 **Use Standard Lighting** 仍可用于恢复材质。如果准备移除 VRCLV 包，建议先切回标准光照。启用后还需要按照 VRCLV 文档在场景中配置 `LightVolumeManager`、Light Volumes 并完成所需烘焙；仅安装包和切换材质不会自动生成 Light Volume 光照。
+
+已在 Unity 2022.3.22f1 与 VRC Light Volumes 3.0.0-dev.14 下通过 Shader 导入和编辑器脚本编译检查。
 
 ---
 

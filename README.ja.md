@@ -114,22 +114,27 @@ PracticeManager は自動テストモード（`testMode`）をサポートし、
 
 ## VRC Light Volumes (VRCLV) 対応
 
-ビリヤード台の実体サーフェスシェーダーには VRC Light Volumes（VRCLV）対応が組み込まれています。VRCLV は Unity の静的なライトプローブを実行時の球面調和（SH）ライティングに置き換え、台が動的な照明に正しく反応できるようにします。
+ビリヤード台には、標準ライティング用と VRC Light Volumes（VRCLV）用の独立したシェーダーが用意されています。そのため、VRCLV パッケージがないプロジェクトでも、`LightVolumes.cginc` の欠落によって台が真っ白になることなく、標準シェーダーを使用できます。
 
-**現在の状態**: Unity 2022.3.22f1 と VRC Light Volumes 3.0.0-dev.14 の環境で、シェーダーのインポートとコンパイルを確認済みです。スイッチやマクロは不要で、有効な Light Volumes がある場合は VRCLV を使用し、未設定の場合は `LightVolumeSH()` が自動的に Unity ライトプローブへフォールバックします。
+**ワンクリック切り替え**:
+1. Hierarchy で `BilliardsModule` コンポーネントを持つ任意の台を選択します。
+2. Inspector の **VRC Light Volumes** セクションで、パッケージとマテリアルの状態を確認します。
+3. VRCLV のインストール後、**Use VRC Light Volumes** をクリックして有効化します。VRCLV に依存しないシェーダーへ戻すには **Use Standard Lighting** をクリックします。
 
-**対応シェーダー**:
-- `metaphira/TableSurface`（台のクロス、PC。現在の台マテリアルに設定済み）
-- `metaphira/VRC LV Standard`（ボール、キュー、脚などの実体パーツ。関連マテリアルは変換済み）
-- `metaphira/TableSurface (Quest)`（台のクロス、Quest。シェーダーは利用可能ですが、現在のアセットからは自動参照されません）
-- `metaphira/TableSurface (Glass)`（ガラス面。シェーダーは利用可能ですが、現在のアセットからは自動参照されません）
+切り替え時には確認ダイアログが表示され、プロジェクト内のすべての BilliardsModule が共有する関連マテリアルがまとめて更新されます。`Tools > VRC LV > Enable For Billiards Materials` と `Tools > VRC LV > Use Standard Billiards Materials` からも同じ操作を実行できます。UI、ガイドライン、リーダーボード、リセットボタン、影などの unlit マテリアルは対象外です。
 
-**有効化の手順**:
-1. VCC から **VRC Light Volumes** パッケージをインストールします（VCC 依存関係として宣言済み）。
-2. VRCLV の手順に従い、ワールドのシーンに `LightVolumeManager` と Light Volumes を作成・設定し、必要なベイクを行います。パッケージをインストールするだけでは LV ライティングは生成されません。
-3. ビリヤード台を配置します。コードの変更は不要で、シェーダーはすでに `Packages/red.sim.lightvolumes/Shaders/LightVolumes.cginc` をインクルードしています。
+**シェーダーの対応関係**:
 
-**注意**: リポジトリ内のサンプル以外のシーンには Light Volume Manager/Volumes がまだ設定されていないため、そのまま実行した場合に確認できるのは Unity ライトプローブへのフォールバックです。また、Quest と Glass シェーダーは自動マテリアル置換フローに未接続のため、手動で割り当てるか、独自のプラットフォーム切り替え設定に追加してください。UI・ガイドライン・影などの unlit マテリアルはライティングの影響を受けないため、変更は不要です。
+| 標準ライティング | VRC Light Volumes |
+|---|---|
+| `Standard` | `cheese/VRC LV Standard` |
+| `metaphira/TableSurface` | `cheese/TableSurface VRCLV` |
+| `metaphira/TableSurface (Glass)` | `cheese/TableSurface Glass VRCLV` |
+| `metaphira/TableSurface (Quest)` | `cheese/TableSurface Quest VRCLV` |
+
+**パッケージ検出と注意事項**: エディターは `Packages/red.sim.lightvolumes/Shaders/LightVolumes.cginc` を使って VRCLV を検出します。シェーダーから利用できるインストール検出マクロはありません。パッケージがない場合、有効化ボタンは無効になりますが、復旧用の **Use Standard Lighting** は引き続き使用できます。可能であれば、VRCLV を削除する前に標準ライティングへ戻してください。有効化後は VRCLV のドキュメントに従い、シーンに `LightVolumeManager` と Light Volumes を設定し、必要なベイクを行ってください。パッケージのインストールとマテリアルの切り替えだけでは Light Volume ライティングは生成されません。
+
+Unity 2022.3.22f1 と VRC Light Volumes 3.0.0-dev.14 の環境で、シェーダーのインポートとエディタースクリプトのコンパイルを確認済みです。
 
 ---
 

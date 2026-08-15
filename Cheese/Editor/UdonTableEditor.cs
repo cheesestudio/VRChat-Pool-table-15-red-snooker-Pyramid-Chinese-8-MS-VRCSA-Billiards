@@ -29,6 +29,8 @@ public class UdonTableEditor : Editor
                 AddDefineSymbols(defineTxt);
             }
         }
+
+        BilliardsLightVolumeSwitcher.DrawInspectorGUI();
         base.OnInspectorGUI();
 
     }
